@@ -158,6 +158,11 @@ ros2 topic pub /cb_right_hand_control_cmd sensor_msgs/msg/JointState "{header: {
 
 ```
 
+
+
+rostopic pub /cb_left_hand_control_cmd sensor_msgs/JointState "{header: {seq: 0, stamp: {secs: 0, nsecs: 0}, frame_id: ''}, name: [], position: [0.49,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], velocity: [], effort: []}"
+
+
 - 设置机械手最大速度 数据格式 std_msgs/msg/String
 ```bash
 rostopic pub /cb_hand_setting_cmd std_msgs/String '{data: "{\"setting_cmd\":\"set_speed\",\"params\":{\"hand_type\":\"right\",\"speed\":20}}"}'   参数说明：hand_type: left | right  speed:0~255
@@ -166,6 +171,12 @@ rostopic pub /cb_hand_setting_cmd std_msgs/String '{data: "{\"setting_cmd\":\"se
 - 设置机械手电流 数据格式 std_msgs/msg/String
 ```bash
 rostopic pub /cb_hand_setting_cmd std_msgs/String '{data: "{\"setting_cmd\":\"set_electric_current\",\"params\":{\"hand_type\":\"left\",\"electric_current\":250}}"}' 参数说明：  hand_type: left | right electric_current:0~255
+```
+
+- 清除故障
+```bash
+
+rostopic pub /cb_hand_setting_cmd std_msgs/String '{data: "{\"setting_cmd\":\"clear_faults\",\"params\":{\"hand_type\":\"left\"}}"}'
 ```
 
 

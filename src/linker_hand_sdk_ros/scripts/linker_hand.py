@@ -124,8 +124,7 @@ class LinkerHandController:
     def validate_joint_positions(self, positions):
         # 检查 positions 列表中的每个值是否在 0 到 255 范围内
         for pos in positions:
-            if pos < 0 or pos > 255:
-                print(pos)
+            if int(pos) < 0 or int(pos) > 255:
                 return False
         return True
 
