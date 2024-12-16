@@ -1,5 +1,5 @@
 # linker_hand_sdk_ros 灵心巧手 L10&L20 SDK for ROS Noetic
-- linker_hand_sdk_ros V1.0.0
+- linker_hand_sdk_ros V1.2.2
 - 环境支持
 linker_hand_sdk_ros SDK 支持 ROS Noetic 
 
@@ -31,6 +31,16 @@ sudo vim setting.yaml
 # 按照文件内说明修改相关配置信息
 # 将最下面PASSWORD: "xxxxxx" 参数改为本机sudo用户的密码 以便自动启动can端口调用权限
 ```
+
+- 将ip命令改为NOPASSWORD模式
+```bash
+sudo vim /etc/sudoers
+#添加以下内容
+pi4 ALL=(ALL) NOPASSWD: /sbin/ip
+pi4 ALL=(ALL) NOPASSWD: /usr/sbin/ip link set can0 up type can bitrate 1000000
+# 保存退出
+```
+
 - 编译SDK
 ```bash
 cd Linker_Hand_SDK_ROS/
