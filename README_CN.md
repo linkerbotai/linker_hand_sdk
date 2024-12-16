@@ -34,10 +34,10 @@ sudo vim setting.yaml
 
 - 将ip命令改为NOPASSWORD模式
 ```bash
-sudo vim /etc/sudoers
+sudo visudo
 #添加以下内容
-pi4 ALL=(ALL) NOPASSWD: /sbin/ip
-pi4 ALL=(ALL) NOPASSWD: /usr/sbin/ip link set can0 up type can bitrate 1000000
+你的用户名 ALL=(ALL) NOPASSWD: /sbin/ip
+你的用户名 ALL=(ALL) NOPASSWD: /usr/sbin/ip link set can0 up type can bitrate 1000000
 # 保存退出
 ```
 
