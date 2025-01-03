@@ -1,0 +1,14 @@
+dm_env
+pexpect
+pyquaternion
+pyagxrobots
+pycryptodome
+ipython
+esdk-obs-python
+h5py
+PyYAML
+tqdm
+wandb
+pybullet
+mujoco
+pyqt6

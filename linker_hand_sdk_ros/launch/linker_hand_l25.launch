@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<launch>
+  <node pkg="linker_hand_sdk_ros" type="linker_hand_l25.py" name="linker_hand_sdk_l25" output="screen" >
+  </node>
+</launch>

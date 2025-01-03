@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<launch>
-  <!-- <include file="$(find head_controller_ros)/launch/columbus_head.launch"/> -->
-  <node pkg="linker_hand_sdk_ros" type="linker_hand.py" name="linker_hand_sdk" output="screen" >
-  </node>
-</launch>

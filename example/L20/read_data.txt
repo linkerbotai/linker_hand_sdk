@@ -1,6 +1,0 @@
-Send to Termail with following commands:
-rostopic echo /right_glove_states
-rostopic echo /right_hand_states
-
-rostopic echo /left_glove_states
-rostopic echo /left_hand_states

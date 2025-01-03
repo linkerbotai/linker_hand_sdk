@@ -4,6 +4,60 @@
 linker_hand_sdk_ros SDK 支持 ROS Noetic 
 
 灵心巧手L10 & L20 机械手
+
+# ------------2025-1-3新增----在Ubuntu设备上安装和使用SDK--------------------
+# SDK的安装使用，系统环境：Ubuntu20.04 ROS Noetic
+- 创建工作空间(如果没有)
+```bash
+mkdir -p ~/Linker_Hand_SDK_ROS/src
+cd ~/Linker_Hand_SDK_ROS/src
+git clone https://github.com/linkerbotai/linker_hand_sdk.git
+```
+- 安装必要依赖，需要可以连接到互联网
+```bash
+cd ~/Linker_Hand_SDK_ROS/src
+pip install -r requirements.txt
+```
+- 进行工作空间编译
+```bash
+cd ~/Linker_Hand_SDK_ROS/
+catkin_make
+```
+
+# 启动SDK控制灵巧手真机
+- 将linker_hand灵巧手的USB转CAN设备插入Ubuntu设备上
+```bash
+# 开启CAN端口
+sudo /usr/sbin/ip link set can0 up type can bitrate 1000000 #USB转CAN设备蓝色灯常亮状态
+cd ~/Linker_Hand_SDK_ROS/
+source ./devel/setup.bash
+# 修改配置文件
+sudo vim src/linker_hand_sdk_ros/config/setting.yaml # 根据文件内说明进行相应配置修改
+roslaunch linker_hand_sdk_ros linker_hand.launch
+```
+
+# 启动PyBullet模拟器
+- 在新终端中
+```bash
+cd Linker_Hand_SDK_ROS
+source ./devel/setup.bash
+rosrun linker_hand_pybullet linker_hand_pybullet.py _hand_type:=L20
+```
+
+# 启动图形界面控制
+- 在成功启动sdk后新开终端
+```bash
+cd Linker_Hand_SDK_ROS
+source ./devel/setup.bash
+# 参数_hand_type:left or right 区分左右手控制
+# 参数 _hand_joint:L20 or L10 区分灵巧手版本
+# 不带参数默认控制左手，灵巧少L20版本 
+rosrun gui_control gui_control.py _hand_type:=left _hand_joint:=L20
+```
+# ------------2025-1-3新增----在Ubuntu设备上安装和使用SDK--------------------
+
+
+
 # 远程连接灵巧手控制板
 - 启动脚本
 使用ssh连接到控制板linker/pi5
@@ -64,6 +118,8 @@ catkin_make
 source ./devel/setup.bash
 
 roslaunch linker_hand_sdk_ros linker_hand.launch # 开启后手会有张开动作
+# 启动L25
+# rosrun linker_hand_sdk_ros linker_hand_l25.py _hand:=leaphand
 ```
 # 动捕手套遥操方法
 - 首先在本机启动ROS2 to ROS1桥接
@@ -160,6 +216,8 @@ rostopic pub /cb_left_hand_control_cmd sensor_msgs/JointState "{header: {seq: 0,
 rostopic pub /cb_left_hand_control_cmd sensor_msgs/JointState "{header: {seq: 0, stamp: {secs: 0, nsecs: 0}, frame_id: ''}, name: [], position: [180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180], velocity: [], effort: []}"
 
 # 右手
+rostopic pub /cb_right_hand_control_cmd sensor_msgs/JointState "{header: {seq: 0, stamp: {secs: 0, nsecs: 0}, frame_id: ''}, name: [], position: [255,255,255,255,255,255,10,100,180,240,245,255,255,255,255,255,255,255,255,255], velocity: [], effort: []}"
+
 rostopic pub /cb_right_hand_control_cmd sensor_msgs/JointState "{header: {seq: 0, stamp: {secs: 0, nsecs: 0}, frame_id: ''}, name: [], position: [180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180,180], velocity: [], effort: []}"
 
 ros2 topic pub /cb_right_hand_control_cmd sensor_msgs/msg/JointState "{header: {stamp: {sec: $(date +%s), nanosec: 0}, frame_id: ''}, name: [], position: [255,255,255,255,255,255,10,100,180,240,245,255,255,255,255,255,255,255,255,255], velocity: [], effort: []}"

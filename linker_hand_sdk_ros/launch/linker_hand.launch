@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<launch>
+  <include file="$(find range_to_arc)/launch/range_to_arc.launch"/>
+  <node pkg="linker_hand_sdk_ros" type="linker_hand.py" name="linker_hand_sdk" output="screen" >
+  </node>
+</launch>
