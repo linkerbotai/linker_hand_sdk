@@ -258,4 +258,15 @@ rostopic pub /cb_right_hand_control_cmd sensor_msgs/JointState "{header: {seq: 0
 # 大拇指无名指对指
 rostopic pub /cb_right_hand_control_cmd sensor_msgs/JointState "{header: {seq: 0, stamp: {secs: 0, nsecs: 0}, frame_id: ''}, name: [], position: [161.8642382139701, 218.1573760125045, 36.16105276385748, 167.10878438888602, 219.54548115394056, 83.76211173215952, 135.44131861688197, 161.23652644839794, 161.62745699159706, 165.79550042709272, 56.71436640239237, 34.22552064000002, 34.22552064000002, 34.22552064000002, 34.22552064000002, 170.56635487606925, 216.305519751478, 105.05931653691715, 218.02046880932423, 216.50660039474312], velocity: [], effort: []}"
 
+# ------------2025-1-3新增----gesture-show使用方法--------------------
+
+# 使用Python文件
+
+- 编译方法和启动方法同上文快速使用
+
+- 启动SDK后
+```bash
+cd Linker_Hand_SDK_ROS/src/linker_hand_sdk/examples/gesture-show/
+python gesture-Show-Ye.py
+```
 
