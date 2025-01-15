@@ -31,6 +31,8 @@ $ cd Linker_Hand_SDK_ROS/src/linker_hand_sdk/linker_hand_sdk_ros/config
 $ sudo vim setting.yaml
 ```
 ![SETTING](../doc/setting.png) 
+
+
 由于图形界面只能单独控制一只LinkerHand灵巧手。需要在配置文件中进行相应配置需与LinkerHand灵巧手实物匹配
 
 (2) 使用gui_control控制LinkerHand灵巧手:
@@ -45,7 +47,8 @@ $ cd Linker_Hand_SDK_ROS/
 $ source ./devel/setup.bash
 $ roslaunch linker_hand_sdk_ros linker_hand.launch
 ```
-![START_SDK](../../doc/start_sdk.png) 
+![START_SDK](../doc/start_sdk.png) 
+
 启动成功后会有sdk版本、CAN接口状态、灵巧手配置信息和当前灵巧手关节速度等提示信息。
 新开终端启动gui控制
 ```bash
