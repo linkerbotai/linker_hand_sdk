@@ -63,7 +63,7 @@ class LinkerHandController:
             self.left_hand_sub = rospy.Subscriber("/cb_left_hand_control_cmd", JointState, self.left_hand_cb, queue_size=1)
             self.left_hand_status_pub = rospy.Publisher("/cb_left_hand_state", JointState, queue_size=10)
             if self.left_hand_force == True:
-                self.left_hand_pressure_pub = rospy.Publisher("/cb_left_hand_touch", Float32MultiArray, queue_size=10)
+                self.left_hand_pressure_pub = rospy.Publisher("/cb_left_hand_force", Float32MultiArray, queue_size=10)
             self.left_hand_info_pub = rospy.Publisher("/cb_left_hand_info", String, queue_size=10)
             
 
@@ -87,7 +87,7 @@ class LinkerHandController:
             self.right_hand_sub = rospy.Subscriber("/cb_right_hand_control_cmd", JointState, self.right_hand_cb, queue_size=1)
             self.right_hand_status_pub = rospy.Publisher("/cb_right_hand_state", JointState, queue_size=10)
             if self.right_hand_force == True:
-                self.right_hand_pressure_pub = rospy.Publisher("/cb_right_hand_touch", Float32MultiArray, queue_size=10)
+                self.right_hand_pressure_pub = rospy.Publisher("/cb_right_hand_force", Float32MultiArray, queue_size=10)
             self.right_hand_info_pub = rospy.Publisher("/cb_right_hand_info", String, queue_size=10)
 
     # 左手接收到话题将数据处理后发送到CAN驱动左手运动

@@ -5,14 +5,7 @@ from sensor_msgs.msg import JointState
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from utils.color_msg import ColorMsg
-global package_path
-# 创建 rospkg.RosPack 对象
-rospack = rospkg.RosPack()
-# 获取指定包的路径
-package_sdk = "linker_hand_sdk_ros"
-package_gui = "gui_control"
-sdk_path = rospack.get_path(package_sdk)
-gui_path = rospack.get_path(package_gui)
+
 '''
 /cb_left_hand_state
 /cb_left_hand_state_arc

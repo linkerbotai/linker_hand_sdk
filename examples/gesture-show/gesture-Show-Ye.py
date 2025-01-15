@@ -28,10 +28,8 @@ def send_messages():
     rate = rospy.Rate(30)  # 设置频率为10Hz
     joint_state.header = std_msgs.msg.Header()
     joint_state.header.seq=0
-    joint_state.header.stamp = rospy.Time.now() # 或者使用rospy.Time(secs=0, nsecs=0)来获取特定时间
+    joint_state.header.stamp = rospy.Time.now() 
     joint_state.header.frame_id = ''
-    # position_values = [250, 250, 250, 250, 250, 250, 128, 128, 128, 128, 250, 0, 0, 0, 0, 250, 250, 250, 250, 250]
-    # joint_state.position = position_values
     joint_state.name=['joint1', 'joint2', 'joint3', 'joint4', 'joint5', 'joint6',
 
                         'joint7', 'joint8', 'joint9', 'joint10', 'joint11', 'joint12',
@@ -40,7 +38,7 @@ def send_messages():
 
                         'joint19', 'joint20']
     joint_state.velocity = [0] * len(joint_state.position)  # 与position数组长度相同，全部填充为0
-    joint_state.effort = [0] * len(joint_state.position)  # 为每个关节设置努力为零
+    joint_state.effort = [0] * len(joint_state.position)  
     pub.publish(joint_state)
     while not rospy.is_shutdown():  # 持续1秒
         position =show_left()

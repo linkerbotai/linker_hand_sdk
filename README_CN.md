@@ -65,4 +65,13 @@ LinkerHandROS SDK当前支持Ubuntu20.04 ROS noetic Python3.8环境
 
 - [0001-get_linker_hand_state (获取LinkerHand灵巧手当前状态)](examples/README_CN.md#0001-获取linkerhand灵巧手当前状态状态数值包括范围值与弧度值)
 - [0002-gui_control(图形界面控制)](examples/README_CN.md#0002-图形界面控制)
+- [0003-get_linker_hand_force (获取LinkerHand灵巧手力传感器数据)](examples/README_CN.md#0003-获取LinkerHand灵巧手力传感器数据)
+- [0004-get_linker_hand_speed (获取LinkerHand灵巧手力当前速度)](examples/README_CN.md#0004-获取LinkerHand灵巧手力当前速度)
+- [0005-get_linker_hand_current (获取LinkerHand灵巧手力当前电流)](examples/README_CN.md#0005-获取LinkerHand灵巧手力当前电流)
+---
+- [0101-lipcontroller (触觉传感器配合灵巧手进行捏取操作)](examples/README_CN.md#0101-触觉传感器配合灵巧手进行捏取操作)
+- [0102-gesture-Show-OK (使用python控制手比OK动作)](examples/README_CN.md#0102-使用python控制手比OK动作)
+- [0101-gesture-Show-Surround-Index-Finger (使用python控制手做旋转食指动作)](examples/README_CN.md#0103-使用python控制手做旋转食指动作)
+- [0101-gesture-Show-Wave (使用python控制手做波浪运动)](examples/README_CN.md#0104-使用python控制手做波浪运动)
+- [0101-gesture-Show-Ye (使用python控制手做一套复杂的展示动作)](examples/README_CN.md#0105-使用python控制手做一套复杂的展示动作)
 
