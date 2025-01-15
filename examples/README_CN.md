@@ -26,7 +26,7 @@ $ cd Linker_Hand_SDK_ROS/
 $ source ./devel/setup.bash
 $ roslaunch linker_hand_sdk_ros linker_hand.launch
 ```
-- #### 获取LinkerHand灵巧手当前状态，状态数值包括范围值与弧度值
+- #### 0001-获取LinkerHand灵巧手当前状态，状态数值包括范围值与弧度值
 新开终端
 ```bash
 $ cd Linker_Hand_SDK_ROS/
@@ -37,7 +37,7 @@ $ rosrun L20_get_linker_hand_state L20_get_linker_hand_state.py _loop:=True
 ![STATE](../doc/state.png)
 
 
-# 3. 图形界面控制
+- #### 0002-图形界面控制
 图形界面控制可以通过滑动块控制LinkerHand灵巧手L10、L20各个关节独立运动。也可以通过添加按钮记录当前所有滑动块的数值，保存LinkerHand灵巧手当前各个关节运动状态。通过功能性按钮进行动作复现。    
 
 (1) 使用gui_control控制LinkerHand灵巧手:
