@@ -11,4 +11,6 @@ tqdm
 wandb
 pybullet
 mujoco
-pyqt6
+sapien
+pyqt5
+pyqtgraph

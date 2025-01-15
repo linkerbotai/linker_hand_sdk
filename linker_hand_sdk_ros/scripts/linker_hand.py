@@ -75,7 +75,7 @@ class LinkerHandController:
                 self.right_hand_can = LinkerHandL20Can(can_channel="can0", baudrate=1000000, can_id=0x27, config=self.config)
                 finger_base, yaw_angles, thumb_yaw, finger_tip = self.pose_slice(p=[255,255,255,255,255,255,10,100,180,240,245,255,255,255,255,255,255,255,255,255])
                 self.right_hand_can_send(finger_base=finger_base,yaw_angles=yaw_angles,thumb_yaw=thumb_yaw,finger_tip=finger_tip)
-                self.right_hand_can.set_joint_speed([250,250,250,250,250])
+                self.right_hand_can.set_joint_speed([180,250,250,250,250])
                 ColorMsg(msg=f"当前右手L20速度为：{self.right_hand_can.get_speed()}", color="green")
             elif self.right_hand_joint == "L10":
                 self.right_hand_can = LinkerHandL10Can(can_channel="can0", baudrate=1000000, can_id=0x27, config=self.config)
