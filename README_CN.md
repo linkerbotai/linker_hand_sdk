@@ -71,7 +71,7 @@ LinkerHandROS SDK当前支持Ubuntu20.04 ROS noetic Python3.8环境
 ---
 - [0101-lipcontroller (触觉传感器配合灵巧手进行捏取操作)](examples/README_CN.md#0101-触觉传感器配合灵巧手进行捏取操作)
 - [0102-gesture-Show-OK (使用python控制手比OK动作)](examples/README_CN.md#0102-使用python控制手比OK动作)
-- [0101-gesture-Show-Surround-Index-Finger (使用python控制手做旋转食指动作)](examples/README_CN.md#0103-使用python控制手做旋转食指动作)
-- [0101-gesture-Show-Wave (使用python控制手做波浪运动)](examples/README_CN.md#0104-使用python控制手做波浪运动)
-- [0101-gesture-Show-Ye (使用python控制手做一套复杂的展示动作)](examples/README_CN.md#0105-使用python控制手做一套复杂的展示动作)
+- [0103-gesture-Show-Surround-Index-Finger (使用python控制手做旋转食指动作)](examples/README_CN.md#0103-使用python控制手做旋转食指动作)
+- [0104-gesture-Show-Wave (使用python控制手做波浪运动)](examples/README_CN.md#0104-使用python控制手做波浪运动)
+- [0105-gesture-Show-Ye (使用python控制手做一套复杂的展示动作)](examples/README_CN.md#0105-使用python控制手做一套复杂的展示动作)
 
