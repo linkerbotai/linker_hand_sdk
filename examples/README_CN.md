@@ -1,6 +1,7 @@
-# LinkerHandROS SDK源码目录
+# LinkerHandROS SDK程序案例
 <!-- TOC --> 
 [examples (示例)](#)
+- [0000-linker_hand_pybullet (PyBullet仿真示例)](linker_hand_pybullet/)
 - [0001-get_linker_hand_state (获取LinkerHand灵巧手当前状态)](L20_get_linker_hand_state/)
 - [0002-gui_control(图形界面控制)](gui_control/)
 - [0003-get_linker_hand_force (获取LinkerHand灵巧手力传感器数据)](get_linker_hand_force/)
@@ -42,7 +43,7 @@ $ cd Linker_Hand_SDK_ROS/
 $ source ./devel/setup.bash
 $ roslaunch linker_hand_sdk_ros linker_hand.launch
 ```
-- #### 启动PyBullet仿真器
+- #### 0000-PyBullet仿真示例
 新开终端 SDK可控制仿真器内的LinkerHand灵巧手
 ```bash
 $ cd Linker_Hand_SDK_ROS/
@@ -88,6 +89,7 @@ $ source ./devel/setup.bash
 $ rosrun gui_control gui_control.py
 ```
 开启后会弹出UI界面。通过滑动条可控制相应LinkerHand灵巧手关节运动。并可通过右侧添加按钮对当前滑动条数据进行保存，以便用于复现使用
+
 ![START_SDK](../doc/gui_control.png) 
 
 - #### 0003-获取LinkerHand灵巧手力传感器数据
