@@ -6,7 +6,7 @@ LinkerHand灵巧手无论是真机还是仿真，均需要先配置参数文件�
 $ cd Linker_Hand_SDK_ROS/src/linker_hand_sdk/linker_hand_sdk_ros/config
 $ sudo vim setting.yaml
 ```
-![SETTING](../doc/setting.png2) 
+![SETTING](../doc/setting.png) 
 
 
 由于图形界面只能单独控制一只LinkerHand灵巧手。需要在配置文件中进行相应配置需与LinkerHand灵巧手实物匹配
@@ -34,7 +34,7 @@ $ source ./devel/setup.bash
 # _loop参数为True则终端循环打印当前LinkerHand灵巧手的状态数值，如果为False则终端只打印一次当前LinkerHand灵巧手状态数值
 $ rosrun L20_get_linker_hand_state L20_get_linker_hand_state.py _loop:=True
 ```
-![STATE](../doc/state.png2)
+![STATE](../doc/state.png)
 
 
 - #### 0002-图形界面控制
