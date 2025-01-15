@@ -26,7 +26,7 @@ $ cd Linker_Hand_SDK_ROS/
 $ source ./devel/setup.bash
 $ roslaunch linker_hand_sdk_ros linker_hand.launch
 ```
-(1)获取LinkerHand灵巧手当前状态，状态数值包括范围值与弧度值
+- #### 获取LinkerHand灵巧手当前状态，状态数值包括范围值与弧度值
 新开终端
 ```bash
 $ cd Linker_Hand_SDK_ROS/
