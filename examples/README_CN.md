@@ -30,7 +30,7 @@ $ rosrun L20_get_linker_hand_state L20_get_linker_hand_state.py _loop:=True
 $ cd Linker_Hand_SDK_ROS/src/linker_hand_sdk/linker_hand_sdk_ros/config
 $ sudo vim setting.yaml
 ```
-![SETTING](../../doc/setting.png) 
+![SETTING](../doc/setting.png) 
 由于图形界面只能单独控制一只LinkerHand灵巧手。需要在配置文件中进行相应配置需与LinkerHand灵巧手实物匹配
 
 (2) 使用gui_control控制LinkerHand灵巧手:
