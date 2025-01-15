@@ -58,7 +58,4 @@ $ rosrun gui_control gui_control.py
 ```
 开启后会弹出UI界面。通过滑动条可控制相应LinkerHand灵巧手关节运动。并可通过右侧添加按钮对当前滑动条数据进行保存，以便用于复现使用
 
-# after a certain period while the last target has not been reached
-$ rosservice call /xarm/move_line [250,-100,400,3.14,0,0] 200 5000 0 0
-```  
-For both modes the speed is continuous at command transition, acceleration is continuous for joint space but not for Cartesian space. Refer to [this paper](https://www-cs.stanford.edu/group/manips/publications/pdfs/Kroeger_2010_TRO.pdf) which categorize OTG methods, our joint OTG is **type IV** and Cartesian OTG is **type II**.
+
