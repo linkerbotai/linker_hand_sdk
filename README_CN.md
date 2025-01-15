@@ -64,7 +64,7 @@ LinkerHandROS SDK当前支持Ubuntu20.04 ROS noetic Python3.8环境
 &ensp;&ensp; __使用前请先将 [setting.yaml](linker_hand_sdk_ros/config/setting.yaml) 配置文件根据实际需求进行相应修改该.__
 
 - #### [0000-get_linker_hand_state 获取LinkerHand灵巧手当前状态](#2. LinkerHand灵巧手示例100)
-- [0000-get_linker_hand_state 获取LinkerHand灵巧手当前状态](examples/README_CN.md#linkerhand灵巧手示例100)
+- [0000-get_linker_hand_state 获取LinkerHand灵巧手当前状态]([examples/README_CN.md#linkerhand灵巧手示例100](https://github.com/linkerbotai/linker_hand_sdk/blob/main/examples/README_CN.md#linkerhand%E7%81%B5%E5%B7%A7%E6%89%8B%E7%A4%BA%E4%BE%8B100))
 - ##### [0001-gui_control图形界面控制](examples/gui_control/)
 
 - ##### [0002-linker_hand_pybullet仿真器](examples/linker_hand_pybullet)
