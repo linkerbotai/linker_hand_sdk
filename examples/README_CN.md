@@ -12,7 +12,7 @@ $ sudo vim setting.yaml
 由于图形界面只能单独控制一只LinkerHand灵巧手。需要在配置文件中进行相应配置需与LinkerHand灵巧手实物匹配
 
 
-## 2. LinkerHand灵巧手示例100
+## LinkerHand灵巧手示例100
 LinkerHand灵巧是示例100，提供了丰富的实例案例与源码。充分展示了LinkerHand灵巧手的功能
 - 准备
 启动SDK
