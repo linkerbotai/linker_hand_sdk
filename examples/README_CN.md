@@ -246,6 +246,7 @@ python ./<你的文件路径>/gesture-Show-Ye.py
 - #### 1001-使用LinkerHand灵巧手进行模仿学习训练
 使用本例需要Ubuntu20.04上使用ROS Noetic系统，硬件为LinkerRobot人形机器人，也可以使用其他机械臂或机器人进行模仿学习训练，只要修改该相应数据话题即可。
 [详细使用说明请参考human-dex项目README.md](https://github.com/linkerbotai/human-dex)
+
 1、配置环境
 ```bash
 cd human-dex
