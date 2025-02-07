@@ -14,6 +14,9 @@
 - [0104-gesture-Show-Wave (使用python控制手做波浪运动)](gesture-show/gesture-Show-Wave.py)
 - [0105-gesture-Show-Ye (使用python控制手做一套复杂的展示动作)](gesture-show/gesture-Show-Ye.py)
 
+---
+- [1001-human-dex (使用LinkerHand灵巧手进行模仿学习训练并且实现自主抓取物品)](https://github.com/linkerbotai/human-dex)
+
 
 ## LinkerHand灵巧手配置文件说明
 LinkerHand灵巧手无论是真机还是仿真，均需要先配置参数文件。根据实际需求修改相应配置参数。
@@ -239,4 +242,45 @@ python ./<你的文件路径>/gesture-Show-Ye.py
 #开始后终端会打印测试中，此时手会开始做一套复杂的动作来展示手的灵活性
 ```
 -本例是基于7版手进行开发的演示demo，应用在其他版本的演示时，需要调整拇指和食指的对合姿态，否则无法实现“__食指和拇指捏合或对合在一起__”的动作
+
+- #### 1001-使用LinkerHand灵巧手进行模仿学习训练
+使用本例需要Ubuntu20.04上使用ROS Noetic系统，硬件为LinkerRobot人形机器人，也可以使用其他机械臂或机器人进行模仿学习训练，只要修改该相应数据话题即可。
+[详细使用说明请参考human-dex项目README.md](https://github.com/linkerbotai/human-dex)
+1、配置环境
+```bash
+cd human-dex
+conda create -n human-dex python=3.8.10
+conda activate human-dex
+pip install torchvision
+pip install torch
+pip install -r requirements.txt
+```
+2、安装
+```bash
+mkdir -p your_ws/src
+cd your_ws/src
+git clone https://github.com/linkerbotai/human-dex.git
+cd ..
+catkin_make
+source ./devel/setup.bash
+```
+3、运行
+```bash
+# 数据采集
+ roslaunch record_hdf5 record_hdf5.launch
+# 新开终端发送采集命令
+rostopic pub /record_hdf5 std_msgs/String "data: '{\"method\":\"start\",\"type\":\"humanplus\"}'"
+```
+4、训练
+```bash
+cd humanplus/scripts/utils/HIT
+python3 imitate_episodes_h1_train.py --task_name data_cb_grasp --ckpt_dir cb_grasp/ --policy_class HIT --chunk_size 50 --hidden_dim 512 --batch_size 48 --dim_feedforward 512 --lr 1e-5 --seed 0 --num_steps 100000 --eval_every 1000 --validate_every 1000 --save_every 1000 --no_encoder --backbone resnet18 --same_backbones --use_pos_embd_image 1 --use_pos_embd_action 1 --dec_layers 6 --gpu_id 0 --feature_loss_weight 0.005 --use_mask --data_aug
+```
+5、复现/评估
+```bash
+cd humanplus/scripts
+python3 cb.py
+```
+
+
 
