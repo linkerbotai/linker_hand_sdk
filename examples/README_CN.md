@@ -16,6 +16,7 @@
 
 ---
 - [1001-human-dex (使用LinkerHand灵巧手进行模仿学习训练并且实现自主抓取物品)](https://github.com/linkerbotai/human-dex)
+- [1002-linker_unidexgrasp (基于Linkerand的Unidexgrasp灵巧手抓取算法)](https://github.com/linkerbotai/linker_unidexgrasp)
 
 
 ## LinkerHand灵巧手配置文件说明
@@ -281,6 +282,69 @@ python3 imitate_episodes_h1_train.py --task_name data_cb_grasp --ckpt_dir cb_gra
 ```bash
 cd humanplus/scripts
 python3 cb.py
+```
+---
+- #### 1002-基于Linkerand的Unidexgrasp灵巧手抓取算法
+原Unidexgrasp算法采用shadowhand，以下提供在linkerhand上开发Unidexgrasp算法的相关代码。
+[详细过程参考linker_unidexgrasp项目](https://github.com/linkerbotai/linker_unidexgrasp)
+## 抓取姿态生成部分
+抓取姿态部分采取映射方案，将模型输出的shadowhand手姿，映射为linkerHand L20手姿态，为后续开发使用。
+1. 配置环境
+```commandline
+conda create -n unidexgrasp python=3.8
+conda activate unidexgrasp
+conda install -y pytorch==1.10.0 torchvision==0.11.0 torchaudio==0.10.0 cudatoolkit=11.3 -c pytorch -c conda-forge
+conda install -y https://mirrors.bfsu.edu.cn/anaconda/cloud/pytorch3d/linux-64/pytorch3d-0.6.2-py38_cu113_pyt1100.tar.bz2
+pip install -r requirements.txt
+cd thirdparty/pytorch_kinematics
+pip install -e .
+cd ../nflows
+pip install -e .
+cd ../
+git clone https://github.com/wrc042/CSDF.git
+cd CSDF
+pip install -e .
+cd ../../
+```
+2. 训练
+GraspIPDF
+
+```commandline
+python ./network/train.py --config-name ipdf_config \
+                          --exp-dir ./ipdf_train
+```
+
+GraspGlow
+
+```commandline
+python ./network/train.py --config-name glow_config \
+                          --exp-dir ./glow_train
+python ./network/train.py --config-name glow_joint_config \
+                          --exp-dir ./glow_train
+```
+
+ContactNet
+
+```commandline
+python ./network/train.py --config-name cm_net_config \
+                          --exp-dir ./cm_net_train
+```
+3. 验证
+```commandline
+python ./network/eval.py  --config-name eval_config \
+                          --exp-dir=./eval
+```
+4. 映射
+结果可视化
+
+```commandline
+python ./tests/visualize_result_l20_shadow.py --exp_dir 'eval' --num 3
+```
+
+保存结果为后续强化学习算法开发使用
+
+```commandline
+python ./tests/data_for_RL.py
 ```
 
 
