@@ -78,5 +78,5 @@ LinkerHandROS SDK当前支持Ubuntu20.04 ROS noetic Python3.8环境
 
 ---
 - [1001-human-dex (使用LinkerHand灵巧手进行模仿学习训练并且实现自主抓取物品)](https://github.com/linkerbotai/human-dex)
-- [1002-linker_unidexgrasp (基于Linkerand的Unidexgrasp灵巧手抓取算法)](https://github.com/linkerbotai/linker_unidexgrasp)
+- [1002-linker_unidexgrasp (基于LinkerHand的Unidexgrasp灵巧手抓取算法)](https://github.com/linkerbotai/linker_unidexgrasp)
 
