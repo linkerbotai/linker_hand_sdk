@@ -14,3 +14,6 @@ mujoco
 sapien
 pyqt5
 pyqtgraph
+dm_control
+mujoco-py
+mujoco-python-viewer

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<launch>
+  <node pkg="linker_hand_sdk_ros" type="linker_hand_t24.py" name="linker_hand_sdk_t24" output="screen" >
+  <param name="motor_mode"       value="enable" /> <!--  disability | enable  -->
+  </node>
+  
+</launch>

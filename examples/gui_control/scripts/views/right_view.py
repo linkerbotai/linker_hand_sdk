@@ -1,6 +1,4 @@
-import sys,rospy,os
-from sensor_msgs.msg import JointState
-from std_msgs.msg import Header
+import sys,os,time
 from PyQt5.QtWidgets import (
     QApplication, QMainWindow, QVBoxLayout, QLineEdit, QPushButton, QWidget, QGridLayout, QScrollArea
 )
@@ -8,13 +6,15 @@ from PyQt5.QtCore import Qt, pyqtSignal
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from utils.load_write_yaml import LoadWriteYaml
 class RightView(QMainWindow):
-    button_clicked = pyqtSignal(list)  # 定义一个信号
+    add_button_handle = pyqtSignal(str)  # 定义一个信号
+    handle_button_click = pyqtSignal(str)  # 定义一个信号
     def __init__(self,hand_joint="L20", hand_type="left"):
         super().__init__()
         self.hand_joint = hand_joint
         self.hand_type = hand_type
         self.buttons = []
         self.yaml = LoadWriteYaml() # 初始化配置文件
+        self.all_action = None
         self.all_action = self.yaml.load_action_yaml(hand_type=self.hand_type,hand_joint=self.hand_joint)
         self.setWindowTitle("按钮网格布局")
         self.setGeometry(100, 100, 600, 400)
@@ -44,7 +44,6 @@ class RightView(QMainWindow):
 
         # 添加到主布局
         self.main_layout.addLayout(self.top_layout)
-
         # 创建一个滚动区域用于按钮列表
         self.scroll_area = QScrollArea()
         self.scroll_area.setWidgetResizable(True)
@@ -69,7 +68,8 @@ class RightView(QMainWindow):
             button = QPushButton(item["ACTION_NAME"])
             button.setFixedWidth(100)  # 可根据需要设置按钮宽度
             button.setFixedHeight(30)  # 可根据需要设置按钮高度
-            button.clicked.connect(lambda checked, action_pos=item["ACTION_POS"]: self.button_clicked.emit(action_pos))
+            #button.clicked.connect(lambda checked, action_pos=item["ACTION_POS"]: self.button_clicked.emit(action_pos))
+            button.clicked.connect(lambda checked, text=item["ACTION_NAME"]: self.handle_button_click.emit(text))
             # 添加按钮到网格布局
             self.scroll_layout.addWidget(button, self.row, self.column, alignment=Qt.AlignLeft | Qt.AlignTop)
 
@@ -82,16 +82,11 @@ class RightView(QMainWindow):
     def add_button_to_list(self):
         text = self.input_field.text().strip()
         if text:
-            if self.hand_type == "left":
-                topic = "/cb_left_hand_control_cmd"
-            else:
-                topic = "/cb_right_hand_control_cmd"
-            # 当前手数据
-            current_hand_pos = rospy.wait_for_message(topic=topic, topic_type=JointState, timeout=0.3)
+            
             button = QPushButton(text)
             button.setFixedWidth(100)  # 可根据需要设置按钮宽度
             button.setFixedHeight(30)  # 可根据需要设置按钮高度
-            button.clicked.connect(lambda checked, action_pos=list(current_hand_pos.position): self.button_clicked.emit(action_pos))
+            button.clicked.connect(lambda checked, text=text: self.handle_button_click.emit(text))
             # 添加按钮到网格布局
             self.scroll_layout.addWidget(button, self.row, self.column, alignment=Qt.AlignLeft | Qt.AlignTop)
 
@@ -99,9 +94,15 @@ class RightView(QMainWindow):
             self.column += 1
             if self.column >= self.BUTTONS_PER_ROW:  # 超过每行按钮数量时换行
                 self.column = 0
-                self.row += 1
-            
-            # 将输入框内容写入yaml文件
-            self.yaml.write_to_yaml(text, current_hand_pos.position,hand_joint=self.hand_joint,hand_type=self.hand_type)
             self.input_field.clear()  # 清空输入框
             self.buttons.append(button)
+            self.add_button_handle.emit(text)  # 发出信号
+            
+
+    def clear_scroll_layout(self):
+        """清空 scroll_layout 中的所有小部件"""
+        while self.scroll_layout.count():
+            item = self.scroll_layout.takeAt(0)
+            widget = item.widget()
+            if widget is not None:
+                widget.deleteLater()

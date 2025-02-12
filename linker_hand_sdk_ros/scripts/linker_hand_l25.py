@@ -61,6 +61,7 @@ class LinkerHandL25:
         time.sleep(0.01)
         self.is_can_up_sysfs()
         self.check_left_hand()
+        self.check_right_hand()
         time.sleep(0.1)
         self.position_send()
 
@@ -86,7 +87,19 @@ class LinkerHandL25:
             # self.left_hand_can.set_03(joint_03)
             self.left_hand_sub = rospy.Subscriber("/cb_left_hand_control_cmd", JointState, self.left_hand_cb, queue_size=1)
             
-            
+    # 验证右手状态
+    def check_right_hand(self):
+        if self.right_hand_exists == True:
+            self.right_hand_position = [0.0] * 25
+            self.right_hand_can = LinkerHandL25Can(can_channel="can0", baudrate=1000000, can_id=0x27, config=self.config)
+            self.right_hand_can.set_speed(speed=self.speed)
+            ColorMsg(msg=f"设置左手速度:{self.speed}", color="green")
+            time.sleep(1)
+            #self.left_hand_can.set_finger_torque(torque=[200] * 4)
+            joint_01, joint_02, joint_03, joint_04, joint_05, joint_06 = self.pose_slice(p=[159.0, 255.0, 255.0, 255.0, 255.0, 255.0, 112.0, 118.0, 143.0, 255.0, 255.0, 255.0, 255.0, 255.0, 255.0, 255.0, 255.0, 255.0, 255.0, 255.0, 255.0, 255.0, 255.0, 255.0, 255.0])
+            #joint_01, joint_02, joint_03, joint_04, joint_05, joint_06 = self.pose_slice(p=[255]*25)
+            self.right_hand_can_send(joint_01, joint_02, joint_03, joint_04, joint_05, joint_06)
+            self.right_hand_sub = rospy.Subscriber("/cb_right_hand_control_cmd", JointState, self.right_hand_cb, queue_size=1)
 
     
 
@@ -99,6 +112,18 @@ class LinkerHandL25:
             self.left_hand_position = position
             self.left_hand_velocity = velocity
             self.left_hand_effort = effort
+        else:
+            ColorMsg(msg="当前为Linker_L25，手指关节应为25个0~255的值", color="red")
+
+    # 右手接收到话题将数据处理后发送到CAN驱动左手运动
+    def right_hand_cb(self, msg):
+        position = msg.position
+        velocity = msg.velocity
+        effort = msg.effort
+        if len(position) == 24:
+            self.right_hand_position = position
+            self.right_hand_velocity = velocity
+            self.right_hand_effort = effort
         else:
             ColorMsg(msg="当前为Linker_L25，手指关节应为25个0~255的值", color="red")
 
@@ -118,7 +143,7 @@ class LinkerHandL25:
             if self.left_hand_exists == True:
                 
                 # 发送左手数据
-                if len(self.left_hand_position) == 25:
+                if len(self.left_hand_position) == 24:
                     if any(val != 0 and val != 0.0 for val in self.left_hand_position):
                         joint_01, joint_02, joint_03, joint_04, joint_05, joint_06 = self.pose_slice(p=self.left_hand_position)
                         self.left_hand_can_send(joint_01, joint_02, joint_03, joint_04, joint_05, joint_06)
@@ -128,6 +153,20 @@ class LinkerHandL25:
                         #self.left_hand_can.get_electric_current()
                 # 发送左手状态
                 self.left_hand_status()
+            ''' ---------------右手------------------ '''
+            if self.right_hand_exists == True:
+                
+                # 发送左手数据
+                if len(self.right_hand_position) == 24:
+                    if any(val != 0 and val != 0.0 for val in self.right_hand_position):
+                        joint_01, joint_02, joint_03, joint_04, joint_05, joint_06 = self.pose_slice(p=self.right_hand_position)
+                        self.right_hand_can_send(joint_01, joint_02, joint_03, joint_04, joint_05, joint_06)
+                        # 获取L20左手错误状态
+                        #self.left_hand_can.get_faults()
+                        # 获取L20左手当前电流
+                        #self.left_hand_can.get_electric_current()
+                # 发送左手状态
+                self.right_hand_status()
 
     # L20发送can数据
     def left_hand_can_send(self,joint_01, joint_02, joint_03, joint_04, joint_05, joint_06):
@@ -143,6 +182,22 @@ class LinkerHandL25:
         # self.left_hand_can.set_01(joint_01) # 手指根部移动
         # self.left_hand_can.set_06(joint_06) # 横摆移动
         # self.left_hand_can.set_08(joint_08) # 大拇想手心横摆指移动
+
+    # L20发送can数据
+    def right_hand_can_send(self,joint_01, joint_02, joint_03, joint_04, joint_05, joint_06):
+        self.right_hand_can.set_01(joint_01)
+        self.right_hand_can.set_02(joint_02)
+        print("------------------------")
+        self.right_hand_can.set_03(joint_03)
+        self.right_hand_can.set_04(joint_04)
+        self.right_hand_can.set_05(joint_05)
+        if self.leaphand == False:
+            self.right_hand_can.set_06(joint_06)
+        # self.right_hand_can.set_04(joint_04) # 指尖中部
+        # self.right_hand_can.set_07(joint_07) # 指尖移动
+        # self.right_hand_can.set_01(joint_01) # 手指根部移动
+        # self.right_hand_can.set_06(joint_06) # 横摆移动
+        # self.right_hand_can.set_08(joint_08) # 大拇想手心横摆指移动
     
 
     
@@ -221,6 +276,27 @@ class LinkerHandL25:
                 current_pose = joint_01 + joint_02 + joint_03 + joint_04 + joint_05 + joint_06
                 ColorMsg(msg=f"左手当前关节位置:{current_pose}", color="green")
             ColorMsg(msg=f"左手当前speed:{speed}", color="green")
+            #ColorMsg(msg=f"左手当前扭矩:{finger_torque}", color="green")
+
+    def right_hand_status(self):
+        if self.right_hand_exists:
+            # [206, 0, 0, 0, 140, 142, 160, 171, 221, 214, 224, 239, 239, 242, 247, 181, 229, 0, 0, 0, 247, 130, 114, 130]
+            '''
+            joint_01 = [255, 0, 0, 0] # 大拇指像手心摆动，其他为0
+            joint_02 = [128,128,128,128] # 四指横摆
+            joint_03 = [255,255,255,255] # 四指根部弯曲
+            joint_04 = [128,128,128,128] # 四指中部弯曲
+            joint_05 = [255,0,0,0] # 大拇指中上部弯曲, 其他为0
+            joint_06 = [128,10,50,80] # 四指指尖弯曲
+            '''
+            joint_01, joint_02, joint_03, joint_04, joint_05,joint_06 = self.right_hand_can.get_current_status()
+            # current_pose = joint_03 + [0] + joint_02 + [0] + [joint_01[0],joint_05[0]]+[0]*3+joint_04+[0]+joint_06+[0]
+            speed = self.right_hand_can.get_speed()
+            # finger_torque = self.right_hand_can.get_finger_torque()
+            if self.leaphand == False:
+                current_pose = joint_01 + joint_02 + joint_03 + joint_04 + joint_05 + joint_06
+                ColorMsg(msg=f"右手当前关节位置:{current_pose}", color="green")
+            ColorMsg(msg=f"右手当前speed:{speed}", color="green")
             #ColorMsg(msg=f"左手当前扭矩:{finger_torque}", color="green")
 
     def load_yaml(self):

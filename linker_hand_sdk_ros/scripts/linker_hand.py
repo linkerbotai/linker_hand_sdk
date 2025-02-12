@@ -331,7 +331,10 @@ class LinkerHandController:
                     pass
             
         if data["setting_cmd"] == "set_speed": # 设置速度
-            speed = [int(data["params"]["speed"])] * 5
+            if isinstance(data["params"]["speed"], list) == True:
+                speed = data["params"]["speed"]
+            else:
+                speed = [int(data["params"]["speed"])] * 5
             if hand_left == True and self.left_hand_joint == "L10":
                 hand.set_joint_speed_l10(speed=speed)
                 speed = hand.get_speed()

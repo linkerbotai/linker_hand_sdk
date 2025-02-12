@@ -4,6 +4,8 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtCore import Qt,pyqtSignal
 
 class LeftView(QWidget):
+    # 定义一个信号，当滑动条的值发生变化时发出该信号
+    slider_value_changed = pyqtSignal(dict)
     def __init__(self, joint_name=[],init_pos=[]):
         super().__init__()
         self.is_open = True
@@ -22,7 +24,7 @@ class LeftView(QWidget):
             slider_layout = QHBoxLayout()
             # 标签显示滑动条的值
             label = QLabel(f"{self.joint_name[i]}: 255", self)
-            label.setFixedWidth(100)  # 设置固定宽度
+            label.setFixedWidth(110)  # 设置固定宽度
             self.labels.append(label)
             slider_layout.addWidget(label)
 
@@ -43,11 +45,22 @@ class LeftView(QWidget):
 
     def update_label(self, index, value):
         self.labels[index].setText(f"{self.joint_name[index]}: {value}")
+        slider_values = {}
+        sliders = self.findChildren(QSlider)
+        for i, slider in enumerate(sliders):
+            slider_values[i] = slider.value()
+        # 发出信号，传递滑动条的当前值
+        self.slider_value_changed.emit(slider_values)
+        
         
     def set_slider_values(self, values):
         for i, value in enumerate(values):
             if i < len(self.sliders):
                 self.sliders[i].setValue(value)
+                
+    def get_slider_values(self):
+        """获取所有滑动条的值"""
+        return [slider.value() for slider in self.sliders]
     def handle_button_click(self, text):
         print(f"Button clicked with text: {text}")
         # 在这里处理按钮点击事件

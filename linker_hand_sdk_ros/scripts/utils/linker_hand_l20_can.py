@@ -5,8 +5,8 @@ import rospy
 import can
 import threading
 from sensor_msgs.msg import JointState
-from utils.enum import FrameProperty
-from utils.color_msg import ColorMsg
+from .enum import FrameProperty
+from .color_msg import ColorMsg
 
 
 class LinkerHandL20Can:
@@ -170,8 +170,8 @@ class LinkerHandL20Can:
                     self.left_hand_info = response_data
             elif frame_type == 0x05:
                 #ColorMsg(msg=f"速度设置为：{list(response_data)}", color="yellow")
-                #self.x05 = list(response_data)
-                pass
+                self.x05 = list(response_data)
+                
             elif frame_type == 0x06:
                 #ColorMsg(msg=f"当前电流状态：{list(response_data)}")
                 self.x06 = list(response_data)
@@ -200,8 +200,11 @@ class LinkerHandL20Can:
     def get_force(self):
         return [self.normal_force,self.tangential_force , self.tangential_force_dir , self.approach_inc]
     def get_speed(self):
+        self.send_command(0x05, [0])
+        time.sleep(0.001)
         return self.x05
     def get_current(self):
+        self.send_command(0x05, [0])
         return self.x06
     def get_fault(self):
         return self.x07

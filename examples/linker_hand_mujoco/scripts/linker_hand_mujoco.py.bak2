@@ -1,0 +1,139 @@
+import mujoco
+import mujoco_viewer
+import numpy as np
+import time
+import rospy,rospkg
+import os,sys,json
+from std_msgs.msg import String,Header, Float32MultiArray
+from sensor_msgs.msg import JointState
+
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+from utils.color_msg import ColorMsg
+
+class MujocoSimulationViewer:
+    def __init__(self, model_path):
+        # 加载 MuJoCo 模型
+        self.model = mujoco.MjModel.from_xml_path(model_path)
+        self.data = mujoco.MjData(self.model)
+        # 禁用关节的力矩控制，确保关节处于静止状态
+        self.data.ctrl.fill(0)  # 将所有控制值设为 0，避免自动力矩应用
+        # 禁用重力
+        self.model.opt.gravity[:] = 0
+        self.model.opt.timestep = 0.08  # 设置更小的时间步长
+
+        # 创建 MuJoCo viewer
+        self.viewer = mujoco_viewer.MujocoViewer(self.model, self.data)
+
+        # 获取所有关节的名称
+        '''
+        ['root', 'thumb_joint0', 'thumb_joint1', 'thumb_joint2', 'thumb_joint3', 'thumb_joint4', 'index_joint0', 'index_joint1', 'index_joint2', 'index_joint3', 'middle_joint0', 'middle_joint1', 'middle_joint2', 'middle_joint3', 'ring_joint0', 'ring_joint1', 'ring_joint2', 'ring_joint3', 'little_joint0', 'little_joint1', 'little_joint2', 'little_joint3']
+        '''
+        self.joint_names = [mujoco.mj_id2name(self.model, mujoco.mjtObj.mjOBJ_JOINT, i) for i in range(self.model.njnt)]
+        print(self.joint_names)
+        # 设置相机位置和朝向
+        self.viewer.cam.lookat = np.array([0, 0, 0.04])  # 相机目标
+        self.viewer.cam.distance = 0.6  # 相机与目标的距离
+        self.viewer.cam.elevation = -40  # 相机的仰角
+        self.viewer.cam.azimuth = 180  # 相机的方位角
+
+        # 初始化控制
+        self.control_enabled = False
+
+    def update_gui(self):
+        # 使用 OpenGL 来绘制文本（通过添加标记）
+        self.viewer.add_marker(
+            type=mujoco.mjtMarkerText,  # 标记类型
+            pos=[0, 0, 1],  # 文本位置
+            label="Simulation Running...",  # 文本内容
+            size=20,  # 字体大小
+            color=[1, 0, 0, 1]  # 字体颜色
+        )
+
+    def control_simulation(self):
+        # 控制仿真中的关节（例如，使用正弦波控制）
+        if self.control_enabled:
+            for i in range(self.model.nv):
+                self.data.ctrl[i] = np.sin(time.time() + i)
+        else:
+            # 如果控制未启用，将所有控制值设置为零
+            self.data.ctrl[:] = 0.00
+
+    def toggle_control(self):
+        # 切换控制启用状态
+        self.control_enabled = not self.control_enabled
+
+    def reset_simulation(self):
+        # 重置仿真状态
+        mujoco.mj_resetData(self.model, self.data)
+
+    def get_joint_state(self):
+        """
+        获取当前所有关节的位置和速度。
+        返回一个字典，包含关节的名字、位置、速度和ID。
+        """
+        joint_states = {}
+        for i in range(self.model.njnt):
+            joint_name = self.joint_names[i]
+            joint_position = self.data.qpos[i]
+            joint_velocity = self.data.qvel[i]
+            joint_id = mujoco.mj_name2id(self.model, mujoco.mjtObj.mjOBJ_JOINT, joint_name)
+            joint_states[joint_name] = {
+                'id': joint_id,
+                'position': joint_position,
+                'velocity': joint_velocity
+            }
+        return joint_states
+
+    def set_joint_control_by_name(self, joint_name, control_value):
+        """
+        设置指定关节的控制值（例如，位置或速度）。
+        """
+        joint_id = mujoco.mj_name2id(self.model, mujoco.mjtObj.mjOBJ_JOINT, joint_name)
+        if joint_id == -1:
+            raise ValueError(f"Joint name '{joint_name}' not found")
+        self.data.ctrl[joint_id-1] = control_value
+        mujoco.mj_forward(self.model, self.data)  # 更新仿真状态
+
+    def set_joint_control_by_id(self, joint_id, control_value):
+        """
+        设置指定关节的控制值（例如，位置或速度）。
+        """
+        self.data.ctrl[joint_id] = control_value
+        mujoco.mj_forward(self.model, self.data)  # 更新仿真状态
+
+    def run(self):
+        # 运行仿真循环，直到手动停止
+        while True:
+            mujoco.mj_step(self.model, self.data)  # 执行仿真一步
+            self.control_simulation()  # 控制仿真中的对象
+            self.viewer.render()  # 渲染界面
+
+            # 获取当前关节状态并输出
+            joint_states = self.get_joint_state()
+            for joint_name, state in joint_states.items():
+                #print(f"{joint_name} (ID: {state['id']}) - Position: {state['position']}, Velocity: {state['velocity']}")
+                pass
+
+            # 示例：设置某个关节的控制值
+            self.set_joint_control_by_name('little_joint0', 0.25)  # 替换 'joint_name' 为实际关节名称
+            self.set_joint_control_by_name('little_joint1', 0.1)
+            self.set_joint_control_by_name('little_joint2', 0.1)
+            self.set_joint_control_by_name('little_joint3', 0.1)
+            #self.set_joint_control_by_name('thumb_joint1', 0.0)
+
+            time.sleep(0.01)  # 控制更新频率
+
+        self.viewer.close()  # 关闭界面
+
+# 使用示例
+if __name__ == "__main__":
+    rospy.init_node('linker_hand_mujoco', anonymous=True)
+    hand_type = rospy.get_param('~hand_type', default="right")  # 默认获取全局参数
+    if hand_type == "left":
+        model_path = "/home/hjx/ROS/Linker_Hand_SDK_ROS/src/linker_hand_sdk/examples/linker_hand_mujoco/urdf/linker_hand_l20_8_left.xml"  # 替换为你的模型路径
+    else:
+        model_path = "/home/hjx/ROS/Linker_Hand_SDK_ROS/src/linker_hand_sdk/examples/linker_hand_mujoco/urdf/linker_hand_l20_8_right.xml"  # 替换为你的模型路径
+    simulation_viewer = MujocoSimulationViewer(model_path)
+    
+    # 启动仿真界面并运行
+    simulation_viewer.run()  # 持续运行仿真

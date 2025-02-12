@@ -5,15 +5,23 @@
 - [0001-get_linker_hand_state (获取LinkerHand灵巧手当前状态)](L20_get_linker_hand_state/)
 - [0002-gui_control(图形界面控制)](gui_control/)
 - [0003-get_linker_hand_force (获取LinkerHand灵巧手力传感器数据)](get_linker_hand_force/)
-- [0004-get_linker_hand_speed (获取LinkerHand灵巧手力当前速度)](get_linker_hand_speed/)
-- [0005-get_linker_hand_current (获取LinkerHand灵巧手力当前电流)](get_linker_hand_current)
+- [0004-get_linker_hand_speed (获取LinkerHand灵巧手当前速度)](get_linker_hand_speed/)
+- [0005-get_linker_hand_current (获取LinkerHand灵巧手当前电流)](get_linker_hand_current/)
+- [0006-set_linker_hand_speed (设置LinkerHand灵巧手速度)](set_linker_hand_speed/)
+- [0007-set_linker_hand_current (设置LinkerHand灵巧手当前电流)](set_linker_hand_current/)
+- [0008-set_linker_hand_torque (设置LinkerHand灵巧手扭矩)](set_linker_hand_torque/)
 ---
 - [0101-lipcontroller (触觉传感器配合灵巧手进行捏取操作)](gesture-show/lipcontroller.py)
 - [0102-gesture-Show-OK (使用python控制手比OK动作)](gesture-show/gesture-Show-OK.py)
 - [0103-gesture-Show-Surround-Index-Finger (使用python控制手做旋转食指动作)](gesture-show/gesture-Show-Surround-Index-Finger.py)
 - [0104-gesture-Show-Wave (使用python控制手做波浪运动)](gesture-show/gesture-Show-Wave.py)
 - [0105-gesture-Show-Ye (使用python控制手做一套复杂的展示动作)](gesture-show/gesture-Show-Ye.py)
-
+---
+## T24
+- [0000-linker_hand_pybullet (PyBullet仿真示例)](linker_hand_pybullet/)
+- [0201-set_disability (设置T24灵巧手为失能模式)](examples/T24/set_disability.py) ```bash python set_disability.py --hand_type=left or right ```
+- [0202-set_enable (设置T24灵巧手为使能模式)](examples/T24/set_enable.py) ```bash python set_enable.py --hand_type=left or right ```
+- [0203-set_remote_control (设置T24灵巧手为遥操模式)](examples/T24/set_remote_control.py) ```bash python set_remote_control.py --hand_type=left or right ```
 ---
 - [1001-human-dex (使用LinkerHand灵巧手进行模仿学习训练并且实现自主抓取物品)](https://github.com/linkerbotai/human-dex)
 - [1002-linker_unidexgrasp (基于LinkerHand的Unidexgrasp灵巧手抓取算法)](https://github.com/linkerbotai/linker_unidexgrasp)
@@ -244,6 +252,83 @@ python ./<你的文件路径>/gesture-Show-Ye.py
 ```
 -本例是基于7版手进行开发的演示demo，应用在其他版本的演示时，需要调整拇指和食指的对合姿态，否则无法实现“__食指和拇指捏合或对合在一起__”的动作
 
+
+- #### 0201-设置T24灵巧手为失能模式
+使T24版本灵巧手电机失能，可随意拖动各个关节活动    
+
+首先需要启动LinkerHandSDKROS
+```bash
+# 新开终端 启动ros
+$ roscore
+```
+新开终端启动ROS SDK
+```bash
+$ cd Linker_Hand_SDK_ROS/
+$ source ./devel/setup.bash
+$ roslaunch linker_hand_sdk_ros linker_hand.launch
+```
+新开终端执行失能功能程序
+```bash
+$ Linker_Hand_SDK_ROS/src/linker_hand_sdk/examples/T24
+$ python set_disability.py
+```
+
+- #### 0202-设置T24灵巧手为使能模式
+使T24版本灵巧手电机使能，使能后，可用控制程序控制  
+
+首先需要启动LinkerHandSDKROS
+```bash
+# 新开终端 启动ros
+$ roscore
+```
+新开终端启动ROS SDK
+```bash
+$ cd Linker_Hand_SDK_ROS/
+$ source ./devel/setup.bash
+$ roslaunch linker_hand_sdk_ros linker_hand.launch
+```
+新开终端执行失能功能程序
+```bash
+$ Linker_Hand_SDK_ROS/src/linker_hand_sdk/examples/T24
+$ python set_enable.py
+```
+
+- #### 0203-设置T24灵巧手为遥操模式
+如果拥有多只相同版本T24灵巧手，可使用本示例进行以一只失能T24灵巧手控制另一只电机使能的同版本T24灵巧手
+
+首先需要启动LinkerHandSDKROS
+以下为被控制T24灵巧手配置方式，以下以右手为例
+首先确保两台Ubuntu在同一网络内，并且配置好主从，两台Ubuntu可同时进行ROS通讯，可参考[ROS官方文档](https://wiki.ros.org/)
+控制机器A配置
+```bash
+# 新开终端 启动ros
+$ roscore
+```
+新开终端启动ROS SDK
+```bash
+$ cd Linker_Hand_SDK_ROS/
+$ source ./devel/setup.bash
+$ roslaunch linker_hand_sdk_ros linker_hand.launch
+```
+新开终端执行失能功能程序
+```bash
+$ Linker_Hand_SDK_ROS/src/linker_hand_sdk/examples/T24
+$ python set_remote_control.py
+```
+被控制机器B配置
+```bash
+# 新开终端 启动ros
+$ roscore
+```
+新开终端启动ROS SDK
+```bash
+$ cd Linker_Hand_SDK_ROS/
+$ source ./devel/setup.bash
+$ roslaunch linker_hand_sdk_ros linker_hand.launch
+```
+此时手动拖拽A机器的失能T24灵巧手即可控制B机器的使能T24灵巧手。
+
+
 - #### 1001-使用LinkerHand灵巧手进行模仿学习训练
 使用本例需要Ubuntu20.04上使用ROS Noetic系统，硬件为LinkerRobot人形机器人，也可以使用其他机械臂或机器人进行模仿学习训练，只要修改该相应数据话题即可。
 [详细使用说明请参考human-dex项目README.md](https://github.com/linkerbotai/human-dex)
@@ -283,6 +368,7 @@ python3 imitate_episodes_h1_train.py --task_name data_cb_grasp --ckpt_dir cb_gra
 cd humanplus/scripts
 python3 cb.py
 ```
+
 ---
 - #### 1002-基于Linkerand的Unidexgrasp灵巧手抓取算法
 原Unidexgrasp算法采用shadowhand，以下提供在linkerhand上开发Unidexgrasp算法的相关代码。

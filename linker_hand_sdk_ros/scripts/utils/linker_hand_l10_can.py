@@ -71,9 +71,14 @@ class LinkerHandL10Can:
         else:
             self.pressures = pressures[:5]
         #self.send_frame(FrameProperty.MAX_PRESS_RCO, self.pressures)
+    def set_torque(self,torque=[180,180,180,180,180]):
+        self.send_frame(0x02, torque)
+        
     def set_joint_speed_l10(self,speed=[180]*5):
+        print(speed)
         self.x05 = speed
-        for i in range(3):
+        for i in range(2):
+            time.sleep(0.01)
             self.send_frame(0x05, speed)
     def request_all_status(self):
         """获取所有关节位置和压力。"""
