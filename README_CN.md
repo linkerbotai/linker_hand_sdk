@@ -76,7 +76,7 @@ LinkerHandROS SDK当前支持Ubuntu20.04 ROS noetic Python3.8环境
 - [0003-get_linker_hand_force (获取LinkerHand灵巧手力传感器数据)](examples/README_CN.md#0003-获取LinkerHand灵巧手力传感器数据)
 - [0004-get_linker_hand_speed (获取LinkerHand灵巧手当前速度)](examples/README_CN.md#0004-获取LinkerHand灵巧手当前速度)
 - [0005-get_linker_hand_current (获取LinkerHand灵巧手当前电流)](examples/README_CN.md#0005-获取LinkerHand灵巧手当前电流)
-- [0006-set_linker_hand_speed (设置LinkerHand灵巧手速度)](examples/README_CN.md#0006-设置LinkerHand灵巧手当前速度)
+- [0006-set_linker_hand_speed (设置LinkerHand灵巧手速度)](examples/README_CN.md#0006-设置LinkerHand灵巧手当前速度) ```bash rosrun set_linker_hand_speed set_linker_hand_speed.py _hand_type:=left _speed:=[180,250,250,250,250] ```
 - [0007-set_linker_hand_current (设置LinkerHand灵巧手当前电流)](examples/README_CN.md#0007-设置LinkerHand灵巧手当前电流)
 - [0008-set_linker_hand_torque (设置LinkerHand灵巧手扭矩)](examples/README_CN.md#0008-设置LinkerHand灵巧手扭矩)
 ---
@@ -85,6 +85,7 @@ LinkerHandROS SDK当前支持Ubuntu20.04 ROS noetic Python3.8环境
 - [0103-gesture-Show-Surround-Index-Finger (使用python控制手做旋转食指动作)](examples/README_CN.md#0103-使用python控制手做旋转食指动作)
 - [0104-gesture-Show-Wave (使用python控制手做波浪运动)](examples/README_CN.md#0104-使用python控制手做波浪运动)
 - [0105-gesture-Show-Ye (使用python控制手做一套复杂的展示动作)](examples/README_CN.md#0105-使用python控制手做一套复杂的展示动作)
+- [0106-gesture-Loop (使用python控制手循环抓握动作)](examples/README_CN.md#0106-使用python控制手循环抓握动作)
 ---
 # T24
 - [0200-linker_hand_pybullet (PyBullet仿真示例)](examples/README_CN.md#0000-PyBullet仿真示例)

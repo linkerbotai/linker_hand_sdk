@@ -48,6 +48,12 @@ class MainWindow(QMainWindow):
             self.set_speed(speed=[30,60,60,60,60])
             self._init_normal_force_plot() # 法向压力波形图
             self._init_approach_inc_plot() # 接近感应波形图
+        elif self.hand_joint == "L20":
+            # 要发布的最后动作序列
+            self.last_position = [255] * 20
+            self.set_speed(speed=[180,250,250,250,250])
+            self._init_normal_force_plot() # 法向压力波形图
+            self._init_approach_inc_plot() # 接近感应波形图
         if self.left_hand == True:
             self.hand_pub = rospy.Publisher("/cb_left_hand_control_cmd",JointState,queue_size=10)
             self.force_sub = rospy.Subscriber("/cb_left_hand_force",Float32MultiArray,self.get_force_data,queue_size=10)
@@ -171,7 +177,7 @@ class MainWindow(QMainWindow):
         all_action = self.yaml.load_action_yaml(hand_type=self.hand_type,hand_joint=self.hand_joint)
         for index,pos in enumerate(all_action):
             if pos['ACTION_NAME'] == text:
-                position = pos['POSITION']
+                position = pos['ACTION_POS']
                 print(type(position))
         ColorMsg(msg=f"动作名称:{text}, 动作数值:{position}", color="green")
         self.last_position = position

@@ -16,6 +16,7 @@
 - [0103-gesture-Show-Surround-Index-Finger (使用python控制手做旋转食指动作)](gesture-show/gesture-Show-Surround-Index-Finger.py)
 - [0104-gesture-Show-Wave (使用python控制手做波浪运动)](gesture-show/gesture-Show-Wave.py)
 - [0105-gesture-Show-Ye (使用python控制手做一套复杂的展示动作)](gesture-show/gesture-Show-Ye.py)
+- [0106-gesture-Loop (使用python控制手循环抓握动作)](gesture-show/gesture-Loop.py)
 ---
 ## T24
 - [0000-linker_hand_pybullet (PyBullet仿真示例)](linker_hand_pybullet/)
@@ -251,6 +252,24 @@ python ./<你的文件路径>/gesture-Show-Ye.py
 #开始后终端会打印测试中，此时手会开始做一套复杂的动作来展示手的灵活性
 ```
 -本例是基于7版手进行开发的演示demo，应用在其他版本的演示时，需要调整拇指和食指的对合姿态，否则无法实现“__食指和拇指捏合或对合在一起__”的动作
+
+- #### 0106-使用python控制手循环抓握动作
+使用本例需要启动linker_hand_sdk_ros
+```bash
+# 新开终端 启动ros
+$ roscore
+```
+新开终端启动ROS SDK
+```bash
+$ cd Linker_Hand_SDK_ROS/
+$ source ./devel/setup.bash
+$ roslaunch linker_hand_sdk_ros linker_hand.launch
+```
+新开终端执行python文件
+```bash
+$ cd Linker_Hand_SDK_ROS/src/linker_hand_sdk/examples/gesture-show
+$ python gesture-Loop.py 
+```
 
 
 - #### 0201-设置T24灵巧手为失能模式

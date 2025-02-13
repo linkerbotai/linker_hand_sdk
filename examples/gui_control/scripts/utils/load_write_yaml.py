@@ -39,7 +39,7 @@ class LoadWriteYaml():
         return self.setting
 
     def load_action_yaml(self,hand_joint="",hand_type=""):
-        action_path = gui_path + "/scripts/config/"
+        action_path = gui_path + "/config/"
         if hand_joint == "L20":
             action_path = action_path + "L20_action.yaml"
         elif hand_joint == "L10":
