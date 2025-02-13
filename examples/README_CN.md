@@ -20,9 +20,9 @@
 ---
 ## T24
 - [0000-linker_hand_pybullet (PyBullet仿真示例)](linker_hand_pybullet/)
-- [0201-set_disability (设置T24灵巧手为失能模式)](examples/T24/set_disability.py) ```bash python set_disability.py --hand_type=left or right ```
-- [0202-set_enable (设置T24灵巧手为使能模式)](examples/T24/set_enable.py) ```bash python set_enable.py --hand_type=left or right ```
-- [0203-set_remote_control (设置T24灵巧手为遥操模式)](examples/T24/set_remote_control.py) ```bash python set_remote_control.py --hand_type=left or right ```
+- [0201-set_disability (设置T24灵巧手为失能模式)](examples/T24/set_disability.py) ```$ python set_disability.py --hand_type=left or right ```
+- [0202-set_enable (设置T24灵巧手为使能模式)](examples/T24/set_enable.py) ```$ python set_enable.py --hand_type=left or right ```
+- [0203-set_remote_control (设置T24灵巧手为遥操模式)](examples/T24/set_remote_control.py) ```$ python set_remote_control.py --hand_type=left or right ```
 ---
 - [1001-human-dex (使用LinkerHand灵巧手进行模仿学习训练并且实现自主抓取物品)](https://github.com/linkerbotai/human-dex)
 - [1002-linker_unidexgrasp (基于LinkerHand的Unidexgrasp灵巧手抓取算法)](https://github.com/linkerbotai/linker_unidexgrasp)
