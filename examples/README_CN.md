@@ -188,9 +188,7 @@ $ roslaunch linker_hand_sdk_ros linker_hand.launch
 python ./<你的文件路径>/gesture-Show-OK.py
 #开始后终端会打印测试中，此时手会开始做OK的手势，并弯曲中指无名指小指和伸直动作
 ```
-![START_SDK](../doc/20250221-135722.jpeg) 
-![START_SDK](../doc/20250221-135706.jpeg)
-<img src="../doc/20250221-135706.jpeg" width="300" height="300" />
+<img src="../doc/20250221-135722.jpeg" width="300" height="300" /><img src="../doc/20250221-135706.jpeg" width="300" height="300" />
 
 - #### 0103-使用python控制手做旋转食指动作
 使用本例需要启动linker_hand_sdk_ros
