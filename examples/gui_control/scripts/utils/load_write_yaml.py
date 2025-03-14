@@ -46,8 +46,9 @@ class LoadWriteYaml():
             action_path = action_path + "L10_action.yaml"
         elif hand_joint == "L25":
             action_path = action_path + "L25_action.yaml"
-        elif hand_joint == "L24" or hand_joint == "T24":
-            action_path = action_path + "T24_action.yaml"
+        elif hand_joint == "L7":
+            action_path = action_path + "L7_action.yaml"
+        
         try:
             with open(action_path, 'r', encoding='utf-8') as file:
                 yaml_data = yaml.safe_load(file)
@@ -63,14 +64,15 @@ class LoadWriteYaml():
     def write_to_yaml(self, action_name, action_pos,hand_joint="",hand_type=""):
         a = False
         action_path = gui_path + "/config/"
+        print(action_path)
         if hand_joint == "L20":
             action_path = action_path + "L20_action.yaml"
         elif hand_joint == "L10":
             action_path = action_path + "L10_action.yaml"
         elif hand_joint == "L25":
             action_path = action_path + "L25_action.yaml"
-        elif hand_joint == "T24" or hand_joint == "L24":
-            action_path = action_path + "T24_action.yaml"
+        elif hand_joint == "L7":
+            action_path = action_path + "L7_action.yaml"
         try:
             with open(action_path, 'r', encoding='utf-8') as file:
                 yaml_data = yaml.safe_load(file)

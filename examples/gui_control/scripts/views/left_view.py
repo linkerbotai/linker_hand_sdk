@@ -2,15 +2,18 @@ from PyQt5.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QSlider, QPushButton
 )
 from PyQt5.QtCore import Qt,pyqtSignal
-
+import rospy,json
+from std_msgs.msg import String
 class LeftView(QWidget):
     # 定义一个信号，当滑动条的值发生变化时发出该信号
     slider_value_changed = pyqtSignal(dict)
-    def __init__(self, joint_name=[],init_pos=[]):
+    def __init__(self, joint_name=[],init_pos=[],hand_type="left"):
         super().__init__()
         self.is_open = True
         self.joint_name = joint_name
         self.init_pos = init_pos
+        self.hand_type = hand_type
+        self.setting_cmd_pub = rospy.Publisher("/cb_hand_setting_cmd", String, queue_size=1)
         self.init_view()
 
     def init_view(self):
@@ -38,7 +41,7 @@ class LeftView(QWidget):
             slider_layout.addWidget(slider)
             main_layout.addLayout(slider_layout)
         # 创建开启/关闭按钮
-        self.toggle_button = QPushButton("已开启", self)
+        self.toggle_button = QPushButton("已使能", self)
         self.toggle_button.setCheckable(True)
         self.toggle_button.clicked.connect(self.toggle_button_clicked)
         main_layout.addWidget(self.toggle_button)
@@ -67,10 +70,30 @@ class LeftView(QWidget):
 
     def toggle_button_clicked(self):
         if self.toggle_button.isChecked():
-            self.toggle_button.setText("已关闭")
+            self.toggle_button.setText("已失能")
             self.is_open = False
+            m = String()
+            d = {
+                "setting_cmd":"set_disability",
+                
+                "params":{
+                    "hand_type":self.hand_type
+                }
+            }
+            m.data = json.dumps(d)
+            
+            self.setting_cmd_pub.publish(m)
             # 在这里处理开启状态
         else:
-            self.toggle_button.setText("已开启")
+            self.toggle_button.setText("已使能")
             self.is_open = True
+            m = String()
+            d = {
+                "setting_cmd":"set_enable",
+                "params":{
+                    "hand_type":self.hand_type
+                }
+            }
+            m.data = json.dumps(d)
+            self.setting_cmd_pub.publish(m)
             # 在这里处理关闭状态

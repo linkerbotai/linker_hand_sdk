@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<launch>
+  <node pkg="graphic_display_status" type="graphic_display_status.py" name="graphic_display_status" output="screen" >
+  </node>
+</launch>

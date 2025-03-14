@@ -18,6 +18,8 @@ class FrameProperty(Enum):
     HAND_TANGENTIAL_FORCE = 0X21
     HAND_TANGENTIAL_FORCE_DIR = 0X22
     HAND_APPROACH_INC = 0X23
+    MOTOR_TEMPERATURE_1 = 0x33
+    MOTOR_TEMPERATURE_2 = 0x34
 
 class LinkerHandL10Can:
     def __init__(self, config,can_id, can_channel='can0', baudrate=1000000, ):
@@ -25,11 +27,15 @@ class LinkerHandL10Can:
         self.x02 = [0] * 5
         self.x04 = [0] * 5
         self.x05 = [0] * 5
+        self.x33 = self.x34 = [0] * 5
+        # 故障码
+        self.x35,self.x36 = [0] * 5,[0] * 5
         self.can_id = can_id
         self.joint_angles = [0] * 10
         self.pressures = [200] * 5  # 默认扭矩200
         self.bus = self.init_can_bus(can_channel, baudrate)
         self.normal_force, self.tangential_force, self.tangential_force_dir, self.approach_inc = [[0.0] * 5 for _ in range(4)]
+        self.version = None
         # 启动接收线程
         self.running = True
         self.receive_thread = threading.Thread(target=self.receive_response)
@@ -94,6 +100,14 @@ class LinkerHandL10Can:
         self.send_frame(FrameProperty.HAND_TANGENTIAL_FORCE_DIR,[])
     def get_approach_inc(self):
         self.send_frame(FrameProperty.HAND_APPROACH_INC,[])
+    ''' -------------------电机温度---------------------- '''
+    def get_motor_temperature(self):
+        self.send_frame(FrameProperty.MOTOR_TEMPERATURE_1,[])
+        self.send_frame(FrameProperty.MOTOR_TEMPERATURE_2,[])
+    # 电机故障码
+    def get_motor_fault_code(self):
+        self.send_frame(0x35,[])
+        self.send_frame(0x36,[])
     def receive_response(self):
         """接收CAN响应并处理."""
         while self.running:
@@ -138,7 +152,21 @@ class LinkerHandL10Can:
                 #ColorMsg(msg=f"五指接近度：{list(response_data)}")
                 d = list(response_data)
                 self.approach_inc = [float(i) for i in d]
+            elif frame_type == 0x33:
+                self.x33 = list(response_data)
+            elif frame_type == 0x34:
+                self.x34 = list(response_data)
+            elif frame_type == 0x35:
+                self.x35 = list(response_data)
+            elif frame_type == 0x36:
+                self.x36 = list(response_data)
+            elif frame_type == 0x64:
+                self.version = list(response_data)
 
+    def get_version(self):
+        self.send_frame(0x64,[])
+        time.sleep(0.001)
+        return self.version
     def get_current_status(self):
         return self.x01 + self.x04
     def get_speed(self):
@@ -149,6 +177,12 @@ class LinkerHandL10Can:
         return self.x02
     def get_force(self):
         return [self.normal_force,self.tangential_force , self.tangential_force_dir , self.approach_inc]
+    def get_temperature(self):
+        self.get_motor_temperature()
+        return self.x33+self.x34
+    def get_fault(self):
+        self.get_motor_fault_code()
+        return self.x35+self.x36
     def close_can_interface(self):
         """Stop the CAN communication."""
         self.running = False

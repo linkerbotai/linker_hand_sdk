@@ -16,238 +16,183 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from utils.linker_hand_l25_can import LinkerHandL25Can
 from utils.color_msg import ColorMsg
 from utils.open_can import OpenCan
+from utils.load_write_yaml import LoadWriteYaml
 global package_path
 # 创建 rospkg.RosPack 对象
 rospack = rospkg.RosPack()
 # 获取指定包的路径
 package_name = "linker_hand_sdk_ros"
 package_path = rospack.get_path(package_name)
+
 '''
-# 左手
-
-
-[159.0, 255.0, 255.0, 255.0, 255.0, 255.0, 112.0, 118.0, 143.0, 255.0, 255.0, 255.0, 255.0, 255.0, 255.0, 255.0, 255.0, 255.0, 255.0, 255.0, 255.0, 255.0, 255.0, 255.0, 255.0]
-
-
-大拇指弯曲+四指尖弯曲
-rostopic pub /cb_left_hand_control_cmd sensor_msgs/JointState "{header: {seq: 0, stamp: {secs: 0, nsecs: 0}, frame_id: ''}, name: [], position: [239, 209, 237, 244, 0, 0, 120, 134, 134, 0, 175, 0, 0, 0, 0, 155, 209, 204, 163, 0, 58, 132, 130, 130, 0], velocity: [], effort: []}"
-
-rostopic pub /cb_left_hand_control_cmd sensor_msgs/JointState "{header: {seq: 0, stamp: {secs: 0, nsecs: 0}, frame_id: ''}, name: [], position: [128,128,128,128,128,128,128,128,128,128,128,128,128,128,128,128,128,128,128,128,128,128,128,128,128], velocity: [], effort: []}"
-
-张开
-rostopic pub /cb_left_hand_control_cmd sensor_msgs/JointState "{header: {seq: 0, stamp: {secs: 0, nsecs: 0}, frame_id: ''}, name: [], position: [216, 214, 224, 224, 0, 191, 134, 149, 163, 0, 170, 226, 0, 0, 0, 239, 255, 244, 242, 0, 252, 255, 232, 244, 0], velocity: [], effort: []}"
-
-# 握拳
-rostopic pub /cb_left_hand_control_cmd sensor_msgs/JointState "{header: {seq: 0, stamp: {secs: 0, nsecs: 0}, frame_id: ''}, name: [], position: [140, 206, 229, 232, 0, 255, 134, 127, 138, 0, 153, 163, 0, 0, 0, 165, 229, 224, 183, 0, 124, 130, 130, 130, 0], velocity: [], effort: []}"
+L25的灵巧手新增了失能/使能模式切换
+失能模式: 在失能模式下，可以拖动手指，并且实时返回手指状态，目的用于进行同步遥操其他L25的灵巧手
 '''
 class LinkerHandL25:
-    def __init__(self, leaphand=False):
-        self.password = ""
-        self.leaphand = leaphand
-        self.can_status = False
-        self.load_yaml()
-        if (self.left_hand_exists == True and self.left_hand_joint != "L25") or (self.right_hand_exists == True and self.right_hand_joint != "L25"):
-            ColorMsg(msg="当前SDK只支持L25手部", color="red")
-            return
+    def __init__(self):
+        
+        self.left_hand = None
+        self.right_hand = None
+        self.motor_mode = rospy.get_param("~motor_mode", "enable") # 电机失能 | 使能模式参数
+        self.thumb_pos,self.index_pos,self.middle_pos,self.ring_pos,self.little_pos = [0.0]*5,[0.0]*5,[0.0]*5,[0.0]*5,[0.0]*5
+        #self.load_yaml()
+        self.config = LoadWriteYaml().load_setting_yaml()
+        self.left_hand_exists = self.config['LINKER_HAND']['LEFT_HAND']['EXISTS']
+        self.left_hand_joint = self.config['LINKER_HAND']['LEFT_HAND']['JOINT']
+        self.right_hand_exists = self.config['LINKER_HAND']['RIGHT_HAND']['EXISTS']
+        self.right_hand_joint = self.config['LINKER_HAND']['RIGHT_HAND']['JOINT']
+        self.sdk_version = self.config['VERSION']
+        self.password = self.config['PASSWORD']
         time.sleep(0.1)
-        if self.leaphand == False:
-            self.speed = [250] * 4
-        else:
-            self.speed = [20] * 5
         ColorMsg(msg=f"SDK version:{self.sdk_version}", color="green")
-        ColorMsg(msg=f"当前设置为:左手{self.left_hand_exists} JOINT:{self.left_hand_joint}", color="green")
-        ColorMsg(msg=f"当前设置为:右手{self.right_hand_exists} JOINT:{self.right_hand_joint}", color="green")
         self.open_can0()
         time.sleep(0.01)
         self.is_can_up_sysfs()
-        self.check_left_hand()
-        self.check_right_hand()
-        time.sleep(0.1)
-        self.position_send()
-
-    # 验证左手状态
-    def check_left_hand(self):
-        if self.left_hand_exists == True:
-            self.left_hand_position = [0.0] * 25
-            self.left_hand_can = LinkerHandL25Can(can_channel="can0", baudrate=1000000, can_id=0x28, config=self.config)
-            self.left_hand_can.set_speed(speed=self.speed)
-            ColorMsg(msg=f"设置左手速度:{self.speed}", color="green")
-            time.sleep(1)
-            #self.left_hand_can.set_finger_torque(torque=[200] * 4)
-            joint_01, joint_02, joint_03, joint_04, joint_05, joint_06 = self.pose_slice(p=[159.0, 255.0, 255.0, 255.0, 255.0, 255.0, 112.0, 118.0, 143.0, 255.0, 255.0, 255.0, 255.0, 255.0, 255.0, 255.0, 255.0, 255.0, 255.0, 255.0, 255.0, 255.0, 255.0, 255.0, 255.0])
-            #joint_01, joint_02, joint_03, joint_04, joint_05, joint_06 = self.pose_slice(p=[255]*25)
-            self.left_hand_can_send(joint_01, joint_02, joint_03, joint_04, joint_05, joint_06)
-            
-            # joint_01 = [128, 0, 0, 0] # 大拇指像手心摆动，其他为0
-            # joint_02 = [128,128,128,128] # 四指横摆
-            # joint_03 = [128,128,128,128] # 四指根部弯曲
-            # joint_04 = [128,128,128,128] # 四指中部弯曲
-            # joint_05 = [255,0,0,0] # 大拇指中上部弯曲, 其他为0
-            # joint_06 = [128,10,50,80] # 四指指尖弯曲
-            # self.left_hand_can.set_03(joint_03)
-            self.left_hand_sub = rospy.Subscriber("/cb_left_hand_control_cmd", JointState, self.left_hand_cb, queue_size=1)
-            
-    # 验证右手状态
-    def check_right_hand(self):
-        if self.right_hand_exists == True:
-            self.right_hand_position = [0.0] * 25
-            self.right_hand_can = LinkerHandL25Can(can_channel="can0", baudrate=1000000, can_id=0x27, config=self.config)
-            self.right_hand_can.set_speed(speed=self.speed)
-            ColorMsg(msg=f"设置左手速度:{self.speed}", color="green")
-            time.sleep(1)
-            #self.left_hand_can.set_finger_torque(torque=[200] * 4)
-            joint_01, joint_02, joint_03, joint_04, joint_05, joint_06 = self.pose_slice(p=[159.0, 255.0, 255.0, 255.0, 255.0, 255.0, 112.0, 118.0, 143.0, 255.0, 255.0, 255.0, 255.0, 255.0, 255.0, 255.0, 255.0, 255.0, 255.0, 255.0, 255.0, 255.0, 255.0, 255.0, 255.0])
-            #joint_01, joint_02, joint_03, joint_04, joint_05, joint_06 = self.pose_slice(p=[255]*25)
-            self.right_hand_can_send(joint_01, joint_02, joint_03, joint_04, joint_05, joint_06)
-            self.right_hand_sub = rospy.Subscriber("/cb_right_hand_control_cmd", JointState, self.right_hand_cb, queue_size=1)
-
-    
-
-    # 左手接收到话题将数据处理后发送到CAN驱动左手运动
-    def left_hand_cb(self, msg):
-        position = msg.position
-        velocity = msg.velocity
-        effort = msg.effort
-        if len(position) == 25:
-            self.left_hand_position = position
-            self.left_hand_velocity = velocity
-            self.left_hand_effort = effort
-        else:
-            ColorMsg(msg="当前为Linker_L25，手指关节应为25个0~255的值", color="red")
-
-    # 右手接收到话题将数据处理后发送到CAN驱动左手运动
-    def right_hand_cb(self, msg):
-        position = msg.position
-        velocity = msg.velocity
-        effort = msg.effort
-        if len(position) == 24:
-            self.right_hand_position = position
-            self.right_hand_velocity = velocity
-            self.right_hand_effort = effort
-        else:
-            ColorMsg(msg="当前为Linker_L25，手指关节应为25个0~255的值", color="red")
-
-    
-
-    # 验证接收到的手指关节坐标数值是否在0~255范围之内
-    def validate_joint_positions(self, positions):
-        # 检查 positions 列表中的每个值是否在 0 到 255 范围内
-        for pos in positions:
-            if int(pos) < 0 or int(pos) > 255:
-                return False
-        return True
-
-    def position_send(self):
+        
+        self.init_left_hand()
+        
+        self.init_right_hand()
+        self.hand_setting_sub = rospy.Subscriber("/cb_hand_setting_cmd", String, self.hand_setting_cb) # 获取灵巧手设置命令
+        self.stop_event = threading.Event()  # 创建一个事件对象
+        self.hand_state_thread = threading.Thread(target=self.pub_hand_status)
+        self.hand_state_thread.daemon = True
+        self.hand_state_thread.start()
+        self.hand_info_thread = threading.Thread(target=self.pub_hand_info)
+        self.hand_info_thread.daemon = True
+        self.hand_info_thread.start()
+        #self.test_joint()
+        # self.pub_hand_status()
+        
+        
+    def test_joint(self):
+        pos = [50]* 5
+        pos2 = [250] * 5
+        count = 0
+        t = [250] * 5
+        self.right_hand.set_torque(j=t)
         while True:
-            ''' ---------------左手------------------ '''
-            if self.left_hand_exists == True:
-                
-                # 发送左手数据
-                if len(self.left_hand_position) == 24:
-                    if any(val != 0 and val != 0.0 for val in self.left_hand_position):
-                        joint_01, joint_02, joint_03, joint_04, joint_05, joint_06 = self.pose_slice(p=self.left_hand_position)
-                        self.left_hand_can_send(joint_01, joint_02, joint_03, joint_04, joint_05, joint_06)
-                        # 获取L20左手错误状态
-                        #self.left_hand_can.get_faults()
-                        # 获取L20左手当前电流
-                        #self.left_hand_can.get_electric_current()
-                # 发送左手状态
-                self.left_hand_status()
-            ''' ---------------右手------------------ '''
-            if self.right_hand_exists == True:
-                
-                # 发送左手数据
-                if len(self.right_hand_position) == 24:
-                    if any(val != 0 and val != 0.0 for val in self.right_hand_position):
-                        joint_01, joint_02, joint_03, joint_04, joint_05, joint_06 = self.pose_slice(p=self.right_hand_position)
-                        self.right_hand_can_send(joint_01, joint_02, joint_03, joint_04, joint_05, joint_06)
-                        # 获取L20左手错误状态
-                        #self.left_hand_can.get_faults()
-                        # 获取L20左手当前电流
-                        #self.left_hand_can.get_electric_current()
-                # 发送左手状态
-                self.right_hand_status()
-
-    # L20发送can数据
-    def left_hand_can_send(self,joint_01, joint_02, joint_03, joint_04, joint_05, joint_06):
-        self.left_hand_can.set_01(joint_01)
-        self.left_hand_can.set_02(joint_02)
-        self.left_hand_can.set_03(joint_03)
-        self.left_hand_can.set_04(joint_04)
-        self.left_hand_can.set_05(joint_05)
-        if self.leaphand == False:
-            self.left_hand_can.set_06(joint_06)
-        # self.left_hand_can.set_04(joint_04) # 指尖中部
-        # self.left_hand_can.set_07(joint_07) # 指尖移动
-        # self.left_hand_can.set_01(joint_01) # 手指根部移动
-        # self.left_hand_can.set_06(joint_06) # 横摆移动
-        # self.left_hand_can.set_08(joint_08) # 大拇想手心横摆指移动
-
-    # L20发送can数据
-    def right_hand_can_send(self,joint_01, joint_02, joint_03, joint_04, joint_05, joint_06):
-        self.right_hand_can.set_01(joint_01)
-        self.right_hand_can.set_02(joint_02)
-        print("------------------------")
-        self.right_hand_can.set_03(joint_03)
-        self.right_hand_can.set_04(joint_04)
-        self.right_hand_can.set_05(joint_05)
-        if self.leaphand == False:
-            self.right_hand_can.set_06(joint_06)
-        # self.right_hand_can.set_04(joint_04) # 指尖中部
-        # self.right_hand_can.set_07(joint_07) # 指尖移动
-        # self.right_hand_can.set_01(joint_01) # 手指根部移动
-        # self.right_hand_can.set_06(joint_06) # 横摆移动
-        # self.right_hand_can.set_08(joint_08) # 大拇想手心横摆指移动
-    
-
-    
-
-    def pose_slice(self, p):
-        """将关节数组切片为手指动作数组"""
-        '''
-        joint_01 = [255, 0, 0, 0] # 大拇指像手心摆动，其他为0
-        joint_02 = [128,128,128,128] # 四指横摆
-        joint_03 = [255,255,255,255] # 四指根部弯曲
-        joint_04 = [128,128,128,128] # 四指中部弯曲
-        joint_05 = [255,0,0,0] # 大拇指中上部弯曲, 其他为0
-        joint_06 = [128,10,50,80] # 四指指尖弯曲
-        '''
-        try:
-            if self.leaphand == True:
-                # joint_03 = [255,255,255,255] # 四指根部弯曲
-                joint_03 = [int(val) for val in p[0:5]]   # 手指根部
-                # joint_02 = [128,128,128,128] # 四指横摆
-                joint_02 = [int(val) for val in p[5:10]]    # 横摆
-                # joint_01 = [255, 0, 0, 0] # 大拇指像手心摆动，其他为0 
-                joint_01 = [int(val) for val in p[10:15]]# 大拇指像手心摆动，其他为0
-                # joint_04 = [128,128,128,128] # 四指中部弯曲
-                joint_04 = [int(val) for val in p[15:20]]    # 指中弯曲
-                # joint_06 = [128,10,50,80] # 四指指尖弯曲
-                joint_05 = [int(val) for val in p[20:25]]    # 指尖
-                joint_06 = []
+            fault = self.right_hand.get_fault()
+            ColorMsg(msg=f"故障码:{fault}", color="yellow")
+            tempe = self.right_hand.get_threshold()
+            print("\n")
+            ColorMsg(msg=f"温度阈值:{tempe}", color="yellow")
+            if count % 2 == 0:
+                self.right_hand.set_root1_positions(joint_ranges=pos)
             else:
-                # joint_03 = [255,255,255,255] # 四指根部弯曲
-                joint_03 = [int(val) for val in p[0:5]]   # 手指根部
-                # joint_02 = [128,128,128,128] # 四指横摆
-                joint_02 = [int(val) for val in p[5:10]]    # 横摆
-                # joint_01 = [255, 0, 0, 0] # 大拇指像手心摆动，其他为0 
-                thumb = [int(val) for val in p[10:15]]
-                joint_01 = [thumb[0], 0, 0, 0, 0] # 大拇指像手心摆动，其他为0
-                joint_05 = [thumb[1], 0, 0, 0, 0] # 大拇指中上部弯曲, 其他为0
-                # joint_04 = [128,128,128,128] # 四指中部弯曲
-                joint_04 = [int(val) for val in p[15:20]]    # 指中弯曲
-                # joint_06 = [128,10,50,80] # 四指指尖弯曲
-                joint_06 = [int(val) for val in p[20:25]]    # 指尖
-                joint_03.pop()
-                joint_02.pop()
-                joint_04.pop()
-                joint_06.pop()
-            return joint_01, joint_02, joint_03, joint_04, joint_05,joint_06
-        except Exception as e:
-            print(e)
-            ColorMsg(msg="手部关节数据必须是正整数，范围:0~255之间", color="red")
+                self.right_hand.set_root1_positions(joint_ranges=pos2)
+            time.sleep(3)
+            count = count + 1
+        # self.right_hand.action_play()
+
+    # 验证左手配置
+    def init_left_hand(self):
+        if self.left_hand_exists == True and self.left_hand_joint == "L25":
+            self.left_hand=LinkerHandL25Can(config=self.config, can_channel="can0",baudrate=1000000,can_id=0x28)
+            if self.motor_mode == "disability":
+                # 设置为失能模式
+                self.left_hand.set_disability_mode()
+                # 失能模式下将手状态发布到控制话题，达到遥操控制其他L25手的效果
+                self.left_hand_status_pub = rospy.Publisher("/cb_left_hand_control_cmd",JointState,queue_size=1)
+            elif self.motor_mode == "enable":
+                # 设置为使用模式
+                self.left_hand.set_enable_mode()
+                # 设置手指速度0~255
+                self.left_hand.set_speed(speed=[100, 250, 250, 250, 250, 250])
+                # 设置手掌张开
+                self.left_hand.set_joint_positions_by_topic(joint_ranges=[232, 254, 255, 254, 252, 250, 61, 0.0, 10, 40, 189, 0.0, 0.0, 0.0, 0.0, 255, 252, 243, 240, 252, 229, 232, 247, 252, 247])
+                self.left_hand_cmd_sub = rospy.Subscriber("/cb_left_hand_control_cmd", JointState,self.left_position_send,queue_size=1)
+                self.left_hand_status_pub = rospy.Publisher("/cb_left_hand_state",JointState,queue_size=1)
+            self.left_hand_info_pub = rospy.Publisher("/cb_left_hand_info", String, queue_size=10)
+        else:
+            ColorMsg(msg=f"当前配置left_hand_exists={self.left_hand_exists} left_hand_joint={self.left_hand_joint},不符合左手L25状态", color="red")
+            self.left_hand_exists = False
+    # 验证右手配置
+    def init_right_hand(self):
+        if self.right_hand_exists == True and self.right_hand_joint == "L25":
+            self.right_hand=LinkerHandL25Can(config=self.config, can_channel="can0",baudrate=1000000,can_id=0x27)
+            if self.motor_mode == "disability":
+                # 设置为失能模式
+                self.right_hand.set_disability_mode()
+                # 失能模式下将手状态发布到控制话题，达到遥操控制其他L25手的效果
+                self.right_hand_status_pub = rospy.Publisher("/cb_right_hand_control_cmd",JointState,queue_size=1)
+            elif self.motor_mode == "enable":
+                # 设置为使用模式
+                self.right_hand.set_enable_mode()
+                # 设置手指速度0~255
+                self.right_hand.set_speed(speed=[100, 250, 250, 250, 250, 250])
+                # 设置手掌张开
+                self.right_hand.set_joint_positions_by_topic(joint_ranges=[232, 254, 255, 254, 252, 250, 61, 0.0, 10, 40, 189, 0.0, 0.0, 0.0, 0.0, 255, 252, 243, 240, 252, 229, 232, 247, 252, 247])
+                self.right_hand_cmd_sub = rospy.Subscriber("/cb_right_hand_control_cmd", JointState,self.right_position_send,queue_size=1)
+                self.right_hand_status_pub = rospy.Publisher("/cb_right_hand_state",JointState,queue_size=1)
+            self.right_hand_info_pub = rospy.Publisher("/cb_right_hand_info", String, queue_size=10)
+        else:
+            ColorMsg(msg=f"当前配置right_hand_exists={self.right_hand_exists} right_hand_joint={self.right_hand_joint},不符合右手L25状态", color="red")
+            self.right_hand_exists = False
+        
+    def left_position_send(self,msg):
+        pos = msg.position
+        #self.left_hand.set_joint_positions(joint_ranges=list(pos))
+        self.left_hand.set_joint_positions_by_topic(joint_ranges=list(pos))
+    def right_position_send(self,msg):
+        pos = msg.position
+        self.right_hand.set_joint_positions_by_topic(joint_ranges=list(pos))
+    def pub_hand_status(self):
+        while True:
+            self.hand_status()
+            #self.hand_info()
+            time.sleep(0.015)
+    def pub_hand_info(self):
+        while True:
+            self.hand_info()
+            time.sleep(0.01)
+
+    def hand_status(self):
+        if self.left_hand != None:
+            left_hand_state = self.left_hand.get_current_state_topic()
+            if left_hand_state != None and len(left_hand_state) == 25:
+                msg = self.create_joint_state_msg(position=left_hand_state)
+                self.left_hand_status_pub.publish(msg)
+        if self.right_hand != None:
+            right_hand_state = self.right_hand.get_current_state_topic()
+            if right_hand_state != None and len(right_hand_state) == 25:
+                msg = self.create_joint_state_msg(position=right_hand_state)
+                self.right_hand_status_pub.publish(msg)
+
+
+    def hand_info(self):
+        if self.left_hand_exists == True:
+            data = {
+                "left_hand":{
+                    "version": self.left_hand.get_version(),
+                    "hand_type": self.left_hand_joint,
+                    "speed": self.left_hand.get_speed(),
+                    #"current": self.left_hand.get_current(),
+                    "fault": self.left_hand.get_fault(),
+                    #"motor_temperature": self.left_hand.get_temperature()
+                }
+            }
+            m = String()
+            m.data = json.dumps(data)
+            self.left_hand_info_pub.publish(m)
+        if self.right_hand_exists == True:
+            data = {
+                "left_hand":{
+                    "version": self.right_hand.get_version(),
+                    "hand_type": self.right_hand_joint,
+                    "speed": self.right_hand.get_speed(),
+                    #"current": self.right_hand.get_current(),
+                    "fault": self.right_hand.get_fault(),
+                    #"motor_temperature": self.right_hand.get_temperature()
+                }
+            }
+            m = String()
+            m.data = json.dumps(data)
+            self.right_hand_info_pub.publish(m)
+            
+
+
     
-    def create_joint_state_msg(self, position, names):
+    def create_joint_state_msg(self, position, names=[]):
         msg = JointState()
         msg.header = Header()
         msg.header.stamp = rospy.Time.now()
@@ -256,67 +201,39 @@ class LinkerHandL25:
         msg.velocity = [0.0] * len(position)
         msg.effort = [0.0] * len(position)
         return msg
-    
-    def left_hand_status(self):
-        if self.left_hand_exists:
-            # [206, 0, 0, 0, 140, 142, 160, 171, 221, 214, 224, 239, 239, 242, 247, 181, 229, 0, 0, 0, 247, 130, 114, 130]
-            '''
-            joint_01 = [255, 0, 0, 0] # 大拇指像手心摆动，其他为0
-            joint_02 = [128,128,128,128] # 四指横摆
-            joint_03 = [255,255,255,255] # 四指根部弯曲
-            joint_04 = [128,128,128,128] # 四指中部弯曲
-            joint_05 = [255,0,0,0] # 大拇指中上部弯曲, 其他为0
-            joint_06 = [128,10,50,80] # 四指指尖弯曲
-            '''
-            joint_01, joint_02, joint_03, joint_04, joint_05,joint_06 = self.left_hand_can.get_current_status()
-            # current_pose = joint_03 + [0] + joint_02 + [0] + [joint_01[0],joint_05[0]]+[0]*3+joint_04+[0]+joint_06+[0]
-            speed = self.left_hand_can.get_speed()
-            # finger_torque = self.left_hand_can.get_finger_torque()
-            if self.leaphand == False:
-                current_pose = joint_01 + joint_02 + joint_03 + joint_04 + joint_05 + joint_06
-                ColorMsg(msg=f"左手当前关节位置:{current_pose}", color="green")
-            ColorMsg(msg=f"左手当前speed:{speed}", color="green")
-            #ColorMsg(msg=f"左手当前扭矩:{finger_torque}", color="green")
+    def hand_setting_cb(self, msg):
+        hand_left, hand_right = False, False
+        data = json.loads(msg.data)
+        print(f"收到设置命令：{data}")
+        if data["params"]["hand_type"] == "left" and self.left_hand_exists:
+            hand_left = True
+        elif data["params"]["hand_type"] == "right" and self.right_hand_exists:
+            hand_right = True
+        else:
+            print("请指定要设定的手部位")
+            return
+        if data["setting_cmd"] == "set_disability": # 设置失能模式
+            # rostopic pub /cb_hand_setting_cmd std_msgs/String '{data: "{\"setting_cmd\":\"set_disability\",\"params\":{\"hand_type\":\"right\"}}"}'   参数说明：hand_type:left | right
+            if hand_left == True:
+                self.left_hand.set_disability_mode()
+            if hand_right == True:
+                self.right_hand.set_disability_mode()
+        if data["setting_cmd"] == "set_enable": # 设置失能模式
+            # rostopic pub /cb_hand_setting_cmd std_msgs/String '{data: "{\"setting_cmd\":\"set_enable\",\"params\":{\"hand_type\":\"right\"}}"}'   参数说明：hand_type:left | right
+            if hand_left == True:
+                self.left_hand.set_enable_mode()
+            if hand_right == True:
+                self.right_hand.set_enable_mode()
+        if data["setting_cmd"] == "set_speed": # 设置速度
+            if isinstance(data["params"]["speed"], list) == True:
+                speed = data["params"]["speed"]
+            else:
+                speed = [int(data["params"]["speed"])] * 5
+            if hand_left == True:
+                self.left_hand.set_speed(speed)
+            if hand_right == True:
+                self.right_hand.set_speed(speed)
 
-    def right_hand_status(self):
-        if self.right_hand_exists:
-            # [206, 0, 0, 0, 140, 142, 160, 171, 221, 214, 224, 239, 239, 242, 247, 181, 229, 0, 0, 0, 247, 130, 114, 130]
-            '''
-            joint_01 = [255, 0, 0, 0] # 大拇指像手心摆动，其他为0
-            joint_02 = [128,128,128,128] # 四指横摆
-            joint_03 = [255,255,255,255] # 四指根部弯曲
-            joint_04 = [128,128,128,128] # 四指中部弯曲
-            joint_05 = [255,0,0,0] # 大拇指中上部弯曲, 其他为0
-            joint_06 = [128,10,50,80] # 四指指尖弯曲
-            '''
-            joint_01, joint_02, joint_03, joint_04, joint_05,joint_06 = self.right_hand_can.get_current_status()
-            # current_pose = joint_03 + [0] + joint_02 + [0] + [joint_01[0],joint_05[0]]+[0]*3+joint_04+[0]+joint_06+[0]
-            speed = self.right_hand_can.get_speed()
-            # finger_torque = self.right_hand_can.get_finger_torque()
-            if self.leaphand == False:
-                current_pose = joint_01 + joint_02 + joint_03 + joint_04 + joint_05 + joint_06
-                ColorMsg(msg=f"右手当前关节位置:{current_pose}", color="green")
-            ColorMsg(msg=f"右手当前speed:{speed}", color="green")
-            #ColorMsg(msg=f"左手当前扭矩:{finger_torque}", color="green")
-
-    def load_yaml(self):
-        try:
-            settings_yaml_path = package_path + "/config/setting.yaml"
-            with open(settings_yaml_path, 'r', encoding='utf-8') as file:
-                config = yaml.safe_load(file)
-                self.config = config
-                self.sdk_version = config["VERSION"]
-                self.left_hand_exists = config['LINKER_HAND']['LEFT_HAND']['EXISTS']
-                self.left_hand_names = config['LINKER_HAND']['LEFT_HAND']['NAME']
-                self.left_hand_joint = config['LINKER_HAND']['LEFT_HAND']['JOINT']
-                self.left_hand_force = config['LINKER_HAND']['LEFT_HAND']['TOUCH']
-                self.right_hand_exists = config['LINKER_HAND']['RIGHT_HAND']['EXISTS']
-                self.right_hand_names = config['LINKER_HAND']['RIGHT_HAND']['NAME']
-                self.right_hand_joint = config['LINKER_HAND']['RIGHT_HAND']['JOINT']
-                self.right_hand_force = config['LINKER_HAND']['RIGHT_HAND']['TOUCH']
-                self.password = config['PASSWORD']
-        except Exception as e:
-            rospy.logerr(f"Error reading setting.yaml: {e}")
     def open_can0(self):
         try:
             # 检查 can0 接口是否已存在并处于 up 状态
@@ -344,7 +261,7 @@ class LinkerHandL25:
             rospy.logerr(f"发生错误: {str(e)}")
 
     def is_can_up_sysfs(self, interface="can0"):
-        # 检查接口目录是否存在
+    # 检查接口目录是否存在
         if not os.path.exists(f"/sys/class/net/{interface}"):
             return False
         # 读取接口状态
@@ -358,30 +275,32 @@ class LinkerHandL25:
             print(f"Error reading CAN interface state: {e}")
             return False
     def shutdown(self):
+        self.stop_event.set()
         # self.lh_l.close_can_interface()
         # self.lh_r.close_can_interface()
         # self.shutdown_flag.set()
         # self.can_left_thread.join()
         # self.can_right_thread.join()
-        pass
     
 def signal_handler(sig, frame):
-    # rospy.loginfo("Shutting down ROS node...")
-    # rospy.signal_shutdown("SIGINT received")
-    # rospy.on_shutdown()
+    m = String()
+    d = {
+        "close_sdk":True
+    }
+    m.data = json.dumps(d)
+    for i in range(2):
+        pub.publish(m)
+        time.sleep(0.01)
+    """关闭 can0 接口"""
+    can.close_can0()
     sys.exit(0)  # 正常退出程序
 if __name__ == '__main__':
-    rospy.init_node('linker_hand_sdk_l25', anonymous=True)
-    hand = rospy.get_param('~hand', default="leaphand")  # 默认获取全局参数
-    if hand == "leaphand":
-        param = True
-    else:
-        param = False
+    rospy.init_node('linker_hand_sdk', anonymous=True)
     rospy.Rate(60)
     # 注册信号处理器
     signal.signal(signal.SIGINT, signal_handler)  # Ctrl+C
     signal.signal(signal.SIGTERM, signal_handler)  # kill 命令
-    
+    pub = rospy.Publisher('/close_sdk', String, queue_size=10)
     try:
         # 检查can端口如果没有打开则等待重试，一般是usb转can设备没有插上
         while True:
@@ -394,8 +313,9 @@ if __name__ == '__main__':
                 time.sleep(3)
             else:
                 break
-        linker_hand = LinkerHandL25(leaphand=param)
+        linker_hand = LinkerHandL25()
         rospy.spin()
     except rospy.ROSInterruptException:
-        linker_hand.shutdown()
+        #linker_hand.shutdown()
         rospy.loginfo("Node shutdown complete.")
+    

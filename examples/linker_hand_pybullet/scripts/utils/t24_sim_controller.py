@@ -9,7 +9,7 @@ rostopic pub /cb_right_hand_control_cmd sensor_msgs/JointState "{header: {seq: 0
 class T24SimController:
     def __init__(self):
         rospack = rospkg.RosPack()
-        urdf_path_right = rospack.get_path('linker_hand_pybullet') + "/urdf/l24/linkerhand_t24_1_right.urdf"
+        urdf_path_right = rospack.get_path('linker_hand_pybullet') + "/urdf/t24/linkerhand_t24_1_right.urdf"
         urdf_path=urdf_path_right
         self.right_hand_state_pub = rospy.Publisher("/cb_right_hand_state_sim",JointState,queue_size=0)
         self.right_hand_num_joints = 26
@@ -27,7 +27,8 @@ class T24SimController:
         # 初始化仿真参数
         p.setGravity(0, 0, -9.81)     # 设置重力
         p.setTimeStep(1./240.)        # 时间步长
-        
+        print("_-"*20)
+        print(urdf_path)
         # 加载URDF模型
         try:
             self.right_hand_id = p.loadURDF(urdf_path, basePosition=[0, 0.1, 0.1], useFixedBase=True)

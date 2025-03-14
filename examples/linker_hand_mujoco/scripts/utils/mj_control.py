@@ -21,8 +21,8 @@ class MJControlWrapper:
         """
         model_path = os.path.abspath("/home/hjx/ROS/Linker_Hand_SDK_ROS/src/linker_hand_sdk/examples/linker_hand_mujoco/urdf/linker_hand_l20_8_right.xml")
         self.model = mujoco.MjModel.from_xml_path(model_path)
-        # 禁用重力
-        self.model.opt.gravity[:] = 0
+        # # 禁用重力
+        # self.model.opt.gravity[:] = 0
         self.model.opt.timestep = 0.08  # 设置更小的时间步长
         # if mesh_dir is None:
             
@@ -48,6 +48,33 @@ class MJControlWrapper:
         self.config = {}
         self.seed = seed
         np.random.seed(seed)
+
+    def get_all_joints(self):
+        """获取并打印所有关节信息"""
+        for joint_id in range(self.model.njnt):
+            joint_name = self.model.joint(joint_id).name
+            joint_type = self.model.jnt_type[joint_id]
+            joint_range = self.model.jnt_range[joint_id] if joint_type != mujoco.mjtJoint.mjJNT_FREE else None
+            joint_pos = self.data.qpos[self.model.jnt_qposadr[joint_id]]
+            joint_vel = self.data.qvel[self.model.jnt_dofadr[joint_id]]
+
+            print(f"关节 {joint_id}:")
+            print(f"  名称: {joint_name}")
+            print(f"  类型: {self._get_joint_type_name(joint_type)}")
+            print(f"  范围: {joint_range}")
+            print(f"  当前位置: {joint_pos}")
+            print(f"  当前速度: {joint_vel}")
+            print("-" * 30)
+
+    def _get_joint_type_name(self, joint_type):
+        """将关节类型转换为可读名称"""
+        joint_types = {
+            mujoco.mjtJoint.mjJNT_FREE: "自由关节 (6自由度)",
+            mujoco.mjtJoint.mjJNT_BALL: "球关节 (3自由度)",
+            mujoco.mjtJoint.mjJNT_SLIDE: "滑动关节 (1自由度)",
+            mujoco.mjtJoint.mjJNT_HINGE: "旋转关节 (1自由度)",
+        }
+        return joint_types.get(joint_type, "未知类型")
 
     def enable_infinite_rotation(self, act_name_re):
         """Modify the model to allow infinite rotation for the specified joint actuators.
@@ -94,6 +121,7 @@ class MJControlWrapper:
         Args:
             until (float or None): The time to step the simulation until (in terms of simulation time). If None, only step once.
         """
+        
         if until is not None:
             while self.data.time < until:
                 mujoco.mj_step(self.model, self.data)
