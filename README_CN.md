@@ -200,7 +200,9 @@ $ roslaunch linker_hand_sdk_ros linker_hand_l25.launch # 启动 L25 灵巧手
 
 ## 5.2 range\_to\_arc
 
-获取L10、L20的弧度值
+获取和发送L10、L20的弧度值
+topic:/cb_left_hand_state_arc and /cb_right_hand_state_arc 获取LinkerHand状态position为弧度值
+topic:/cb_left_hand_control_cmd_arc 和 /cb_right_hand_control_cmd_arc 发布position弧度值控制LinkerHand手指运动
 
 ## 5.3 examples
 
