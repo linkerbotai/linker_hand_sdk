@@ -200,6 +200,10 @@ Actuate joint angles of the LinkerHand and retrieve its real-time state values (
 
 Retrieve radian measurements from L10 and L20.
 
+Get and send the radians for L10 or L20  through the topic:/cb_left_hand_state_arc and /cb_right_hand_state_arc 
+
+Get the position status of the LinkerHand in radians through the topic topic:/cb_left_hand_control_cmd_arc and /cb_right_hand_control_cmd_arc.  Publish the position in radians to control the finger movement of the LinkerHand.
+
 ## 5.3 examples
 
 Includes application examples for each product.
