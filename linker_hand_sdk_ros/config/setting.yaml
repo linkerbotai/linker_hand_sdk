@@ -1,18 +1,9 @@
-<<<<<<< HEAD
 VERSION: 1.3.6 # 版本号，新增L25_V2版本
 LINKER_HAND:  # 手部配置信息
   LEFT_HAND:
     EXISTS: False # 是否存在左手
     TOUCH: False  # 是否有压力传感器
     JOINT: L10 # 左手关节数  L7 \ L10 \ L20 \ L25
-=======
-VERSION: 1.3.5 # 版本号，L7 O7支持
-LINKER_HAND:  # 手部配置信息
-  LEFT_HAND:
-    EXISTS: True # 是否存在左手
-    TOUCH: True  # 是否有压力传感器
-    JOINT: L7 # 左手关节数  L7 \ L10 \ L20 \ L25
->>>>>>> aea9f55dfdafb54903865ac7fbd9632cbf402ab2
     NAME: # 无论l10还是l20 joint name都是20个
       - joint41
       - joint42
@@ -38,11 +29,7 @@ LINKER_HAND:  # 手部配置信息
   RIGHT_HAND:
     EXISTS: False # 是否存在右手
     TOUCH: True # 是否有压力传感器
-<<<<<<< HEAD
     JOINT: L25 # 右手关节数量   L7 \ L10 \ L20 \ L25
-=======
-    JOINT: L10 # 右手关节数量   L7 \ L10 \ L20 \ L25
->>>>>>> aea9f55dfdafb54903865ac7fbd9632cbf402ab2
     NAME:  # 无论l10还是l20 joint name都是20个
       - joint71
       - joint72
