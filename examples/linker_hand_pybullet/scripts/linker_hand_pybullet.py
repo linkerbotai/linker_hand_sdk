@@ -8,6 +8,7 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from utils.color_msg import ColorMsg
 from utils.l20_sim_controller import L20SimController
 from utils.t24_sim_controller import T24SimController
+from utils.l10_sim_controller import L10SimController
 
 '''
 五指全部展开
@@ -37,8 +38,8 @@ class LinkerHandPybullet:
             ColorMsg(msg=f"当前模拟环境为{self.hand}", color="green")
             self.l20_sim.showSim()
         elif self.hand == "L10":
-            print("正在开发中....")
-        elif self.hand == "L24":
+            ColorMsg(msg=f"功能正在增加中...", color="green")
+        elif self.hand == "T24":
             self.t24_sim = T24SimController()
             rospy.Subscriber("/cb_right_hand_control_cmd",JointState,self.t24_right_hand_cmd_callback,queue_size=10)
             ColorMsg(msg=f"当前模拟环境为{self.hand}", color="green")
@@ -156,7 +157,7 @@ if __name__ == "__main__":
     #2.初始化 ROS 节点:命名(唯一)
     rospy.init_node("linker_hand_pybullet", anonymous=True)
     # 获取参数
-    hand = rospy.get_param('~hand_type', default="L24")  # 默认获取全局参数
+    hand = rospy.get_param('~hand_type', default="L10")  # 默认获取全局参数
     rospy.loginfo(f"hand parameter: {hand}")
     if hand == None:
         rospy.loginfo(f"hand parameter: {hand}")

@@ -162,7 +162,7 @@ include_directories(
 catkin_install_python(PROGRAMS
   scripts/linker_hand.py
   scripts/linker_hand_l25.py
-  scripts/linker_hand_t24.py
+  scripts/linker_hand_l7.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

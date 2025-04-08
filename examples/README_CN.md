@@ -1,6 +1,7 @@
 # LinkerHandROS SDK程序案例
 <!-- TOC --> 
 [examples (示例)](#)
+## L10/L20
 - [0000-linker_hand_pybullet (PyBullet仿真示例)](linker_hand_pybullet/)
 - [0001-get_linker_hand_state (获取LinkerHand灵巧手当前状态)](L20_get_linker_hand_state/)
 - [0002-gui_control(图形界面控制)](gui_control/)
@@ -10,20 +11,27 @@
 - [0006-set_linker_hand_speed (设置LinkerHand灵巧手速度)](set_linker_hand_speed/)
 - [0007-set_linker_hand_current (设置LinkerHand灵巧手当前电流)](set_linker_hand_current/)
 - [0008-set_linker_hand_torque (设置LinkerHand灵巧手扭矩)](set_linker_hand_torque/)
+- [0009-finger_guessing (互动示例，猜拳游戏)](finger_guessing/) 注:需要有RGB摄像头
 ---
-- [0101-lipcontroller (触觉传感器配合灵巧手进行捏取操作)](gesture-show/lipcontroller.py)
-- [0102-gesture-Show-OK (使用python控制手比OK动作)](gesture-show/gesture-Show-OK.py)
-- [0103-gesture-Show-Surround-Index-Finger (使用python控制手做旋转食指动作)](gesture-show/gesture-Show-Surround-Index-Finger.py)
-- [0104-gesture-Show-Wave (使用python控制手做波浪运动)](gesture-show/gesture-Show-Wave.py)
-- [0105-gesture-Show-Ye (使用python控制手做一套复杂的展示动作)](gesture-show/gesture-Show-Ye.py)
-- [0106-gesture-Loop (使用python控制手循环抓握动作)](gesture-show/gesture-Loop.py)
+## Python L20
+- [0101-lipcontroller (触觉传感器配合灵巧手进行捏取操作)](L20/gesture-show/lipcontroller.py)
+- [0102-gesture-Show-OK (使用python控制手比OK动作)](L20/gesture-show/gesture-Show-OK.py)
+- [0103-gesture-Show-Surround-Index-Finger (使用python控制手做旋转食指动作)](L20/gesture-show/gesture-Show-Surround-Index-Finger.py)
+- [0104-gesture-Show-Wave (使用python控制手做波浪运动)](L20/gesture-show/gesture-Show-Wave.py)
+- [0105-gesture-Show-Ye (使用python控制手做一套复杂的展示动作)](L20/gesture-show/gesture-Show-Ye.py)
+- [0106-gesture-Loop (使用python控制手循环抓握动作)](L20/gesture-show/gesture-Loop.py)
+## Python L25
+- [0107-action_group_l25 (使用python控制L25手指舞)](L25/gesture/action_group_l25.py)
+## Python L7
+- [0108-action-group-show-ti (使用python控制L7手指舞)](L7/gesture/action-group-show-ti.py)
 ---
-## T24
+## L25
 - [0000-linker_hand_pybullet (PyBullet仿真示例)](linker_hand_pybullet/)
-- [0201-set_disability (设置T24灵巧手为失能模式)](examples/T24/set_disability.py) ```bash python set_disability.py --hand_type=left or right ```
-- [0202-set_enable (设置T24灵巧手为使能模式)](examples/T24/set_enable.py) ```bash python set_enable.py --hand_type=left or right ```
-- [0203-set_remote_control (设置T24灵巧手为遥操模式)](examples/T24/set_remote_control.py) ```bash python set_remote_control.py --hand_type=left or right ```
+- [0201-set_disability (设置L25灵巧手为失能模式)](L25/set_disability.py) ```$ python set_disability.py --hand_type=left or right ```
+- [0202-set_enable (设置L25灵巧手为使能模式)](L25/set_enable.py) ```$ python set_enable.py --hand_type=left or right ```
+- [0203-set_remote_control (设置L25灵巧手为遥操模式)](L25/set_remote_control.py) ```$ python set_remote_control.py --hand_type=left or right ```
 ---
+## 模仿学习
 - [1001-human-dex (使用LinkerHand灵巧手进行模仿学习训练并且实现自主抓取物品)](https://github.com/linkerbotai/human-dex)
 - [1002-linker_unidexgrasp (基于LinkerHand的Unidexgrasp灵巧手抓取算法)](https://github.com/linkerbotai/linker_unidexgrasp)
 
@@ -61,7 +69,8 @@ $ roslaunch linker_hand_sdk_ros linker_hand.launch
 ```bash
 $ cd Linker_Hand_SDK_ROS/
 $ source ./devel/setup.bash
-$ rosrun linker_hand_pybullet linker_hand_pybullet.py
+# hand:=L20/L25
+$ rosrun linker_hand_pybullet linker_hand_pybullet.py _hand:=L25
 ```
 ![STATE](../doc/pybullet.png)
 
@@ -106,7 +115,7 @@ $ rosrun gui_control gui_control.py
 ![START_SDK](../doc/gui_control.png) 
 
 - #### 0003-获取LinkerHand灵巧手力传感器数据
-新开终端
+开启SDK后，新开终端
 ```bash
 $ cd Linker_Hand_SDK_ROS/
 $ source ./devel/setup.bash
@@ -120,7 +129,7 @@ $ rosrun get_linker_hand_force get_linker_hand_force.py _loop:=False
 ```
 
 - #### 0004-获取LinkerHand灵巧手力当前速度
-新开终端
+开启SDK后，新开终端
 ```bash
 $ cd Linker_Hand_SDK_ROS/
 $ source ./devel/setup.bash
@@ -132,7 +141,7 @@ $ rosrun get_linker_hand_speed get_linker_hand_speed.py _loop:=False
 
 
 - #### 0005-获取LinkerHand灵巧手力当前电流
-新开终端
+开启SDK后，新开终端
 ```bash
 $ cd Linker_Hand_SDK_ROS/
 $ source ./devel/setup.bash
@@ -140,6 +149,14 @@ $ source ./devel/setup.bash
 $ rosrun get_linker_hand_current get_linker_hand_current.py _loop:=False
 #2025-01-15 16:25:29  左手没有数据
 #2025-01-15 16:25:29  当前右手五指电流为: [42, 42, 42, 42, 42]
+```
+
+- #### 0009-互动示例，猜拳游戏 注:需要有RGB摄像头
+开启SDK后，新开终端
+```bash
+$ cd Linker_Hand_SDK_ROS/
+$ source ./devel/setup.bash
+$ rosrun finger_guessing finger_guessing.py
 ```
 ---
 
@@ -188,6 +205,7 @@ $ roslaunch linker_hand_sdk_ros linker_hand.launch
 python ./<你的文件路径>/gesture-Show-OK.py
 #开始后终端会打印测试中，此时手会开始做OK的手势，并弯曲中指无名指小指和伸直动作
 ```
+<img src="../doc/20250221-135722.jpeg" width="300" height="300" /><img src="../doc/20250221-135706.jpeg" width="300" height="300" />
 
 - #### 0103-使用python控制手做旋转食指动作
 使用本例需要启动linker_hand_sdk_ros
@@ -272,8 +290,8 @@ $ python gesture-Loop.py
 ```
 
 
-- #### 0201-设置T24灵巧手为失能模式
-使T24版本灵巧手电机失能，可随意拖动各个关节活动    
+- #### 0201-设置L25灵巧手为失能模式
+使L25版本灵巧手电机失能，可随意拖动各个关节活动    
 
 首先需要启动LinkerHandSDKROS
 ```bash
@@ -288,12 +306,12 @@ $ roslaunch linker_hand_sdk_ros linker_hand.launch
 ```
 新开终端执行失能功能程序
 ```bash
-$ Linker_Hand_SDK_ROS/src/linker_hand_sdk/examples/T24
+$ Linker_Hand_SDK_ROS/src/linker_hand_sdk/examples/L25
 $ python set_disability.py
 ```
 
-- #### 0202-设置T24灵巧手为使能模式
-使T24版本灵巧手电机使能，使能后，可用控制程序控制  
+- #### 0202-设置L25灵巧手为使能模式
+使L25版本灵巧手电机使能，使能后，可用控制程序控制  
 
 首先需要启动LinkerHandSDKROS
 ```bash
@@ -308,15 +326,15 @@ $ roslaunch linker_hand_sdk_ros linker_hand.launch
 ```
 新开终端执行失能功能程序
 ```bash
-$ Linker_Hand_SDK_ROS/src/linker_hand_sdk/examples/T24
+$ Linker_Hand_SDK_ROS/src/linker_hand_sdk/examples/L25
 $ python set_enable.py
 ```
 
-- #### 0203-设置T24灵巧手为遥操模式
-如果拥有多只相同版本T24灵巧手，可使用本示例进行以一只失能T24灵巧手控制另一只电机使能的同版本T24灵巧手
+- #### 0203-设置L25灵巧手为遥操模式
+如果拥有多只相同版本L25灵巧手，可使用本示例进行以一只失能L25灵巧手控制另一只电机使能的同版本L25灵巧手
 
 首先需要启动LinkerHandSDKROS
-以下为被控制T24灵巧手配置方式，以下以右手为例
+以下为被控制L25灵巧手配置方式，以下以右手为例
 首先确保两台Ubuntu在同一网络内，并且配置好主从，两台Ubuntu可同时进行ROS通讯，可参考[ROS官方文档](https://wiki.ros.org/)
 控制机器A配置
 ```bash
@@ -331,7 +349,7 @@ $ roslaunch linker_hand_sdk_ros linker_hand.launch
 ```
 新开终端执行失能功能程序
 ```bash
-$ Linker_Hand_SDK_ROS/src/linker_hand_sdk/examples/T24
+$ Linker_Hand_SDK_ROS/src/linker_hand_sdk/examples/L25
 $ python set_remote_control.py
 ```
 被控制机器B配置
@@ -345,7 +363,7 @@ $ cd Linker_Hand_SDK_ROS/
 $ source ./devel/setup.bash
 $ roslaunch linker_hand_sdk_ros linker_hand.launch
 ```
-此时手动拖拽A机器的失能T24灵巧手即可控制B机器的使能T24灵巧手。
+此时手动拖拽A机器的失能L25灵巧手即可控制B机器的使能L25灵巧手。
 
 
 - #### 1001-使用LinkerHand灵巧手进行模仿学习训练

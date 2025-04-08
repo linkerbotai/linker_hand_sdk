@@ -194,7 +194,8 @@ class LinkerHandL20Can:
                 #ColorMsg(msg=f"五指接近度：{list(response_data)}")
                 d = list(response_data)
                 self.approach_inc = [float(i) for i in d]
-
+    def get_version(self):
+        return None
     def get_current_status(self):
         return self.x01 + self.x02 + self.x03 + self.x04
     def get_force(self):
@@ -208,6 +209,8 @@ class LinkerHandL20Can:
         return self.x06
     def get_fault(self):
         return self.x07
+    def get_temperature(self):
+        return [0]* 10
     def close_can_interface(self):
         if self.bus:
             self.bus.shutdown()  # 关闭 CAN 总线

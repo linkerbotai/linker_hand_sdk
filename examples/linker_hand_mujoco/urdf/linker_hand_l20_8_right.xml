@@ -48,7 +48,9 @@
         <mesh name="little_link4" file="little_link4.STL" />
     </asset>
     <worldbody>
-        <body name="base_link" pos="0 0 0">
+        <!-- 添加地面 -->
+        <geom name="ground" type="plane" pos="0 0 0" size="10 10 0.1" rgba="0.5 0.8 0.8 1"/>
+        <body name="base_link" pos="0 0 0.01"> <!-- 确保模型稍微高于地面 -->
             <inertial pos="-0.0113061 -0.00380557 0.0873914" quat="0.996238 -0.0685741 -0.0529435 -0.00219222" mass="0.123326" diaginertia="0.000201783 0.000118968 0.000106839" />
             <joint name="floating_base_joint" type="free" />
             <geom type="mesh" contype="0" conaffinity="0" group="1" rgba="1 1 1 1" mesh="base_link" />

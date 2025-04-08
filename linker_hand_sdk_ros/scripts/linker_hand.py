@@ -27,6 +27,12 @@ package_path = rospack.get_path(package_name)
 class LinkerHandController:
     def __init__(self):
         self.password = ""
+        self.left_hand_exists = None
+        self.right_hand_exists = None
+        self.left_hand_type = None
+        self.right_hand_type = None
+        self.left_hand_joint = None
+        self.right_hand_joint = None
         self.can_status = False
         self.left_hand_can = None
         self.right_hand_can = None
@@ -55,8 +61,8 @@ class LinkerHandController:
                 ColorMsg(msg=f"当前左手L20速度为：{self.left_hand_can.get_speed()}", color="green")
             elif self.left_hand_joint == "L10":
                 self.left_hand_can = LinkerHandL10Can(can_channel="can0", baudrate=1000000, can_id=0x28, config=self.config)
-                self.left_hand_can_send_l10(last_pose=[255, 128, 255, 255, 255, 255, 128, 128, 128, 128])
-                self.left_hand_can.set_joint_speed_l10([250,250,250,250,250])
+                self.left_hand_can_send_l10(last_pose=[255, 200, 255, 255, 255, 255, 180, 180, 180, 41])
+                self.left_hand_can.set_joint_speed_l10([120,250,250,250,250])
                 ColorMsg(msg="左手L10配置文件中已开启", color="green")
                 ColorMsg(msg=f"当前左手L10速度为：{self.left_hand_can.get_speed()}", color="green")
             self.left_hand_position = []
@@ -65,6 +71,8 @@ class LinkerHandController:
             if self.left_hand_force == True:
                 self.left_hand_pressure_pub = rospy.Publisher("/cb_left_hand_force", Float32MultiArray, queue_size=10)
             self.left_hand_info_pub = rospy.Publisher("/cb_left_hand_info", String, queue_size=10)
+            
+
             
 
     # 验证右手状态
@@ -89,6 +97,7 @@ class LinkerHandController:
             if self.right_hand_force == True:
                 self.right_hand_pressure_pub = rospy.Publisher("/cb_right_hand_force", Float32MultiArray, queue_size=10)
             self.right_hand_info_pub = rospy.Publisher("/cb_right_hand_info", String, queue_size=10)
+            
 
     # 左手接收到话题将数据处理后发送到CAN驱动左手运动
     def left_hand_cb(self, msg):
@@ -196,19 +205,24 @@ class LinkerHandController:
                 current_pose = self.left_hand_can.get_current_status()
                 data = {
                     "left_hand":{
-                        "hand_type": self.left_hand_joint,
+                        "version": self.left_hand_can.get_version(),
+                        "hand_joint": self.left_hand_joint,
                         "speed": self.left_hand_can.get_speed(),
                         "current": self.left_hand_can.get_current(),
-                        "fault": self.left_hand_can.get_fault()
+                        "fault": self.left_hand_can.get_fault(),
+                        "motor_temperature": self.left_hand_can.get_temperature()
                     }
                 }
-            elif self.left_hand_joint == "L10":
+            if self.left_hand_joint == "L10":
                 current_pose = self.left_hand_can.get_current_status()
                 data = {
                     "left_hand":{
-                        "hand_type": self.left_hand_joint,
+                        "version": self.left_hand_can.get_version(),
+                        "hand_joint": self.left_hand_joint,
                         "speed": self.left_hand_can.get_speed(),
-                        "max_press_rco": self.left_hand_can.get_press()
+                        "max_press_rco": self.left_hand_can.get_press(),
+                        "fault": self.left_hand_can.get_fault(),
+                        "motor_temperature": self.left_hand_can.get_temperature()
                     }
                 }
             msg = self.create_joint_state_msg(current_pose, self.left_hand_names)
@@ -223,19 +237,24 @@ class LinkerHandController:
                 current_pose = self.right_hand_can.get_current_status()
                 data = {
                     "right_hand":{
-                        "hand_type": self.right_hand_joint,
+                        "version": self.right_hand_can.get_version(),
+                        "hand_joint": self.right_hand_joint,
                         "speed": self.right_hand_can.get_speed(),
                         "current": self.right_hand_can.get_current(),
-                        "fault": self.right_hand_can.get_fault()
+                        "fault": self.right_hand_can.get_fault(),
+                        "motor_temperature": self.right_hand_can.get_temperature()
                     }
                 }
-            elif self.right_hand_joint == "L10":
+            if self.right_hand_joint == "L10":
                 current_pose = self.right_hand_can.get_current_status()
                 data = {
                     "right_hand":{
-                        "hand_type": self.right_hand_joint,
+                        "version": self.right_hand_can.get_version(),
+                        "hand_joint": self.right_hand_joint,
                         "speed": self.right_hand_can.get_speed(),
-                        "max_press_rco": self.right_hand_can.get_press()
+                        "max_press_rco": self.right_hand_can.get_press(),
+                        "fault": self.right_hand_can.get_fault(),
+                        "motor_temperature": self.right_hand_can.get_temperature()
                     }
                 }
             msg = self.create_joint_state_msg(current_pose, self.right_hand_names)
@@ -441,26 +460,57 @@ class LinkerHandController:
         except Exception as e:
             print(f"Error reading CAN interface state: {e}")
             return False
+        
+    def close_can0(self):
+        """关闭 can0 接口"""
+        try:
+            # 检查 can0 接口是否已存在并处于 down 状态
+            result = subprocess.run(
+                ["ip", "link", "show", "can0"],
+                check=True,
+                text=True,
+                capture_output=True
+            )
+            if "state DOWN" in result.stdout:
+                rospy.loginfo("CAN接口已经是 DOWN 状态")
+                return
+
+            # 如果接口处于 UP 状态，则关闭它
+            subprocess.run(
+                ["sudo", "-S", "ip", "link", "set", "can0", "down"],
+                input=f"{self.password}\n",
+                check=True,
+                text=True,
+                capture_output=True
+            )
+            rospy.loginfo("CAN接口关闭成功")
+        except subprocess.CalledProcessError as e:
+            rospy.logerr(f"CAN接口关闭失败: {e.stderr}")
+        except Exception as e:
+            rospy.logerr(f"发生错误: {str(e)}")
+
     def shutdown(self):
-        # self.lh_l.close_can_interface()
-        # self.lh_r.close_can_interface()
-        # self.shutdown_flag.set()
-        # self.can_left_thread.join()
-        # self.can_right_thread.join()
+        #self.close_can0()
         pass
     
 def signal_handler(sig, frame):
-    # rospy.loginfo("Shutting down ROS node...")
-    # rospy.signal_shutdown("SIGINT received")
-    # rospy.on_shutdown()
+    # 通知其他功能包程序已退出
+    m = String()
+    d = {
+        "close_sdk":True
+    }
+    m.data = json.dumps(d)
+    for i in range(2):
+        pub.publish(m)
+        time.sleep(0.01)
     sys.exit(0)  # 正常退出程序
 if __name__ == '__main__':
     rospy.init_node('linker_hand_sdk', anonymous=True)
     rospy.Rate(60)
+    pub = rospy.Publisher('/close_sdk', String, queue_size=10)
     # 注册信号处理器
     signal.signal(signal.SIGINT, signal_handler)  # Ctrl+C
     signal.signal(signal.SIGTERM, signal_handler)  # kill 命令
-    
     try:
         # 检查can端口如果没有打开则等待重试，一般是usb转can设备没有插上
         while True:
@@ -478,3 +528,4 @@ if __name__ == '__main__':
     except rospy.ROSInterruptException:
         linker_hand.shutdown()
         rospy.loginfo("Node shutdown complete.")
+    
