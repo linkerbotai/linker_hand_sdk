@@ -170,11 +170,14 @@ class LinkerHandL10Can:
     def get_current_status(self):
         return self.x01 + self.x04
     def get_speed(self):
+        
         return self.x05
     def get_press(self):
-        self.set_max_torque_limits(pressures=[0.0], type="get")
-        time.sleep(0.001)
-        return self.x02
+        '''暂不支持'''
+        # self.set_max_torque_limits(pressures=[0.0], type="get")
+        # time.sleep(0.001)
+        # return self.x02
+        return [0.0] * 5
     def get_force(self):
         return [self.normal_force,self.tangential_force , self.tangential_force_dir , self.approach_inc]
     def get_temperature(self):

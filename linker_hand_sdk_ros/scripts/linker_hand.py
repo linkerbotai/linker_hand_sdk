@@ -354,17 +354,18 @@ class LinkerHandController:
                 speed = data["params"]["speed"]
             else:
                 speed = [int(data["params"]["speed"])] * 5
-            if hand_left == True and self.left_hand_joint == "L10":
+            hand_type = data["params"]["hand_type"]
+            if hand_left == True and self.left_hand_joint == "L10" and hand_type=="left":
                 hand.set_joint_speed_l10(speed=speed)
                 speed = hand.get_speed()
                 ColorMsg(msg=f"设置L10左手速度为{speed}", color="yellow")
-            elif hand_right == True and self.right_hand_joint == "L10":
+            elif hand_right == True and self.right_hand_joint == "L10" and hand_type=="right":
                 hand.set_joint_speed_l10(speed=speed)
                 speed = hand.get_speed()
                 ColorMsg(msg=f"设置L10右手速度为{speed}", color="yellow")
-            elif hand_left == True and self.left_hand_joint == "L20":
+            elif hand_left == True and self.left_hand_joint == "L20" and hand_type=="left":
                 hand.set_joint_speed(speed=speed)
-            elif hand_right == True and self.right_hand_joint == "L20":
+            elif hand_right == True and self.right_hand_joint == "L20" and hand_type=="right":
                 hand.set_joint_speed(speed=speed)
 
         

@@ -158,9 +158,11 @@ class LinkerHandL7Can:
     #     time.sleep(0.001)
     #     return self.x02
     def get_torque(self):
-        self.send_frame(0x02, [])
-        time.sleep(0.001)
-        return self.x02
+        '''暂不支持'''
+        # self.send_frame(0x02, [])
+        # time.sleep(0.001)
+        # return self.x02
+        return [0] * 7
     def get_force(self):
         '''获取压力'''
         return [self.normal_force,self.tangential_force , self.tangential_force_dir , self.approach_inc]

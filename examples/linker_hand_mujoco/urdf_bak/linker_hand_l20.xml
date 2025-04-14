@@ -1,0 +1,6 @@
+<mujoco model="main_model">
+    <include file="linker_hand_l20_8_left.xml"/>
+    <include file="linker_hand_l20_8_right.xml"/>
+    
+    <!-- 主模型的其他定义 -->
+</mujoco>

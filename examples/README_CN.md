@@ -3,7 +3,7 @@
 [examples (示例)](#)
 ## L10/L20
 - [0000-linker_hand_pybullet (PyBullet仿真示例)](linker_hand_pybullet/)
-- [0001-get_linker_hand_state (获取LinkerHand灵巧手当前状态)](L20/L20_get_linker_hand_state/)
+- [0001-get_linker_hand_state (获取LinkerHand灵巧手当前状态)](L20_get_linker_hand_state/)
 - [0002-gui_control(图形界面控制)](gui_control/)
 - [0003-get_linker_hand_force (获取LinkerHand灵巧手力传感器数据)](get_linker_hand_force/)
 - [0004-get_linker_hand_speed (获取LinkerHand灵巧手当前速度)](get_linker_hand_speed/)
