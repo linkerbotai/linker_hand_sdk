@@ -56,6 +56,8 @@ class LoadWriteYaml():
             action_path = action_path + "L10_action.yaml"
         elif hand_joint == "L25":
             action_path = action_path + "L25_action.yaml"
+        elif hand_joint == "L21":
+            action_path = action_path + "L21_action.yaml"
         elif hand_joint == "L7":
             action_path = action_path + "L7_action.yaml"
         
@@ -81,6 +83,8 @@ class LoadWriteYaml():
             action_path = action_path + "L10_action.yaml"
         elif hand_joint == "L25":
             action_path = action_path + "L25_action.yaml"
+        elif hand_joint == "L21":
+            action_path = action_path + "L21_action.yaml"
         elif hand_joint == "L7":
             action_path = action_path + "L7_action.yaml"
         try:

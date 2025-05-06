@@ -14,7 +14,7 @@ LinkerHand 灵巧手 ROS SDK 是由灵心巧手（北京）科技有限公司开
 
 # 2. **版本说明**
 V2.0.2
-1. 支持L7/O7/L10/O10/L20/O20/L25/O25/T25版本LinkerHand灵巧手
+1. 支持L7/O7/L10/O10/L20/O20/L25版本LinkerHand灵巧手
 
 2. 支持动捕手套发布的实时速度
 
@@ -22,21 +22,21 @@ V2.0.2
 
 4. 支持设置LinkerHand灵巧手手指速度
 
-5. 支持设置LinkerHand灵巧手最大扭矩
+5. 支持设置LinkerHand灵巧手最大扭矩阈值
 
-6. 支持LinkerHand灵巧手L20设置电流 L7/L10/L25暂不支持
+6. 支持LinkerHand灵巧手L20设置电流阈值 L7/L10/L25暂不支持
 
 7. 支持LinkerHand灵巧手获取版本
 
-8. 支持获取LinkerHand灵巧手L20设置电流 L7/L10/L25暂不支持
+8. 支持获取LinkerHand灵巧手L20电流阈值 L7/L10/L25暂不支持
 
 9. 支持获取LinkerHand灵巧手当前关节状态
 
-10. 支持获取LinkerHand灵巧手当前速度
+10. 支持获取LinkerHand灵巧手当前速度阈值
 
-11. 支持获取LinkerHand灵巧手当前最大扭矩
+11. 支持获取LinkerHand灵巧手当前最大扭矩阈值
 
-12. 支持获取LinkerHand灵巧手电机当前温度
+12. 支持获取LinkerHand灵巧手电机当前实时温度
 
 13. 支持获取LinkerHand灵巧手电机故障码
 
@@ -122,7 +122,7 @@ $ export ROS_HOSTNAME=<本机IP>
 
 目前，ROS开发的图形界面控制示例，只能单独控制一只LinkerHand灵巧手。
 
-```python
+```shell
 $ cd Linker_Hand_SDK_ROS/src/linker_hand_sdk/linker_hand_sdk_ros/config
 $ sudo vim setting.yaml    #编辑配置文件
 ```
@@ -184,7 +184,43 @@ LINKER_HAND:  # 手部配置信息
       - joint90
 PASSWORD: "12345678" # 由于与can通讯，需要激活通讯接口用到系统管理员密码
 ```
+修改launch文件进行参数配置
+```shell
 
+$ cd /Linker_Hand_SDK_ROS/src/linker_hand_sdk_ros/launch/
+$ sudo vim linker_hand.launch    #启动左or右单手，按照注释编辑配置文件
+$ sudo vim linker_hand_double.launch    #启动左右双手，按照注释编辑配置文件
+```
+- linker_hand.launch
+```html
+<?xml version="1.0" encoding="utf-8"?>
+<launch>
+    <node pkg="linker_hand_sdk_ros" type="linker_hand.py" name="linker_hand_sdk" output="screen" >  <!--  启动SDK  -->
+        <param name="hand_type" type="string" value="right"/> <!--left or right-->
+        <param name="hand_joint" type="string" value="L10"/> <!--L7 | L10 | L20 | L21 | L25-->
+        <param name="touch" type="bool" value="true"/> <!--是否有压力传感器-->
+    </node>
+</launch>
+```
+- linker_hand_double.launch
+```html
+<?xml version="1.0" encoding="utf-8"?>
+<launch>
+    <!-- 左手节点 -->
+    <node pkg="linker_hand_sdk_ros" type="linker_hand.py" name="linker_hand_sdk_$(anon left)" output="screen">
+        <param name="hand_type" type="string" value="left"/> <!-- 不用修改 -->
+        <param name="hand_joint" type="string" value="L10"/> <!-- L7|L10|L20|L21|L25 灵巧手型号  -->
+        <param name="touch" type="bool" value="false"/> <!-- 是否有压力传感器 -->
+    </node>
+    
+    <!-- 右手节点 -->
+    <node pkg="linker_hand_sdk_ros" type="linker_hand.py" name="linker_hand_sdk_$(anon right)" output="screen">
+        <param name="hand_type" type="string" value="right"/> <!-- 不用修改 -->
+        <param name="hand_joint" type="string" value="L10"/> <!-- L7|L10|L20|L21|L25 灵巧手型号  -->
+        <param name="touch" type="bool" value="true"/> <!-- 是否有压力传感器 -->
+    </node>
+</launch>
+```
 ## 4.2 LinkerHand灵巧手与电脑硬件连接
 
 ### 4.2.1 将LinkerHand灵巧手的USB转CAN设备接口，插入Ubuntu设备上，蓝灯亮起
@@ -199,12 +235,14 @@ PASSWORD: "12345678" # 由于与can通讯，需要激活通讯接口用到系统
 
 启动LinkerHand L10、L20灵巧手SDK，启动成功后会有SDK版本、CAN接口状态、灵巧手配置信息和当前灵巧手关节速度等提示信息。&#x20;
 
-```python
+```shell
 # 开启CAN端口
 $ sudo /usr/sbin/ip link set can0 up type can bitrate 1000000 #USB转CAN设备蓝色灯常亮状态 在按照要求修改setting.ymal配置文件后，Ubuntu系统可以不做此步
 $ cd ~/Linker_Hand_SDK_ROS/
 $ source ./devel/setup.bash
-$ roslaunch linker_hand_sdk_ros linker_hand.launch
+$ roslaunch linker_hand_sdk_ros linker_hand.launch #左or右单手启动
+or
+$ roslaunch linker_hand_sdk_ros linker_hand_double.launch #启动左右双手
 ```
 
 - position与手指关节对照表
@@ -233,17 +271,33 @@ $ roslaunch linker_hand_sdk_ros linker_hand.launch
 
 # 5. **功能包介绍**
 
-## 5.1 linker\_hand\_sdk\_ros
+## 5.1 linker_hand_sdk_ros
 
 控制灵巧手关节角度、获取灵巧手的各种状态信息。
 
-## 5.2 range\_to\_arc
+## 5.2 range_to_arc
 
 获取和发送L10、L20的弧度值
 
 topic:/cb_left_hand_state_arc and /cb_right_hand_state_arc 获取LinkerHand状态position为弧度值
 
 topic:/cb_left_hand_control_cmd_arc 和 /cb_right_hand_control_cmd_arc 发布position弧度值控制LinkerHand手指运动
+
+## 5.2.1 弧度与范围对照表
+
+l20灵巧手关节顺序 = ["拇指根部", "食指根部", "中指根部", "无名指根部","小指根部","拇指侧摆","食指侧摆","中指侧摆","无名指侧摆","小指侧摆","拇指横摆","预留","预留","预留","预留","拇指尖部","食指末端","中指末端","无名指末端","小指末端"]
+
+l20_l_min_arc   = [-1.57, 0, 0, 0, 0, 0, -0.26, -0.26, -0.26, -0.26, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0] # 弧度最小值
+l20_l_min_range = [0, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0,0,0] # 范围最小值
+
+l20_l_max_arc = [0, 1.57, 1.57, 1.57, 1.57, 1.57, 0.26, 0.26, 0.26, 0.26, 0, 0, 0, 0, 0, 1.57, 1.57, 1.57, 1.57, 1.57] # 弧度最大值
+l20_l_max_range = [255, 255, 255, 255, 255,255, 255, 255, 255, 255,255, 0, 0, 0, 0, 255, 255, 255, 255, 255] # 范围最大值
+
+l20_r_min_arc = [0, 0, 0, 0, 0, -1.57, -0.26, -0.26, -0.26, -0.26, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]# 弧度最小值
+l20_r_min_range = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]# 范围最小值
+
+l20_r_max_arc = [1.57, 1.57, 1.57, 1.57, 1.57, 0, 0.26, 0.26, 0.26, 0.26, 1, 0, 0, 0, 0, 1.57, 1.57, 1.57, 1.57, 1.57] # 弧度最大值
+l20_r_max_range = [255, 255, 255, 255, 255,255, 255, 255, 255, 255,255, 0, 0, 0, 0, 255, 255, 255, 255, 255] # 范围最大值
 
 ## 5.3 examples
 
@@ -261,21 +315,13 @@ topic:/cb_left_hand_control_cmd_arc 和 /cb_right_hand_control_cmd_arc 发布pos
 
 1. 开启一个新终端，启动ROS
 
-```css
+```shell
 $ roscore
-```
-
-* 开启一个新终端，启动Linker Hand ROS SDK
-
-```python
-$ cd Linker_Hand_SDK_ROS/
-$ source ./devel/setup.bash
-$ roslaunch linker_hand_sdk_ros linker_hand.launch # 启动灵巧手
 ```
 
 * 开启一个新终端，启动PyBullet仿真
 
-```python
+```shell
 $ cd Linker_Hand_SDK_ROS
 $ source ./devel/setup.bash
 $ rosrun linker_hand_pybullet linker_hand_pybullet.py _hand_type:=L20
@@ -283,7 +329,7 @@ $ rosrun linker_hand_pybullet linker_hand_pybullet.py _hand_type:=L20
 
 **&#x20;参数说明**
 
-"\_hand\_type"数值，无默认，必须根据产品型号选择，例如：\_hand\_type:=L20
+"_hand_type"数值，无默认，必须根据产品型号选择，例如：_hand_type:=L20
 
 **输出结果示例**
 
@@ -295,17 +341,17 @@ $ rosrun linker_hand_pybullet linker_hand_pybullet.py _hand_type:=L20
 
 图形界面控制可以通过滑动块控制LinkerHand灵巧手L7/O7/L10/O10/L20/O20/L25/O25/T25各个关节独立运动。也可以通过添加按钮记录当前所有滑动块的数值，保存LinkerHand灵巧手当前各个关节运动状态。通过功能性按钮进行动作复现。
 
-使用gui\_control控制LinkerHand灵巧手: gui\_control界面控制灵巧手需要启动linker\_hand\_sdk\_ros，以topic的形式对LinkerHand灵巧手进行操作。
-
+使用gui_control控制LinkerHand灵巧手: gui_control界面控制灵巧手需要启动linker_hand_sdk_ros，以topic的形式对LinkerHand灵巧手进行操作。
+注：gui_control控制只能控制左手或右手，暂不支持双手控制
 1. 开启一个新终端，启动ROS
 
-```python
+```shell
 $ roscore
 ```
 
 * 开启一个新终端，启动Linker Hand ROS SDK
 
-```python
+```shell
 $ cd Linker_Hand_SDK_ROS/
 $ source ./devel/setup.bash
 $ roslaunch linker_hand_sdk_ros linker_hand.launch # 启动灵巧手
@@ -313,7 +359,7 @@ $ roslaunch linker_hand_sdk_ros linker_hand.launch # 启动灵巧手
 
 * 开启一个新终端，启动图形界面控制
 
-```python
+```shell
 $ cd Linker_Hand_SDK_ROS
 $ source ./devel/setup.bash
 $ rosrun gui_control gui_control.py
@@ -337,7 +383,7 @@ $ rosrun gui_control gui_control.py
 
 * 开启一个新终端，启动Linker Hand ROS SDK
 
-```python
+```shell
 $ cd Linker_Hand_SDK_ROS/
 $ source ./devel/setup.bash
 $ roslaunch linker_hand_sdk_ros linker_hand.launch # 启动灵巧手
@@ -347,7 +393,7 @@ $ roslaunch linker_hand_sdk_ros linker_hand.launch # 启动灵巧手
 
   1. 针对L20，开启一个新终端，获取当前状态
 
-```python
+```shell
 $ cd Linker_Hand_SDK_ROS/
 $ source ./devel/setup.bash
 $ rosrun L20_get_linker_hand_state L20_get_linker_hand_state.py _loop:=True
@@ -357,13 +403,13 @@ $ rosrun L20_get_linker_hand_state L20_get_linker_hand_state.py _loop:=True
 
 状态数值包括：范围值与弧度值。&#x20;
 
-“ \_loop” 参数，需要填写，如果为True则终端循环打印当前LinkerHand灵巧手的状态数值，如果为False则终端只打印一次当前LinkerHand灵巧手状态数值。例如：\_loop:=True
+“ _loop” 参数，需要填写，如果为True则终端循环打印当前LinkerHand灵巧手的状态数值，如果为False则终端只打印一次当前LinkerHand灵巧手状态数值。例如：_loop:=True
 
 **输出结果示例**
 
 稍后更新
 
-```python
+```shell
 $ cd Linker_Hand_SDK_ROS/
 $ source ./devel/setup.bash
 $ rosrun L10_get_linker_hand_state L10_get_linker_hand_state.py _loop:=True
@@ -373,11 +419,11 @@ $ rosrun L10_get_linker_hand_state L10_get_linker_hand_state.py _loop:=True
 
 状态数值包括：范围值与弧度值。&#x20;
 
-“ \_loop” 参数，需要填写，如果为True则终端循环打印当前LinkerHand灵巧手的状态数值，如果为False则终端只打印一次当前LinkerHand灵巧手状态数值。例如：\_loop:=True
+“ _loop” 参数，需要填写，如果为True则终端循环打印当前LinkerHand灵巧手的状态数值，如果为False则终端只打印一次当前LinkerHand灵巧手状态数值。例如：_loop:=True
 
 **输出结果示例**
 
-```bash
+```shell
 header:
   seq: 83
   stamp:
@@ -396,7 +442,7 @@ effort: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 
 * 开启一个新终端，启动Linker Hand ROS SDK
 
-```python
+```shell
 $ cd Linker_Hand_SDK_ROS/
 $ source ./devel/setup.bash
 $ roslaunch linker_hand_sdk_ros linker_hand.launch # 启动 L10 or L20 灵巧手
@@ -404,7 +450,7 @@ $ roslaunch linker_hand_sdk_ros linker_hand.launch # 启动 L10 or L20 灵巧手
 
 * 开启一个新终端，获取力传感器数据
 
-```bash
+```shell
 $ cd Linker_Hand_SDK_ROS
 $ source ./devel/setup.bash
 $ rosrun get_linker_hand_force get_linker_hand_force.py _loop:=False
@@ -412,7 +458,7 @@ $ rosrun get_linker_hand_force get_linker_hand_force.py _loop:=False
 
 **参数说明**
 
-“ \_loop” 参数，需要填写，如果为True则终端循环打印当前LinkerHand灵巧手的状态数值，如果为False则终端只打印一次当前LinkerHand灵巧手状态数值。例如：\_loop:=True
+“ _loop” 参数，需要填写，如果为True则终端循环打印当前LinkerHand灵巧手的状态数值，如果为False则终端只打印一次当前LinkerHand灵巧手状态数值。例如：_loop:=True
 
 **输出结果示例**
 
@@ -431,15 +477,15 @@ $ rosrun get_linker_hand_force get_linker_hand_force.py _loop:=False
 
 * 开启一个新终端，启动Linker Hand ROS SDK
 
-```python
+```shell
 $ cd Linker_Hand_SDK_ROS/
 $ source ./devel/setup.bash
-$ roslaunch linker_hand_sdk_ros linker_hand.launch # 启动 L10 or L20 灵巧手
+$ roslaunch linker_hand_sdk_ros linker_hand.launch # 启动灵巧手
 ```
 
 * 开启一个新终端，获取力当前速度
 
-```python
+```shell
 $ cd Linker_Hand_SDK_ROS/
 $ source ./devel/setup.bash
 $ rosrun get_linker_hand_speed get_linker_hand_speed.py _loop:=False
@@ -447,7 +493,7 @@ $ rosrun get_linker_hand_speed get_linker_hand_speed.py _loop:=False
 
 **参数说明**
 
-“ \_loop” 参数，需要填写，如果为True则终端循环打印当前LinkerHand灵巧手的状态数值，如果为False则终端只打印一次当前LinkerHand灵巧手状态数值。例如：\_loop:=True 参数必带
+“ _loop” 参数，需要填写，如果为True则终端循环打印当前LinkerHand灵巧手的状态数值，如果为False则终端只打印一次当前LinkerHand灵巧手状态数值。例如：_loop:=True 参数必带
 
 **输出结果示例**
 
@@ -460,7 +506,7 @@ $ rosrun get_linker_hand_speed get_linker_hand_speed.py _loop:=False
 
 * 开启一个新终端，启动Linker Hand ROS SDK
 
-```python
+```shell
 $ cd Linker_Hand_SDK_ROS/
 $ source ./devel/setup.bash
 $ roslaunch linker_hand_sdk_ros linker_hand.launch # 启动灵巧手
@@ -468,7 +514,7 @@ $ roslaunch linker_hand_sdk_ros linker_hand.launch # 启动灵巧手
 
 * 开启一个新终端，获取力当前电流
 
-```python
+```shell
 $ cd Linker_Hand_SDK_ROS
 $ source ./devel/setup.bash
 $ rosrun get_linker_hand_current get_linker_hand_current.py _loop:=False
@@ -476,7 +522,7 @@ $ rosrun get_linker_hand_current get_linker_hand_current.py _loop:=False
 
 **参数说明**
 
-“ \_loop” 参数，需要填写，如果为True则终端循环打印当前LinkerHand灵巧手的状态数值，如果为False则终端只打印一次当前LinkerHand灵巧手状态数值。例如：\_loop:=True
+“ _loop” 参数，需要填写，如果为True则终端循环打印当前LinkerHand灵巧手的状态数值，如果为False则终端只打印一次当前LinkerHand灵巧手状态数值。例如：_loop:=True
 
 **输出结果示例**
 
@@ -484,15 +530,15 @@ $ rosrun get_linker_hand_current get_linker_hand_current.py _loop:=False
 
 ### 6.3.5 获取故障码
 
-```python
+```shell
 rostopic pub /cb_hand_setting_cmd std_msgs/String '{data: "{\"setting_cmd\":\"get_faults\",\"params\":{\"hand_type\":\"left\"}}"}'
 ```
 
 **参数说明**
 
-setting\_cmd ：命令参数
+setting_cmd ：命令参数
 
-get\_faults： 命令类型 string
+get_faults： 命令类型 string
 
 **输出结果示例**
 
@@ -507,7 +553,7 @@ get\_faults： 命令类型 string
 
 * 开启一个新终端，启动Linker Hand ROS SDK
 
-```python
+```shell
 $ cd Linker_Hand_SDK_ROS/
 $ source ./devel/setup.bash
 $ roslaunch linker_hand_sdk_ros linker_hand.launch # 启动灵巧手
@@ -515,7 +561,7 @@ $ roslaunch linker_hand_sdk_ros linker_hand.launch # 启动灵巧手
 
 * 开启一个新终端，设置速度
 
-```python
+```shell
 $ cd Linker_Hand_SDK_ROS
 $ source ./devel/setup.bash
 $ rosrun set_linker_hand_speed set_linker_hand_speed.py _hand_type:=left _speed:=[180,250,250,250,250] # L7为7个值，其他为5个值
@@ -542,7 +588,7 @@ speed:\[180,250,250,250,250]
 
 * 开启一个新终端，启动Linker Hand ROS SDK
 
-```python
+```shell
 $ cd Linker_Hand_SDK_ROS/
 $ source ./devel/setup.bash
 $ roslaunch linker_hand_sdk_ros linker_hand.launch # 启动灵巧手
@@ -550,7 +596,7 @@ $ roslaunch linker_hand_sdk_ros linker_hand.launch # 启动灵巧手
 
 * 开启一个新终端，设置当前电流
 
-```python
+```shell
 $ cd Linker_Hand_SDK_ROS
 $ source ./devel/setup.bash
 $ rosrun set_linker_hand_current set_linker_hand_current.py _hand_type:=left _current:=42 #暂不支持L7
@@ -558,7 +604,7 @@ $ rosrun set_linker_hand_current set_linker_hand_current.py _hand_type:=left _cu
 
 **参数说明**
 
-参数：hand\_type: left | right 左手还是右手    current:0\~255 设置最大电流值
+参数：hand_type: left | right 左手还是右手    current:0\~255 设置最大电流值
 
 **输出结果示例**
 
@@ -571,7 +617,7 @@ current:\[180,250,250,250,250]
 
 * 开启一个新终端，启动Linker Hand ROS SDK
 
-```python
+```shell
 $ cd Linker_Hand_SDK_ROS/
 $ source ./devel/setup.bash
 $ roslaunch linker_hand_sdk_ros linker_hand.launch # 启动灵巧手
@@ -579,7 +625,7 @@ $ roslaunch linker_hand_sdk_ros linker_hand.launch # 启动灵巧手
 
 * 开启一个新终端，设置扭矩
 
-```python
+```shell
 $ cd Linker_Hand_SDK_ROS
 $ source ./devel/setup.bash
 $ rosrun set_linker_hand_torque set_linker_hand_torque.py _hand_type:=left _torque:=[180,250,250,250,250] # L7为7个值，其他为5个值
@@ -587,7 +633,7 @@ $ rosrun set_linker_hand_torque set_linker_hand_torque.py _hand_type:=left _torq
 
 **参数说明**
 
-参数：hand\_type: left | right 左手还是右手    torque:=\[180,250,250,250,250]  0\~255 L7为7个电机最大值，其他为5个手指最大值&#x20;
+参数：hand_type: left | right 左手还是右手    torque:=\[180,250,250,250,250]  0\~255 L7为7个电机最大值，其他为5个手指最大值&#x20;
 
 **输出结果示例**
 
@@ -602,7 +648,7 @@ torque:\[180,250,250,250,250]
 
 * 开启一个新终端，启动Linker Hand ROS SDK
 
-```python
+```shell
 $ cd Linker_Hand_SDK_ROS/
 $ source ./devel/setup.bash
 $ roslaunch linker_hand_sdk_ros linker_hand_l25.launch # 启动L25
@@ -610,7 +656,7 @@ $ roslaunch linker_hand_sdk_ros linker_hand_l25.launch # 启动L25
 
 * 开启一个新终端，启动设置为失能模式
 
-```python
+```shell
 $ Linker_Hand_SDK_ROS/src/linker_hand_sdk/examples/L25
 $ python set_disability.py
 ```
@@ -637,7 +683,7 @@ $ roscore
 
 * 开启一个新终端，启动Linker Hand ROS SDK
 
-```python
+```shell
 $ cd Linker_Hand_SDK_ROS/
 $ source ./devel/setup.bash
 $ roslaunch linker_hand_sdk_ros linker_hand.launch # 启动
@@ -645,7 +691,7 @@ $ roslaunch linker_hand_sdk_ros linker_hand.launch # 启动
 
 * 开启一个新终端，启动设置为使能模式
 
-```python
+```shell
 $ Linker_Hand_SDK_ROS/src/linker_hand_sdk/examples/L25
 $ python set_enable.py
 ```
@@ -671,7 +717,7 @@ $ python set_enable.py
 
 * 开启一个新终端，启动Linker Hand ROS SDK
 
-```python
+```shell
 $ cd Linker_Hand_SDK_ROS/
 $ source ./devel/setup.bash
 $ roslaunch linker_hand_sdk_ros linker_hand.launch # 启动
@@ -679,7 +725,7 @@ $ roslaunch linker_hand_sdk_ros linker_hand.launch # 启动
 
 * 开启一个新终端，启动执行遥控
 
-```python
+```shell
 $ Linker_Hand_SDK_ROS/src/linker_hand_sdk/examples/L25
 $ python set_remote_control.py
 ```
@@ -689,7 +735,7 @@ $ python set_remote_control.py
 
 * 开启一个新终端
 
-```python
+```shell
 $ cd Linker_Hand_SDK_ROS/
 $ source ./devel/setup.bash
 $ roslaunch linker_hand_sdk_ros linker_hand.launch
@@ -708,15 +754,15 @@ $ roslaunch linker_hand_sdk_ros linker_hand.launch
 
 * 开启一个新终端，启动Linker Hand ROS SDK
 
-```python
+```shell
 $ cd Linker_Hand_SDK_ROS/
 $ source ./devel/setup.bash
-$ roslaunch linker_hand_sdk_ros linker_hand.launch # 启动 L10 or L20 灵巧手
+$ roslaunch linker_hand_sdk_ros linker_hand.launch # 启动灵巧手
 ```
 
 * 开启一个新终端，启动猜拳游戏
 
-```python
+```shell
 $ cd Linker_Hand_SDK_ROS/
 $ source ./devel/setup.bash
 $ rosrun finger_guessing finger_guessing.py
@@ -737,10 +783,10 @@ $ rosrun finger_guessing finger_guessing.py
 
 * 开启一个新终端，启动Linker Hand ROS SDK
 
-```python
+```shell
 $ cd Linker_Hand_SDK_ROS/
 $ source ./devel/setup.bash
-$ roslaunch linker_hand_sdk_ros linker_hand.launch # 启动 L10 or L20 灵巧手
+$ roslaunch linker_hand_sdk_ros linker_hand.launch # 启动灵巧手
 ```
 
 * 开启一个新终端，启动捏取演示
@@ -769,7 +815,7 @@ python ./<你的文件路径>/lipcontroller.py
 
 1. 配置环境
 
-```css
+```shell
 cd human-dex
 conda create -n human-dex python=3.8.10
 conda activate human-dex
@@ -791,7 +837,7 @@ source ./devel/setup.bash
 
 * 运行
 
-```solidity
+```shell
 # 数据采集
  roslaunch record_hdf5 record_hdf5.launch
 # 新开终端发送采集命令
@@ -822,7 +868,7 @@ python3 cb.py
 
 ### 6.6.2 **Unidexgrasp抓取算法**
 
-原Unidexgrasp算法采用shadowhand，以下提供在linkerhand上开发Unidexgrasp算法的相关代码。 [详细过程参考linker\_unidexgrasp项目](https://github.com/linkerbotai/linker_unidexgrasp)
+原Unidexgrasp算法采用shadowhand，以下提供在linkerhand上开发Unidexgrasp算法的相关代码。 [详细过程参考linker_unidexgrasp项目](https://github.com/linkerbotai/linker_unidexgrasp)
 
 **抓取姿态生成部分**
 
@@ -899,13 +945,13 @@ python ./tests/data_for_RL.py
 
 1. 开启一个新终端，启动ROS
 
-```css
+```shell
 $ roscore
 ```
 
 * 开启一个新终端，启动Linker Hand ROS SDK
 
-```python
+```shell
 $ cd Linker_Hand_SDK_ROS/
 $ source ./devel/setup.bash
 $ roslaunch linker_hand_sdk_ros linker_hand.launch # 启动灵巧手
@@ -913,7 +959,7 @@ $ roslaunch linker_hand_sdk_ros linker_hand.launch # 启动灵巧手
 
 * 开启一个新终端，启动OK手势
 
-```python
+```shell
 python ./<你的文件路径>/gesture-Show-OK.py
 ```
 
@@ -933,13 +979,13 @@ python ./<你的文件路径>/gesture-Show-OK.py
 
 1. 开启一个新终端，启动ROS
 
-```css
+```shell
 $ roscore
 ```
 
 * 开启一个新终端，启动Linker Hand ROS SDK
 
-```python
+```shell
 $ cd Linker_Hand_SDK_ROS/
 $ source ./devel/setup.bash
 $ roslaunch linker_hand_sdk_ros linker_hand.launch # 启动灵巧手
@@ -947,7 +993,7 @@ $ roslaunch linker_hand_sdk_ros linker_hand.launch # 启动灵巧手
 
 * 开启一个新终端，启动旋转食指动作
 
-```python
+```shell
 python ./<你的文件路径>/gesture-Show-Surround-Index-Finger.py
 ```
 
@@ -967,13 +1013,13 @@ python ./<你的文件路径>/gesture-Show-Surround-Index-Finger.py
 
 1. 开启一个新终端，启动ROS
 
-```css
+```shell
 $ roscore
 ```
 
 * 开启一个新终端，启动Linker Hand ROS SDK
 
-```python
+```shell
 $ cd Linker_Hand_SDK_ROS/
 $ source ./devel/setup.bash
 $ roslaunch linker_hand_sdk_ros linker_hand.launch # 启动灵巧手
@@ -981,7 +1027,7 @@ $ roslaunch linker_hand_sdk_ros linker_hand.launch # 启动灵巧手
 
 * 开启一个新终端，启动波浪运动
 
-```python
+```shell
 python ./<你的文件路径>/gesture-Show-Wave.p
 ```
 
@@ -1001,13 +1047,13 @@ python ./<你的文件路径>/gesture-Show-Wave.p
 
 1. 开启一个新终端，启动ROS
 
-```css
+```shell
 $ roscore
 ```
 
 * 开启一个新终端，启动Linker Hand ROS SDK
 
-```python
+```shell
 $ cd Linker_Hand_SDK_ROS/
 $ source ./devel/setup.bash
 $ roslaunch linker_hand_sdk_ros linker_hand.launch # 启动灵巧手
@@ -1015,7 +1061,7 @@ $ roslaunch linker_hand_sdk_ros linker_hand.launch # 启动灵巧手
 
 * 开启一个新终端，启动一套复杂动作
 
-```python
+```shell
 python ./<你的文件路径>/gesture-Show-Ye.py
 ```
 
@@ -1037,13 +1083,13 @@ python ./<你的文件路径>/gesture-Show-Ye.py
 
 1. 开启一个新终端，启动ROS
 
-```css
+```shell
 $ roscore
 ```
 
 * 开启一个新终端，启动Linker Hand ROS SDK
 
-```python
+```shell
 $ cd Linker_Hand_SDK_ROS/
 $ source ./devel/setup.bash
 $ roslaunch linker_hand_sdk_ros linker_hand.launch # 启动 L10 or L20 灵巧手
@@ -1051,7 +1097,7 @@ $ roslaunch linker_hand_sdk_ros linker_hand.launch # 启动 L10 or L20 灵巧手
 
 * 开启一个新终端，启动循环抓握动作
 
-```python
+```shell
 $ cd Linker_Hand_SDK_ROS/src/linker_hand_sdk/examples/gesture-show
 $ python gesture-Loop.py 
 ```
@@ -1080,11 +1126,11 @@ $ python gesture-Loop.py
 
 Human-Dex：https://github.com/linkerbotai/human-dex
 
-Linker\_UniDexGrasp：https://github.com/linkerbotai/linker\_unidexgrasp
+Linker_UniDexGrasp：https://github.com/linkerbotai/linker_unidexgrasp
 
-LinkerHand-Python-SDK：https://github.com/linkerbotai/linker\_hand\_python\_sdk
+LinkerHand-Python-SDK：https://github.com/linkerbotai/linker_hand_python_sdk
 
-linker\_serl：https://github.com/linkerbotai/linker\_serl
+linker_serl：https://github.com/linkerbotai/linker_serl
 
 # 9. 常见问题
 
@@ -1098,7 +1144,7 @@ pip install python-can
 
 方法一
 
-```python
+```shell
 $ sudo visudo
 #添加以下内容
 你的用户名 ALL=(ALL) NOPASSWD: /sbin/ip
@@ -1111,5 +1157,6 @@ $ sudo visudo
 修改setting.yaml配置文件的密码，默认PASSWORD："12345678"
 
 
-
+## Topic Document
+[Linker Hand Topic Document](doc/Topic-Reference.md)
 

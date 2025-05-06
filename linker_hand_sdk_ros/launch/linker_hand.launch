@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<launch>
+    <node pkg="linker_hand_sdk_ros" type="linker_hand.py" name="linker_hand_sdk" output="screen" >  <!--  启动SDK  -->
+        <param name="hand_type" type="string" value="left"/> <!--left or right-->
+        <param name="hand_joint" type="string" value="L10"/> <!--L7 | L10 | L20 | L21 | L25-->
+        <param name="touch" type="bool" value="true"/> <!--是否有压力传感器-->
+    </node>
+</launch>

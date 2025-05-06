@@ -439,6 +439,16 @@ class LinkerHandL25Can:
                 self.x4d = list(response_data)
             elif frame_type == 0xc1: # 版本号
                 self.xc1 = list(response_data)
+            elif frame_type == 0x51: # 大拇指转矩
+                self.x51 = list(response_data)
+            elif frame_type == 0x52: # 食指转矩
+                self.x52 = list(response_data)
+            elif frame_type == 0x53: # 中指转矩
+                self.x53 = list(response_data)
+            elif frame_type == 0x54: # 无名指转矩
+                self.x54 = list(response_data)
+            elif frame_type == 0x55: # 小拇指转矩
+                self.x55 = list(response_data)
             elif frame_type == 0x59:
                 self.x59 = list(response_data)
             elif frame_type == 0x5a:
@@ -553,9 +563,15 @@ class LinkerHandL25Can:
             return l25_speed
     
     def get_finger_torque(self):
-        return self.finger_torque
-    # def get_current(self):
-    #     return self.x06
+        self.send_command(FrameProperty.THUMB_TORQUE,[])
+        self.send_command(FrameProperty.INDEX_TORQUE,[])
+        self.send_command(FrameProperty.MIDDLE_TORQUE,[])
+        self.send_command(FrameProperty.RING_TORQUE,[])
+        self.send_command(FrameProperty.LITTLE_TORQUE,[])
+        return self.x51+self.x52+self.x53+self.x54+self.x55
+    
+    def get_torque(self):
+        return self.get_finger_torque()
     def get_fault(self):
         self.get_thumbn_fault()
         #time.sleep(0.001)
@@ -594,6 +610,16 @@ class LinkerHandL25Can:
     def get_force(self):
         '''获取压感数据'''
         return [self.x90,self.x91 , self.x92 , self.x93]
+    
+    def get_touch_type(self):
+        '''获取触摸类型 暂不支持'''
+        return [-1] * 5
+    
+    def get_touch(self):
+        '''获取触摸数据 暂不支持'''
+        return [-1] * 6
+
+
     def get_current(self):
         return [0] * 21
     def get_temperature(self):
@@ -603,6 +629,10 @@ class LinkerHandL25Can:
         self.get_ring_threshold()
         self.get_little_threshold()
         return [self.x61]+[self.x62]+[self.x63]+[self.x64]+[self.x65]
+    
+    def get_finger_order(self):
+        return ["大拇指根部","食指根部","中指根部","无名指根部","小拇指根部","大拇指侧摆","食指侧摆","中指侧摆","无名指侧摆","小拇指侧摆","大拇指横滚","预留","预留","预留","预留","大拇指中部","食指中部","中指中部","无名指中部","小拇指中部","大拇指指尖","食指指尖","中指指尖","无名指指尖","小拇指指尖"]
+    
     def close_can_interface(self):
         if self.bus:
             self.bus.shutdown()  # 关闭 CAN 总线

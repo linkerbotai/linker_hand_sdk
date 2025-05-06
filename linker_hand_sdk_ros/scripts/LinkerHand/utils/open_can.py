@@ -57,3 +57,33 @@ class OpenCan:
         except Exception as e:
             print(f"Error reading CAN interface state: {e}")
             return False
+        
+    def close_can0(self):
+        try:
+            # 检查 can0 接口是否存在
+            result = subprocess.run(
+                ["ip", "link", "show", "can0"],
+                check=True,
+                text=True,
+                capture_output=True
+            )
+            
+            # 如果接口存在且处于 UP 状态，则关闭它
+            if "state UP" in result.stdout:
+                subprocess.run(
+                    ["sudo", "-S", "ip", "link", "set", "can0", "down"],
+                    input=f"{self.password}\n",
+                    check=True,
+                    text=True,
+                    capture_output=True
+                )
+                return True
+            return False
+            
+        except subprocess.CalledProcessError as e:
+            print(f"Error closing CAN interface: {e}")
+            return False
+        except Exception as e:
+            print(f"Unexpected error: {e}")
+            return False
+    

@@ -28,7 +28,7 @@ class MainWindow(QMainWindow):
         super().__init__()
         # 初始化 ROS 节点
         rospy.init_node('gui_control', anonymous=True)
-        self.rate = rospy.Rate(30)
+        self.rate = rospy.Rate(600)
         self.yaml = LoadWriteYaml() # 初始化配置文件
         self.set_pub = rospy.Publisher('/cb_hand_setting_cmd', String, queue_size=1)
         self.colse_sdk_sub = rospy.Subscriber("/close_sdk",String,self.close_sdk,queue_size=1)
@@ -36,10 +36,15 @@ class MainWindow(QMainWindow):
         self.last_approach_inc = [0.0] * 5
         self.motor_temperature = [0] * 10 # 电机温度
         # 读取配置文件
-        self.setting = self.yaml.load_setting_yaml()
+        #self.setting = self.yaml.load_setting_yaml()
         self._init_hand_joint()
         self._init_gui_view()
         if self.hand_joint == "L25":
+            self.add_button_position = [255] * 25 # 记录添加按钮的位置
+            # 要发布的最后动作序列
+            self.last_position = [255] * 25
+            self.set_speed(speed=[255,255,255,255,255,255])
+        elif self.hand_joint == "L21":
             self.add_button_position = [255] * 25 # 记录添加按钮的位置
             # 要发布的最后动作序列
             self.last_position = [255] * 25
@@ -48,7 +53,7 @@ class MainWindow(QMainWindow):
             self.add_button_position = [255] * 10 # 记录添加按钮的位置
             # 要发布的最后动作序列
             self.last_position = [255] * 10
-            self.set_speed(speed=[30,60,60,60,60])
+            self.set_speed(speed=[130,160,160,160,160])
         elif self.hand_joint == "L7":
             self.add_button_position = [255] * 7 # 记录添加按钮的位置
             # 要发布的最后动作序列
@@ -129,6 +134,13 @@ class MainWindow(QMainWindow):
             self.init_pos = [255] * 25
             # topic
             self.joint_name = ["大拇指根部","食指根部","中指根部","无名指根部","小拇指根部","大拇指侧摆","食指侧摆","中指侧摆","无名指侧摆","小拇指侧摆","大拇指横滚","预留","预留","预留","预留","大拇指中部","食指中部","中指中部","无名指中部","小拇指中部","大拇指指尖","食指指尖","中指指尖","无名指指尖","小拇指指尖"]
+            #self.joint_name = ["拇指根部0", "食指根部1", "中指根部2", "无名指根部3","小指根部4","拇指侧摆5","食指侧摆6","中指侧摆","无名指侧摆8","小指侧摆9","拇指横摆10","预留","预留","预留","预留","拇指中部15","食指中部16","中指中部17","无名指中部18","小指中部19","拇指指尖20","食指指尖21","中指指尖22","无名指指尖23","小指指尖24"]
+        elif self.hand_joint == "L21":
+            self.set_enable()
+            # L25
+            self.init_pos = [255] * 25
+            # topic
+            self.joint_name = ["大拇指根部","食指根部","中指根部","无名指根部","小拇指根部","大拇指侧摆","食指侧摆","中指侧摆","无名指侧摆","小拇指侧摆","大拇指横滚","预留","预留","预留","预留","大拇指中部","预留","预留","预留","预留","大拇指指尖","食指指尖","中指指尖","无名指指尖","小拇指指尖"]
             #self.joint_name = ["拇指根部0", "食指根部1", "中指根部2", "无名指根部3","小指根部4","拇指侧摆5","食指侧摆6","中指侧摆","无名指侧摆8","小指侧摆9","拇指横摆10","预留","预留","预留","预留","拇指中部15","食指中部16","中指中部17","无名指中部18","小指中部19","拇指指尖20","食指指尖21","中指指尖22","无名指指尖23","小指指尖24"]
         elif self.hand_joint == "L20":
             self.init_pos = [255,255,255,255,255,255,10,100,180,240,245,255,255,255,255,255,255,255,255,255]

@@ -1,5 +1,5 @@
 import can
-import time,sys
+import time, sys
 import threading
 import numpy as np
 from enum import Enum
@@ -7,20 +7,20 @@ from sensor_msgs.msg import JointState
 
 
 class LinkerHandL7Can:
-    def __init__(self,can_id, can_channel='can0', baudrate=1000000, ):
+    def __init__(self, can_id, can_channel='can0', baudrate=1000000):
         self.x01 = [0] * 7
         self.x02 = [0] * 7
         self.x05 = [0] * 7
         self.x33 = [0] * 7
-        # 故障码
-        self.x35 = [0] * 7,[0] * 7
+        # Fault codes
+        self.x35 = [0] * 7, [0] * 7
         self.can_id = can_id
         self.joint_angles = [0] * 10
-        self.pressures = [200] * 7  # 默认扭矩200
+        self.pressures = [200] * 7  # Default torque 200
         self.bus = self.init_can_bus(can_channel, baudrate)
         self.normal_force, self.tangential_force, self.tangential_force_dir, self.approach_inc = [[0.0] * 7 for _ in range(4)]
         self.version = None
-        # 启动接收线程
+        # Start the receiving thread
         self.running = True
         self.receive_thread = threading.Thread(target=self.receive_response)
         self.receive_thread.daemon = True
@@ -35,7 +35,7 @@ class LinkerHandL7Can:
             raise EnvironmentError("Unsupported platform for CAN interface")
 
     def send_frame(self, frame_property, data_list):
-        """发送一个带有指定属性和数据的单个CAN帧。"""
+        """Send a single CAN frame with specified properties and data."""
         frame_property_value = int(frame_property.value) if hasattr(frame_property, 'value') else frame_property
         data = [frame_property_value] + [int(val) for val in data_list]
         msg = can.Message(arbitration_id=self.can_id, data=data, is_extended_id=False)
@@ -43,140 +43,145 @@ class LinkerHandL7Can:
             self.bus.send(msg)
         except can.CanError as e:
             print(f"Failed to send message: {e}")
-        time.sleep(0.001)
+        time.sleep(0.005)
 
     def set_joint_positions(self, joint_angles):
-        """将10个关节的位置设置（joint_angles: 10个数值的列表）。"""
+        """Set the positions of 10 joints (joint_angles: list of 10 values)."""
         if len(joint_angles) > 7:
             self.joint_angles = joint_angles[:7]
         else:
             self.joint_angles = joint_angles
-        # 分帧发送角度控制
-        self.send_frame(0x01,self.joint_angles)
-        # self.send_frame(FrameProperty.JOINT_POSITION2_RCO, self.joint_angles[6:])
-        # time.sleep(0.001)
-        # self.send_frame(FrameProperty.JOINT_POSITION_RCO, self.joint_angles[:6])
-        
+        # Send angle control in frames
+        self.send_frame(0x01, self.joint_angles)
 
-    def set_max_torque_limits(self, pressures,type="get"):
-        """设置最大扭矩限制"""
+    def set_max_torque_limits(self, pressures, type="get"):
+        """Set maximum torque limits."""
         if type == "get":
             self.pressures = [0.0]
         else:
             self.pressures = pressures[:7]
-        #self.send_frame(FrameProperty.MAX_PRESS_RCO, self.pressures)
-    def set_torque(self,torque=[180] * 7):
-        """设置L7最大扭矩限制"""
+
+    def set_torque(self, torque=[180] * 7):
+        """Set L7 maximum torque limits."""
         if len(torque) != 7:
             raise ValueError("Torque list must have 7 elements.")
             return
         self.send_frame(0x02, torque)
-        
-    def set_speed(self,speed=[180]*7):
-        """设置L7速度"""
+
+    def set_speed(self, speed=[180] * 7):
+        """Set L7 speed."""
         if len(speed) != 7:
-            raise ValueError("speed list must have 7 elements.")
+            raise ValueError("Speed list must have 7 elements.")
             return
         self.x05 = speed
         for i in range(2):
             time.sleep(0.001)
             self.send_frame(0x05, speed)
 
-    ''' -------------------压力传感器---------------------- '''
+    ''' -------------------Pressure Sensors---------------------- '''
     def get_normal_force(self):
-        self.send_frame(0x20,[])
+        self.send_frame(0x20, [])
 
     def get_tangential_force(self):
-        self.send_frame(0x21,[])
+        self.send_frame(0x21, [])
 
     def get_tangential_force_dir(self):
-        self.send_frame(0x22,[])
-    def get_approach_inc(self):
-        self.send_frame(0x23,[])
-    ''' -------------------电机温度---------------------- '''
-    def get_motor_temperature(self):
-        self.send_frame(0x33,[])
+        self.send_frame(0x22, [])
 
-    # 电机故障码
+    def get_approach_inc(self):
+        self.send_frame(0x23, [])
+
+    ''' -------------------Motor Temperature---------------------- '''
+    def get_motor_temperature(self):
+        self.send_frame(0x33, [])
+
+    # Motor fault codes
     def get_motor_fault_code(self):
-        self.send_frame(0x35,[])
+        self.send_frame(0x35, [])
 
     def receive_response(self):
-        """接收CAN响应并处理."""
+        """Receive CAN responses and process them."""
         while self.running:
             try:
-                msg = self.bus.recv(timeout=1.0) 
+                msg = self.bus.recv(timeout=1.0)
                 if msg:
                     self.process_response(msg)
             except can.CanError as e:
                 print(f"Error receiving CAN message: {e}")
 
     def process_response(self, msg):
-        """处理接收到的CAN消息。"""
+        """Process received CAN messages."""
         if msg.arbitration_id == self.can_id:
             frame_type = msg.data[0]
             response_data = msg.data[1:]
             if frame_type == 0x01:   # 0x01
-                self.x01 = list(response_data)  #
-                
+                self.x01 = list(response_data)
             elif frame_type == 0x02:    # 0x02
                 self.x02 = list(response_data)
-            elif frame_type == 0x05: # 设置速度
+            elif frame_type == 0x05: # Set speed
                 self.x05 = list(response_data)
             elif frame_type == 0x20:
-                #ColorMsg(msg=f"五指法向压力：{list(response_data)}")
                 d = list(response_data)
                 self.normal_force = [float(i) for i in d]
             elif frame_type == 0x21:
-                #ColorMsg(msg=f"五指切向压力：{list(response_data)}")
                 d = list(response_data)
                 self.tangential_force = [float(i) for i in d]
             elif frame_type == 0x22:
-                #ColorMsg(msg=f"五指切向压力方向：{list(response_data)}")
                 d = list(response_data)
                 self.tangential_force_dir = [float(i) for i in d]
             elif frame_type == 0x23:
-                #ColorMsg(msg=f"五指接近度：{list(response_data)}")
                 d = list(response_data)
                 self.approach_inc = [float(i) for i in d]
-            elif frame_type == 0x33: # L7温度
+            elif frame_type == 0x33: # L7 temperature
                 self.x33 = list(response_data)
-            elif frame_type == 0x35: # L7错误码
+            elif frame_type == 0x35: # L7 fault codes
                 self.x35 = list(response_data)
-            elif frame_type == 0x64: # L7版本号
+            elif frame_type == 0x64: # L7 version number
                 self.version = list(response_data)
 
     def get_version(self):
-        self.send_frame(0x64,[])
+        self.send_frame(0x64, [])
         time.sleep(0.001)
         return self.version
+
     def get_current_status(self):
         self.send_frame(0x01, '')
         time.sleep(0.001)
         return self.x01
+
     def get_speed(self):
         return self.x05
+
     def get_current(self):
-        '''暂不支持'''
+        '''Not supported yet.'''
         return [-1] * 7
+
     def get_torque(self):
-        '''暂不支持'''
-        # self.send_frame(0x02, [])
-        # time.sleep(0.001)
-        # return self.x02
-        return [None] * 7
+        '''Not supported yet.'''
+        return [-1] * 7
+
+    def get_touch_type(self):
+        '''Get touch type. Not supported yet.'''
+        return [-1] * 5
+
+    def get_touch(self):
+        '''Get touch data. Not supported yet.'''
+        return [-1] * 6
+
     def get_force(self):
-        '''获取压力'''
-        return [self.normal_force,self.tangential_force , self.tangential_force_dir , self.approach_inc]
-    
+        '''Get pressure.'''
+        return [self.normal_force, self.tangential_force, self.tangential_force_dir, self.approach_inc]
+
     def get_temperature(self):
-        '''获取温度'''
+        '''Get temperature.'''
         self.get_motor_temperature()
         return self.x33
+
     def get_fault(self):
-        '''获取故障'''
+        '''Get faults.'''
         self.get_motor_fault_code()
         return self.x35
+
     def close_can_interface(self):
         """Stop the CAN communication."""
         self.running = False

@@ -32,6 +32,7 @@ class LinkerHandL10Can:
         self.x33 = self.x34 = [0] * 5
         # 故障码
         self.x35,self.x36 = [0] * 5,[0] * 5
+        self.xb0,self.xb1,self.xb2,self.xb3,self.xb4,self.xb5 = [-1] * 5,[-1] * 5,[-1] * 5,[-1] * 5,[-1] * 5,[-1] * 5
         self.can_id = can_id
         self.joint_angles = [0] * 10
         self.pressures = [200] * 5  # 默认扭矩200
@@ -61,7 +62,7 @@ class LinkerHandL10Can:
             self.bus.send(msg)
         except can.CanError as e:
             print(f"Failed to send message: {e}")
-        time.sleep(0.001)
+        time.sleep(0.005)
 
     def set_joint_positions(self, joint_angles):
         """将10个关节的位置设置（joint_angles: 10个数值的列表）。"""
@@ -161,6 +162,18 @@ class LinkerHandL10Can:
                 self.x35 = list(response_data)
             elif frame_type == 0x36:
                 self.x36 = list(response_data)
+            elif frame_type == 0xb0:
+                self.xb0 = list(response_data)
+            elif frame_type == 0xb1:
+                self.xb1 = list(response_data)
+            elif frame_type == 0xb2:
+                self.xb2 = list(response_data)
+            elif frame_type == 0xb3:
+                self.xb3 = list(response_data)
+            elif frame_type == 0xb4:
+                self.xb4 = list(response_data)
+            elif frame_type == 0xb5:
+                self.xb5 = list(response_data)
             elif frame_type == 0x64:
                 self.version = list(response_data)
 
@@ -195,11 +208,28 @@ class LinkerHandL10Can:
         self.get_motor_temperature()
         return self.x33+self.x34
 
+    def get_touch_type(self):
+        '''获取触摸类型'''
+        self.send_frame(0xb1,[])
+        time.sleep(0.002)
+        if len(self.xb1) == 2:
+            return 2
+        else:
+            return -1
+    
+    def get_touch(self):
+        '''获取触摸数据'''
+        self.send_frame(0xb1,[])
+        self.send_frame(0xb2,[])
+        self.send_frame(0xb3,[])
+        self.send_frame(0xb4,[])
+        self.send_frame(0xb5,[])
+        return [self.xb1[1],self.xb2[1],self.xb3[1],self.xb4[1],self.xb5[1],0] # 最后一位是手掌，目前没有
+
     def get_torque(self):
         '''暂不支持'''
-        # self.send_frame(0x02,[])
-        # return self.x02
-        return [None] * 5
+        
+        return [-1] * 5
     def get_fault(self):
         '''获取电机故障'''
         self.get_motor_fault_code()
