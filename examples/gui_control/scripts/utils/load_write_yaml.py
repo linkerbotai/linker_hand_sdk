@@ -1,3 +1,12 @@
+'''
+Author: HJX
+Date: 2025-04-08 13:28:18
+LastEditors: Please set LastEditors
+LastEditTime: 2025-04-08 16:02:08
+FilePath: /Linker_Hand_SDK_ROS/src/examples/gui_control/scripts/utils/load_write_yaml.py
+Description: 
+symbol_custom_string_obkorol_copyright: 
+'''
 import rospkg, yaml, os, sys
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
@@ -15,8 +24,9 @@ class LoadWriteYaml():
     def __init__(self):
         # self.hand_joint = hand_joint
         # self.hand_type = hand_type
-        self.setting_yaml_path = sdk_path + "/config/setting.yaml"
-        self.action_path = gui_path + "/config/"
+
+        self.setting_yaml_path = sdk_path + "/scripts/LinkerHand/config/setting.yaml"
+        self.action_path = sdk_path + "/scripts/LinkerHand/config/"
 
     def load_setting_yaml(self):
         try:

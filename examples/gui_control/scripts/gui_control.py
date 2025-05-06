@@ -40,9 +40,9 @@ class MainWindow(QMainWindow):
         self._init_hand_joint()
         self._init_gui_view()
         if self.hand_joint == "L25":
-            self.add_button_position = [255] * 30 # 记录添加按钮的位置
+            self.add_button_position = [255] * 25 # 记录添加按钮的位置
             # 要发布的最后动作序列
-            self.last_position = [255] * 30
+            self.last_position = [255] * 25
             self.set_speed(speed=[255,255,255,255,255,255])
         elif self.hand_joint == "L10":
             self.add_button_position = [255] * 10 # 记录添加按钮的位置

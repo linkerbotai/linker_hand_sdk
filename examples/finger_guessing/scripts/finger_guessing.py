@@ -14,14 +14,15 @@ import subprocess
 from std_msgs.msg import Header, Float32MultiArray
 import cv2
 import mediapipe as mp
-current_dir = os.path.dirname(os.path.abspath(__file__))
-target_dir = os.path.abspath(os.path.join(current_dir, "../../.."))
-sys.path.append(target_dir)
-from linker_hand_sdk_ros.scripts.utils.check_hand import CheckHand
+rospack = rospkg.RosPack()
+ros_linker_hand_sdk_path = rospack.get_path('linker_hand_sdk_ros')
+sys.path.append(ros_linker_hand_sdk_path + '/scripts')
+from LinkerHand.utils.init_linker_hand import InitLinkerHand
+
 class FingerGuessing:
     def __init__(self):
-        self.check_hand = CheckHand()
-        self.left_hand_exist,self.right_hand_exist,self.left_hand_joint,self.right_hand_joint,self.left_hand_type,self.right_hand_type = self.check_hand.check_hand()
+        self.check_hand = InitLinkerHand()
+        self.left_hand_exist,self.right_hand_exist,self.left_hand_joint,self.right_hand_joint,self.left_hand_type,self.right_hand_type = self.check_hand.current_hand()
         self.set_pub = rospy.Publisher('/cb_hand_setting_cmd', String, queue_size=1)
         # 只能单手使用
         if self.left_hand_exist == True and self.right_hand_exist == True:

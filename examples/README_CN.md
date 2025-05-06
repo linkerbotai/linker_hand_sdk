@@ -13,9 +13,6 @@
 - [0008-set_linker_hand_torque (设置LinkerHand灵巧手扭矩)](set_linker_hand_torque/)
 - [0009-finger_guessing (互动示例，猜拳游戏)](finger_guessing/) 注:需要有RGB摄像头
 ---
-# L20
-- [0201-IsaacGym_for_L20_8 (L20 IsaacGym仿真)](L20/IsaacGym_for_L20_8/l20_example.py)
----
 ## Python L20
 - [0101-lipcontroller (触觉传感器配合灵巧手进行捏取操作)](L20/gesture-show/lipcontroller.py)
 - [0102-gesture-Show-OK (使用python控制手比OK动作)](L20/gesture-show/gesture-Show-OK.py)
@@ -475,5 +472,3 @@ python ./tests/data_for_RL.py
 
 
 
-## Topic Document
-[Linker Hand Topic Document](doc/Topic-Reference.md)

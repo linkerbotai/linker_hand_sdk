@@ -14,11 +14,17 @@ import subprocess
 from PyQt5.QtWidgets import QMainWindow, QSplitter, QApplication,QMessageBox,QPushButton
 from PyQt5.QtCore import Qt, QTimer
 from std_msgs.msg import Header, Float32MultiArray
+rospack = rospkg.RosPack()
+ros_linker_hand_sdk_path = rospack.get_path('linker_hand_sdk_ros')
+sys.path.append(ros_linker_hand_sdk_path + '/scripts')
+from LinkerHand.utils.load_write_yaml import LoadWriteYaml
+from LinkerHand.utils.color_msg import ColorMsg
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-from utils.load_write_yaml import LoadWriteYaml
-from utils.color_msg import ColorMsg
+
 from views.temperature_plot import TemperaturePlot
 from views.wave_form_plot import WaveformPlot
+
+
 
 class GraphicDisplayStatus:
     def __init__(self):
