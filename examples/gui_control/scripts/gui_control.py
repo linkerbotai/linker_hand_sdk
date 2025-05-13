@@ -28,7 +28,7 @@ class MainWindow(QMainWindow):
         super().__init__()
         # 初始化 ROS 节点
         rospy.init_node('gui_control', anonymous=True)
-        self.rate = rospy.Rate(600)
+        self.rate = rospy.Rate(30)
         self.yaml = LoadWriteYaml() # 初始化配置文件
         self.set_pub = rospy.Publisher('/cb_hand_setting_cmd', String, queue_size=1)
         self.colse_sdk_sub = rospy.Subscriber("/close_sdk",String,self.close_sdk,queue_size=1)
