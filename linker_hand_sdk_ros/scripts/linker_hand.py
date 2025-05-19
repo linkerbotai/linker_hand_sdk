@@ -166,6 +166,7 @@ class LinkerHand:
             hand_state['state'] = self.api.get_state()
             hand_state['vel'] = self.api.get_joint_speed()
             self.pub_hand_state(hand_state=hand_state)
+            time.sleep(0.01)
 
     def pub_hand_state(self,hand_state):
         state = hand_state['state']
