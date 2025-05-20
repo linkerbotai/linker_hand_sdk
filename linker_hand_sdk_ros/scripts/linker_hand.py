@@ -153,9 +153,9 @@ class LinkerHand:
         self.thread_get_touch.start()
         self.thread_get_state.start()
 
-        self.thread_get_info.join()
-        self.thread_get_touch.join()
-        self.thread_get_state.join()
+        #self.thread_get_info.join()
+        #self.thread_get_touch.join()
+        #self.thread_get_state.join()
 
     def _get_hand_state(self):
         hand_state = {
