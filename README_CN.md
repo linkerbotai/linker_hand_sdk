@@ -13,6 +13,15 @@ LinkerHand 灵巧手 ROS SDK 是由灵心巧手（北京）科技有限公司开
 3. 请保护好灵巧手。
 
 # 2. **版本说明**
+V2.1.4
+1. 新增支持L21版本LinkeerHand灵巧手
+
+2. 新增支持矩阵式压力传感器
+
+3. 支持双CAN同时控制同型号双手
+
+4. 新增L10通过RML485接口控制
+
 V2.0.2
 1. 支持L7/O7/L10/O10/L20/O20/L25版本LinkerHand灵巧手
 
@@ -123,7 +132,7 @@ $ export ROS_HOSTNAME=<本机IP>
 目前，ROS开发的图形界面控制示例，只能单独控制一只LinkerHand灵巧手。
 
 ```shell
-$ cd Linker_Hand_SDK_ROS/src/linker_hand_sdk/linker_hand_sdk_ros/config
+$ cd Linker_Hand_SDK_ROS/src/linker_hand_sdk/linker_hand_sdk_ros/scripts/LinkerHand/config
 $ sudo vim setting.yaml    #编辑配置文件
 ```
 
@@ -186,7 +195,6 @@ PASSWORD: "12345678" # 由于与can通讯，需要激活通讯接口用到系统
 ```
 修改launch文件进行参数配置
 ```shell
-
 $ cd /Linker_Hand_SDK_ROS/src/linker_hand_sdk_ros/launch/
 $ sudo vim linker_hand.launch    #启动左or右单手，按照注释编辑配置文件
 $ sudo vim linker_hand_double.launch    #启动左右双手，按照注释编辑配置文件
@@ -202,24 +210,15 @@ $ sudo vim linker_hand_double.launch    #启动左右双手，按照注释编辑
     </node>
 </launch>
 ```
-- linker_hand_double.launch
+## 双手控制 注：首先保证没有其他CAN设备接入控制电脑，先插入左手USB转CAN为can0，再插入右手USB转CAN为can1
+- 修改linker_hand_double.launch
 ```html
-<?xml version="1.0" encoding="utf-8"?>
-<launch>
-    <!-- 左手节点 -->
-    <node pkg="linker_hand_sdk_ros" type="linker_hand.py" name="linker_hand_sdk_$(anon left)" output="screen">
-        <param name="hand_type" type="string" value="left"/> <!-- 不用修改 -->
-        <param name="hand_joint" type="string" value="L10"/> <!-- L7|L10|L20|L21|L25 灵巧手型号  -->
-        <param name="touch" type="bool" value="false"/> <!-- 是否有压力传感器 -->
-    </node>
-    
-    <!-- 右手节点 -->
-    <node pkg="linker_hand_sdk_ros" type="linker_hand.py" name="linker_hand_sdk_$(anon right)" output="screen">
-        <param name="hand_type" type="string" value="right"/> <!-- 不用修改 -->
-        <param name="hand_joint" type="string" value="L10"/> <!-- L7|L10|L20|L21|L25 灵巧手型号  -->
-        <param name="touch" type="bool" value="true"/> <!-- 是否有压力传感器 -->
-    </node>
-</launch>
+    <arg name="left_hand_joint" default="L10"/> <!-- 左手型号 L7 | L10 | L20 | L21 | L25-->
+    <arg name="right_hand_joint" default="L10"/> <!-- 右手型号 L7 | L10 | L20 | L21 | L25-->
+    <arg name="left_touch" default="true"/> <!-- 左手压力传感器 true or false-->
+    <arg name="right_touch" default="true"/> <!-- 右手压力传感器 true or false-->
+    <arg name="left_can" default="can0"/> <!-- 左手USB转CAN编号 can0-->
+    <arg name="right_can" default="can1"/> <!-- 右手USB转CAN编号 can0-->
 ```
 ## 4.2 LinkerHand灵巧手与电脑硬件连接
 
@@ -243,6 +242,18 @@ $ source ./devel/setup.bash
 $ roslaunch linker_hand_sdk_ros linker_hand.launch #左or右单手启动
 or
 $ roslaunch linker_hand_sdk_ros linker_hand_double.launch #启动左右双手
+```
+
+### 4.4 通过RML机械臂485接口控制L10灵巧手 注：睿尔曼的官方API2只支持Python3.9以上版本，否则无法使用
+- 修改linker_hand.launch文件
+```bash
+修改参数 <arg name="modbus" default="None"/> <!-- None or RML  only L10 --> 
+# 开启CAN端口
+$ sudo /usr/sbin/ip link set can0 up type can bitrate 1000000 #USB转CAN设备蓝色灯常亮状态 在按照要求修改setting.ymal配置文件后，Ubuntu系统可以不做此步
+$ cd ~/Linker_Hand_SDK_ROS/
+$ source ./devel/setup.bash
+$ roslaunch linker_hand_sdk_ros linker_hand.launch #左or右单手启动
+向topic /cb_left_hand_control_cmd or /cb_right_hand_control_cmd 发送控制消息即可
 ```
 
 - position与手指关节对照表
@@ -275,35 +286,12 @@ $ roslaunch linker_hand_sdk_ros linker_hand_double.launch #启动左右双手
 
 控制灵巧手关节角度、获取灵巧手的各种状态信息。
 
-## 5.2 range_to_arc
 
-获取和发送L10、L20的弧度值
-
-topic:/cb_left_hand_state_arc and /cb_right_hand_state_arc 获取LinkerHand状态position为弧度值
-
-topic:/cb_left_hand_control_cmd_arc 和 /cb_right_hand_control_cmd_arc 发布position弧度值控制LinkerHand手指运动
-
-## 5.2.1 弧度与范围对照表
-
-l20灵巧手关节顺序 = ["拇指根部", "食指根部", "中指根部", "无名指根部","小指根部","拇指侧摆","食指侧摆","中指侧摆","无名指侧摆","小指侧摆","拇指横摆","预留","预留","预留","预留","拇指尖部","食指末端","中指末端","无名指末端","小指末端"]
-
-l20_l_min_arc   = [-1.57, 0, 0, 0, 0, 0, -0.26, -0.26, -0.26, -0.26, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0] # 弧度最小值
-l20_l_min_range = [0, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0,0,0] # 范围最小值
-
-l20_l_max_arc = [0, 1.57, 1.57, 1.57, 1.57, 1.57, 0.26, 0.26, 0.26, 0.26, 0, 0, 0, 0, 0, 1.57, 1.57, 1.57, 1.57, 1.57] # 弧度最大值
-l20_l_max_range = [255, 255, 255, 255, 255,255, 255, 255, 255, 255,255, 0, 0, 0, 0, 255, 255, 255, 255, 255] # 范围最大值
-
-l20_r_min_arc = [0, 0, 0, 0, 0, -1.57, -0.26, -0.26, -0.26, -0.26, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]# 弧度最小值
-l20_r_min_range = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]# 范围最小值
-
-l20_r_max_arc = [1.57, 1.57, 1.57, 1.57, 1.57, 0, 0.26, 0.26, 0.26, 0.26, 1, 0, 0, 0, 0, 1.57, 1.57, 1.57, 1.57, 1.57] # 弧度最大值
-l20_r_max_range = [255, 255, 255, 255, 255,255, 255, 255, 255, 255,255, 0, 0, 0, 0, 255, 255, 255, 255, 255] # 范围最大值
-
-## 5.3 examples
+## 5.2 examples
 
 包含了各个产品的使用案例
 
-## 5.4 doc
+## 5.3 doc
 
 文档附件目录
 
@@ -342,7 +330,6 @@ $ rosrun linker_hand_pybullet linker_hand_pybullet.py _hand_type:=L20
 图形界面控制可以通过滑动块控制LinkerHand灵巧手L7/O7/L10/O10/L20/O20/L25/O25/T25各个关节独立运动。也可以通过添加按钮记录当前所有滑动块的数值，保存LinkerHand灵巧手当前各个关节运动状态。通过功能性按钮进行动作复现。
 
 使用gui_control控制LinkerHand灵巧手: gui_control界面控制灵巧手需要启动linker_hand_sdk_ros，以topic的形式对LinkerHand灵巧手进行操作。
-注：gui_control控制只能控制左手或右手，暂不支持双手控制
 1. 开启一个新终端，启动ROS
 
 ```shell
@@ -354,7 +341,7 @@ $ roscore
 ```shell
 $ cd Linker_Hand_SDK_ROS/
 $ source ./devel/setup.bash
-$ roslaunch linker_hand_sdk_ros linker_hand.launch # 启动灵巧手
+$ roslaunch linker_hand_sdk_ros linker_hand.launch # 启动灵巧手 SDK
 ```
 
 * 开启一个新终端，启动图形界面控制
@@ -362,7 +349,11 @@ $ roslaunch linker_hand_sdk_ros linker_hand.launch # 启动灵巧手
 ```shell
 $ cd Linker_Hand_SDK_ROS
 $ source ./devel/setup.bash
-$ rosrun gui_control gui_control.py
+$ roslaunch gui_control gui_control_left.launch # 控制左手，需要修改launch文件内的配置参数，按照自身需求即可
+or
+$ roslaunch gui_control gui_control_right.launch # 控制右手，需要修改launch文件内的配置参数，按照自身需求即可
+or 
+$ roslaunch gui_control gui_control_double.launch # 控制双手，需要修改launch文件内的配置参数，按照自身需求即可
 ```
 
 开启后会弹出UI界面。通过滑动条可控制相应LinkerHand灵巧手关节运动。并可通过右侧添加按钮对当前滑动条数据进行保存，以便用于复现使用。

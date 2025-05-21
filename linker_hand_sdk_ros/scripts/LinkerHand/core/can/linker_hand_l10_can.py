@@ -30,16 +30,37 @@ class LinkerHandL10Can:
         self.x04 = [0] * 5
         self.x05 = [0] * 5
         self.x33 = self.x34 = [0] * 5
-        # 故障码
+        # Fault codes
         self.x35,self.x36 = [0] * 5,[0] * 5
+        # New pressure sensors
         self.xb0,self.xb1,self.xb2,self.xb3,self.xb4,self.xb5 = [-1] * 5,[-1] * 5,[-1] * 5,[-1] * 5,[-1] * 5,[-1] * 5
+        
+        self.thumb_matrix = np.full((12, 6), -1)
+        self.index_matrix = np.full((12, 6), -1)
+        self.middle_matrix = np.full((12, 6), -1)
+        self.ring_matrix = np.full((12, 6), -1)
+        self.little_matrix = np.full((12, 6), -1)
+        self.matrix_map = {
+            0: 0,
+            16: 1,
+            32: 2,
+            48: 3,
+            64: 4,
+            80: 5,
+            96: 6,
+            112: 7,
+            128: 8,
+            144: 9,
+            160: 10,
+            176: 11,
+        }
         self.can_id = can_id
         self.joint_angles = [0] * 10
-        self.pressures = [200] * 5  # 默认扭矩200
+        self.pressures = [200] * 5  # Default torque 200
         self.bus = self.init_can_bus(can_channel, baudrate)
         self.normal_force, self.tangential_force, self.tangential_force_dir, self.approach_inc = [[0.0] * 5 for _ in range(4)]
         self.version = None
-        # 启动接收线程
+        # Start receiving thread
         self.running = True
         self.receive_thread = threading.Thread(target=self.receive_response)
         self.receive_thread.daemon = True
@@ -53,8 +74,8 @@ class LinkerHandL10Can:
         else:
             raise EnvironmentError("Unsupported platform for CAN interface")
 
-    def send_frame(self, frame_property, data_list):
-        """发送一个带有指定属性和数据的单个CAN帧。"""
+    def send_frame(self, frame_property, data_list,sleep=0.005):
+        """Send a single CAN frame with specified properties and data."""
         frame_property_value = int(frame_property.value) if hasattr(frame_property, 'value') else frame_property
         data = [frame_property_value] + [int(val) for val in data_list]
         msg = can.Message(arbitration_id=self.can_id, data=data, is_extended_id=False)
@@ -62,19 +83,19 @@ class LinkerHandL10Can:
             self.bus.send(msg)
         except can.CanError as e:
             print(f"Failed to send message: {e}")
-        time.sleep(0.005)
+        time.sleep(sleep)
 
     def set_joint_positions(self, joint_angles):
-        """将10个关节的位置设置（joint_angles: 10个数值的列表）。"""
+        """Set the positions of 10 joints (joint_angles: list of 10 values)."""
         self.joint_angles = joint_angles
-        # 分帧发送角度控制 L10协议为前6和后4分开
+        # Send angle control in frames, L10 protocol splits into first 6 and last 4
         self.send_frame(FrameProperty.JOINT_POSITION2_RCO, self.joint_angles[6:])
         time.sleep(0.001)
         self.send_frame(FrameProperty.JOINT_POSITION_RCO, self.joint_angles[:6])
         
 
     def set_max_torque_limits(self, pressures,type="get"):
-        """设置最大扭矩限制"""
+        """Set maximum torque limits"""
         if type == "get":
             self.pressures = [0.0]
         else:
@@ -93,29 +114,29 @@ class LinkerHandL10Can:
             time.sleep(0.01)
             self.send_frame(0x05, speed)
     def request_all_status(self):
-        """获取所有关节位置和压力。"""
+        """Get all joint positions and pressures."""
         self.send_frame(FrameProperty.REQUEST_DATA_RETURN, [])
-    ''' -------------------压力传感器---------------------- '''
+    ''' -------------------Pressure Sensors---------------------- '''
     def get_normal_force(self):
-        self.send_frame(FrameProperty.HAND_NORMAL_FORCE,[])
+        self.send_frame(FrameProperty.HAND_NORMAL_FORCE,[],sleep=0.01)
 
     def get_tangential_force(self):
-        self.send_frame(FrameProperty.HAND_TANGENTIAL_FORCE,[])
+        self.send_frame(FrameProperty.HAND_TANGENTIAL_FORCE,[],sleep=0.01)
 
     def get_tangential_force_dir(self):
-        self.send_frame(FrameProperty.HAND_TANGENTIAL_FORCE_DIR,[])
+        self.send_frame(FrameProperty.HAND_TANGENTIAL_FORCE_DIR,[],sleep=0.01)
     def get_approach_inc(self):
-        self.send_frame(FrameProperty.HAND_APPROACH_INC,[])
-    ''' -------------------电机温度---------------------- '''
+        self.send_frame(FrameProperty.HAND_APPROACH_INC,[],sleep=0.01)
+    ''' -------------------Motor Temperature---------------------- '''
     def get_motor_temperature(self):
-        self.send_frame(FrameProperty.MOTOR_TEMPERATURE_1,[])
-        self.send_frame(FrameProperty.MOTOR_TEMPERATURE_2,[])
-    # 电机故障码
+        self.send_frame(FrameProperty.MOTOR_TEMPERATURE_1,[],sleep=0.01)
+        self.send_frame(FrameProperty.MOTOR_TEMPERATURE_2,[],sleep=0.01)
+    # Motor fault codes
     def get_motor_fault_code(self):
-        self.send_frame(0x35,[])
-        self.send_frame(0x36,[])
+        self.send_frame(0x35,[],sleep=0.1)
+        self.send_frame(0x36,[],sleep=0.1)
     def receive_response(self):
-        """接收CAN响应并处理."""
+        """Receive CAN responses and process them."""
         while self.running:
             try:
                 msg = self.bus.recv(timeout=1.0)
@@ -125,12 +146,12 @@ class LinkerHandL10Can:
                 print(f"Error receiving CAN message: {e}")
 
     def process_response(self, msg):
-        """处理接收到的CAN消息。"""
+        """Process received CAN messages."""
         if msg.arbitration_id == self.can_id:
             frame_type = msg.data[0]
             response_data = msg.data[1:]
             if frame_type == FrameProperty.JOINT_POSITION_RCO.value:   # 0x01
-                self.x01 = list(response_data)  # 
+                self.x01 = list(response_data)  
             elif frame_type == FrameProperty.MAX_PRESS_RCO.value:    # 0x02
                 self.x02 = list(response_data)
             elif frame_type == FrameProperty.JOINT_POSITION2_RCO.value:    # 0x04
@@ -139,19 +160,19 @@ class LinkerHandL10Can:
                 #self.x05 = list(response_data)
                 pass
             elif frame_type == 0x20:
-                #ColorMsg(msg=f"五指法向压力：{list(response_data)}")
+                # Five-finger normal force
                 d = list(response_data)
                 self.normal_force = [float(i) for i in d]
             elif frame_type == 0x21:
-                #ColorMsg(msg=f"五指切向压力：{list(response_data)}")
+                # Five-finger tangential force
                 d = list(response_data)
                 self.tangential_force = [float(i) for i in d]
             elif frame_type == 0x22:
-                #ColorMsg(msg=f"五指切向压力方向：{list(response_data)}")
+                # Five-finger tangential force direction
                 d = list(response_data)
                 self.tangential_force_dir = [float(i) for i in d]
             elif frame_type == 0x23:
-                #ColorMsg(msg=f"五指接近度：{list(response_data)}")
+                # Five-finger approach increment
                 d = list(response_data)
                 self.approach_inc = [float(i) for i in d]
             elif frame_type == 0x33:
@@ -165,77 +186,112 @@ class LinkerHandL10Can:
             elif frame_type == 0xb0:
                 self.xb0 = list(response_data)
             elif frame_type == 0xb1:
-                self.xb1 = list(response_data)
+                d = list(response_data)
+                if len(d) == 2:
+                    self.xb1 = d
+                elif len(d) == 7:
+                    index = self.matrix_map.get(d[0])
+                    if index is not None:
+                        self.thumb_matrix[index] = d[1:]  # Remove the first flag bit
             elif frame_type == 0xb2:
-                self.xb2 = list(response_data)
+                d = list(response_data)
+                if len(d) == 2:
+                    self.xb2 = d
+                elif len(d) == 7:
+                    index = self.matrix_map.get(d[0])
+                    if index is not None:
+                        self.index_matrix[index] = d[1:]  # Remove the first flag bit
             elif frame_type == 0xb3:
-                self.xb3 = list(response_data)
+                d = list(response_data)
+                if len(d) == 2:
+                    self.xb3 = d
+                elif len(d) == 7:
+                    index = self.matrix_map.get(d[0])
+                    if index is not None:
+                        self.middle_matrix[index] = d[1:]  # Remove the first flag bit
             elif frame_type == 0xb4:
-                self.xb4 = list(response_data)
+                d = list(response_data)
+                if len(d) == 2:
+                    self.xb4 = d
+                elif len(d) == 7:
+                    index = self.matrix_map.get(d[0])
+                    if index is not None:
+                        self.ring_matrix[index] = d[1:]  # Remove the first flag bit
             elif frame_type == 0xb5:
-                self.xb5 = list(response_data)
+                d = list(response_data)
+                if len(d) == 2:
+                    self.xb5 = d
+                elif len(d) == 7:
+                    index = self.matrix_map.get(d[0])
+                    if index is not None:
+                        self.little_matrix[index] = d[1:]  # Remove the first flag bit
             elif frame_type == 0x64:
                 self.version = list(response_data)
 
     def set_torque(self,torque=[]):
-        '''设置最大扭矩'''
+        '''Set maximum torque'''
         self.send_frame(0x02, torque)
     def get_version(self):
-        '''获取版本'''
-        self.send_frame(0x64,[])
+        '''Get version'''
+        self.send_frame(0x64,[],sleep=0.1)
         time.sleep(0.001)
         return self.version
     def get_current_status(self):
-        '''获取当前关节状态'''
-        self.send_frame(0x01,[])
-        time.sleep(0.001)
-        self.send_frame(0x04,[])
-        time.sleep(0.001)
+        '''Get current joint status'''
+        # self.send_frame(0x01,[],sleep=0.005)
+        # self.send_frame(0x04,[],sleep=0.005)
         return self.x01 + self.x04
     def get_speed(self):
-        '''获取当前速度'''
+        '''Get current speed'''
         return self.x05
     def get_press(self):
-        '''获取当前扭矩'''
+        '''Get current torque'''
         self.set_max_torque_limits(pressures=[0.0], type="get")
         time.sleep(0.001)
         return self.x02
     def get_force(self):
-        '''获取压感数据'''
+        '''Get pressure sensor data'''
         return [self.normal_force,self.tangential_force , self.tangential_force_dir , self.approach_inc]
     def get_temperature(self):
-        '''获取电机当前温度'''
+        '''Get current motor temperature'''
         self.get_motor_temperature()
         return self.x33+self.x34
 
     def get_touch_type(self):
-        '''获取触摸类型'''
-        self.send_frame(0xb1,[])
-        time.sleep(0.002)
+        '''Get touch type'''
+        self.send_frame(0xb1,[],sleep=0.03)
         if len(self.xb1) == 2:
             return 2
         else:
             return -1
     
     def get_touch(self):
-        '''获取触摸数据'''
-        self.send_frame(0xb1,[])
-        self.send_frame(0xb2,[])
-        self.send_frame(0xb3,[])
-        self.send_frame(0xb4,[])
-        self.send_frame(0xb5,[])
-        return [self.xb1[1],self.xb2[1],self.xb3[1],self.xb4[1],self.xb5[1],0] # 最后一位是手掌，目前没有
+        '''Get touch data'''
+        self.send_frame(0xb1,[],sleep=0.02)
+        self.send_frame(0xb2,[],sleep=0.02)
+        self.send_frame(0xb3,[],sleep=0.02)
+        self.send_frame(0xb4,[],sleep=0.02)
+        self.send_frame(0xb5,[],sleep=0.02)
+        return [self.xb1[1],self.xb2[1],self.xb3[1],self.xb4[1],self.xb5[1],0] # The last digit is palm, currently not available
+
+    def get_matrix_touch(self):
+        self.send_frame(0xb1,[0xc6],sleep=0.025)
+        self.send_frame(0xb2,[0xc6],sleep=0.025)
+        self.send_frame(0xb3,[0xc6],sleep=0.025)
+        self.send_frame(0xb4,[0xc6],sleep=0.025)
+        self.send_frame(0xb5,[0xc6],sleep=0.025)
+        return self.thumb_matrix , self.index_matrix , self.middle_matrix , self.ring_matrix , self.little_matrix
 
     def get_torque(self):
-        '''暂不支持'''
-        
+        '''Not supported yet'''
         return [-1] * 5
+    
     def get_fault(self):
-        '''获取电机故障'''
+        '''Get motor fault'''
         self.get_motor_fault_code()
         return self.x35+self.x36
     def get_current(self):
-        '''获取电流'''
+        '''Get current'''
         return [None]*10
     def close_can_interface(self):
         """Stop the CAN communication."""

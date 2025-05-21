@@ -5,27 +5,27 @@ import threading
 from enum import Enum
 
 class FrameProperty(Enum):
-    INVALID_FRAME_PROPERTY = 0x00  # 无效的can帧属性 | 无返回
-    JOINT_PITCH_R = 0x01           # 短帧俯仰角-手指根部弯曲 | 返回本类型数据
-    JOINT_YAW_R = 0x02             # 短帧航向角-手指横摆，控制间隙 | 返回本类型数据
-    JOINT_ROLL_R = 0x03            # 短帧横滚角-只有大拇指副用到了 | 返回本类型数据
-    JOINT_TIP_R = 0x04             # 短帧指尖角度控制 | 返回本类型数据
-    JOINT_SPEED_R = 0x05           # 短帧速度 电机运行速度控制 | 返回本类型数据
-    JOINT_CURRENT_R = 0x06         # 短帧电流 电机运行电流反馈 | 返回本类型数据
-    JOINT_FAULT_R = 0x07           # 短帧故障 电机运行故障反馈 | 返回本类型数据
-    REQUEST_DATA_RETURN = 0x09      # 请求数据返回 | 返回所有数据
-    JOINT_PITCH_NR = 0x11           # 俯仰角-手指根部弯曲 | 不返回本类型数据
-    JOINT_YAW_NR = 0x12             # 航向角-手指横摆，控制间隙 | 不返回本类型数据
-    JOINT_ROLL_NR = 0x13            # 横滚角-只有大拇指副用到了 | 不返回本类型数据
-    JOINT_TIP_NR = 0x14             # 指尖角度控制 | 不返回本类型数据
-    JOINT_SPEED_NR = 0x15           # 速度 电机运行速度控制 | 不返回本类型数据
-    JOINT_CURRENT_NR = 0x16         # 电流 电机运行电流反馈 | 不返回本类型数据
-    JOINT_FAULT_NR = 0x17           # 故障 电机运行故障反馈 | 不返回本类型数据
-    HAND_UID = 0xC0                 # 设备唯一标识码 只读 --------
-    HAND_HARDWARE_VERSION = 0xC1    # 硬件版本 只读 --------
-    HAND_SOFTWARE_VERSION = 0xC2    # 软件版本 只读 --------
-    HAND_COMM_ID = 0xC3             # 设备ID 可读写 1字节
-    HAND_SAVE_PARAMETER = 0xCF       # 保存参数 只写 --------
+    INVALID_FRAME_PROPERTY = 0x00  # Invalid CAN frame property | No return
+    JOINT_PITCH_R = 0x01           # Short frame pitch angle - finger base flexion | Returns this type of data
+    JOINT_YAW_R = 0x02             # Short frame yaw angle - finger abduction/adduction | Returns this type of data
+    JOINT_ROLL_R = 0x03            # Short frame roll angle - only used for thumb | Returns this type of data
+    JOINT_TIP_R = 0x04             # Short frame fingertip angle control | Returns this type of data
+    JOINT_SPEED_R = 0x05           # Short frame speed - motor running speed control | Returns this type of data
+    JOINT_CURRENT_R = 0x06         # Short frame current - motor running current feedback | Returns this type of data
+    JOINT_FAULT_R = 0x07           # Short frame fault - motor running fault feedback | Returns this type of data
+    REQUEST_DATA_RETURN = 0x09     # Request data return | Returns all data
+    JOINT_PITCH_NR = 0x11          # Pitch angle - finger base flexion | No return for this type of data
+    JOINT_YAW_NR = 0x12            # Yaw angle - finger abduction/adduction | No return for this type of data
+    JOINT_ROLL_NR = 0x13           # Roll angle - only used for thumb | No return for this type of data
+    JOINT_TIP_NR = 0x14            # Fingertip angle control | No return for this type of data
+    JOINT_SPEED_NR = 0x15          # Speed - motor running speed control | No return for this type of data
+    JOINT_CURRENT_NR = 0x16        # Current - motor running current feedback | No return for this type of data
+    JOINT_FAULT_NR = 0x17          # Fault - motor running fault feedback | No return for this type of data
+    HAND_UID = 0xC0                # Device unique identifier Read only --------
+    HAND_HARDWARE_VERSION = 0xC1   # Hardware version Read only --------
+    HAND_SOFTWARE_VERSION = 0xC2   # Software version Read only --------
+    HAND_COMM_ID = 0xC3            # Device ID Read/Write 1 byte
+    HAND_SAVE_PARAMETER = 0xCF     # Save parameters Write only --------
 
 
 class LinkerHandL20Can:
@@ -34,7 +34,7 @@ class LinkerHandL20Can:
         self.running = True
         self.x05, self.x06, self.x07 = [],[],[]
         
-        # 根据操作系统初始化 CAN 总线
+        # Initialize CAN bus according to operating system
         if sys.platform == "linux":
             self.bus = can.interface.Bus(
                 channel=can_channel, interface="socketcan", bitrate=baudrate, 
@@ -48,12 +48,12 @@ class LinkerHandL20Can:
         else:
             raise EnvironmentError("Unsupported platform for CAN interface")
 
-        # 初始化数据存储
+        # Initialize data storage
         self.x01, self.x02, self.x03, self.x04 = [[0.0] * 5 for _ in range(4)]
         self.normal_force, self.tangential_force, self.tangential_force_dir, self.approach_inc = \
             [[0.0] * 5 for _ in range(4)]
 
-        # 启动接收线程
+        # Start receive thread
         self.receive_thread = threading.Thread(target=self.receive_response)
         self.receive_thread.daemon = True
         self.receive_thread.start()
@@ -61,9 +61,9 @@ class LinkerHandL20Can:
     def send_command(self, frame_property, data_list):
         print("66666")
         """
-        发送命令到 CAN 总线
-        :param frame_property: 数据帧属性
-        :param data_list: 数据载荷
+        Send command to CAN bus
+        :param frame_property: Data frame property
+        :param data_list: Data payload
         """
         frame_property_value = int(frame_property.value) if hasattr(frame_property, 'value') else frame_property
         data = [frame_property_value] + [int(val) for val in data_list]
@@ -76,11 +76,11 @@ class LinkerHandL20Can:
 
     def receive_response(self):
         """
-        接收并处理 CAN 总线的响应消息
+        Receive and process CAN bus response messages
         """
         while self.running:
             try:
-                msg = self.bus.recv(timeout=1.0)  # 阻塞接收，1 秒超时
+                msg = self.bus.recv(timeout=1.0)  # Blocking receive, 1 second timeout
                 if msg:
                     self.process_response(msg)
             except can.CanError as e:
@@ -156,20 +156,12 @@ class LinkerHandL20Can:
             response_data = msg.data[1:]
             if frame_type == 0x01:
                 self.x01 = list(response_data)
-                # print("x01")
-                # print(self.x01)
             elif frame_type == 0x02:
                 self.x02 = list(response_data)
-                # print("x02")
-                # print(self.x02)
             elif frame_type == 0x03:
                 self.x03 = list(response_data)
-                # print("x03")
-                # print(self.x03)
             elif frame_type == 0x04:
                 self.x04 = list(response_data)
-                # print("x04")
-                # print(self.x04)
             elif frame_type == 0xC0:
                 print(f"Device ID info: {response_data}")
                 if self.can_id == 0x28:
@@ -177,108 +169,96 @@ class LinkerHandL20Can:
                 elif self.can_id == 0x27:
                     self.left_hand_info = response_data
             elif frame_type == 0x05:
-                #ColorMsg(msg=f"速度设置为：{list(response_data)}", color="yellow")
                 self.x05 = list(response_data)
-                
             elif frame_type == 0x06:
-                #ColorMsg(msg=f"当前电流状态：{list(response_data)}")
                 self.x06 = list(response_data)
             elif frame_type == 0x07:
-                #ColorMsg(msg=f"电机故障状态反馈：{list(response_data)}", color="yellow")
                 self.x07 = list(response_data)
             elif frame_type == 0x20:
-                #ColorMsg(msg=f"五指法向压力：{list(response_data)}")
                 d = list(response_data)
                 self.normal_force = [float(i) for i in d] 
             elif frame_type == 0x21:
-                #ColorMsg(msg=f"五指切向压力：{list(response_data)}")
                 d = list(response_data)
                 self.tangential_force = [float(i) for i in d]
             elif frame_type == 0x22:
-                #ColorMsg(msg=f"五指切向压力方向：{list(response_data)}")
                 d = list(response_data)
                 self.tangential_force_dir = [float(i) for i in d]
             elif frame_type == 0x23:
-                #ColorMsg(msg=f"五指接近度：{list(response_data)}")
                 d = list(response_data)
                 self.approach_inc = [float(i) for i in d]
     def pose_slice(self, p):
-        """将关节数组切片为手指动作数组"""
+        """Slice the joint array into finger action arrays"""
         try:
-            finger_base = [int(val) for val in p[0:5]]   # 手指根部
-            yaw_angles = [int(val) for val in p[5:10]]    # 横摆
-            thumb_yaw = [int(val) for val in p[10:15]]     # 拇指向手心横摆，其他为0
-            finger_tip = [int(val) for val in p[15:20]]    # 指尖弯曲
+            finger_base = [int(val) for val in p[0:5]]   # Finger base
+            yaw_angles = [int(val) for val in p[5:10]]    # Yaw
+            thumb_yaw = [int(val) for val in p[10:15]]     # Thumb yaw to palm, others are 0
+            finger_tip = [int(val) for val in p[15:20]]    # Fingertip flexion
             return finger_base, yaw_angles, thumb_yaw, finger_tip
         except Exception as e:
             print(e)
-            #ColorMsg(msg="手部关节数据必须是正整数，范围:0~255之间", color="red")
     def set_joint_positions(self, position):
         if len(position) != 20:
-            print("L20手指关节长度不对")
+            print("L20 finger joint length is incorrect")
             return
         finger_base, yaw_angles, thumb_yaw, finger_tip = self.pose_slice(position)
-        self.set_thumb_roll(thumb_yaw) # 大拇想手心横摆指移动
-        self.set_finger_tip(finger_tip) # 指尖移动
-        self.set_finger_base(finger_base) # 手指根部移动
-        self.set_finger_middle(yaw_angles) # 横摆移动
+        self.set_thumb_roll(thumb_yaw) # Thumb yaw to palm movement
+        self.set_finger_tip(finger_tip) # Fingertip movement
+        self.set_finger_base(finger_base) # Finger base movement
+        self.set_finger_middle(yaw_angles) # Yaw movement
     def set_speed(self, speed=[]):
         self.send_command(0x05,speed)
     def set_torque(self, torque=[]):
-        '''设置扭矩 L20暂不支持'''
-        print("设置扭矩 L20暂不支持")
+        '''Set torque, not supported for L20'''
+        print("Set torque, not supported for L20")
     def set_current(self, current=[]):
-        '''设置当前电流'''
+        '''Set current'''
         self.set_electric_current(e_c=current)
     def get_version(self):
-        '''获取版本 当前不支持'''
+        '''Get version, currently not supported'''
         return [0] * 5
     def get_current_status(self):
-        '''获取当前手指关节状态'''
+        '''Get current finger joint status'''
         self.send_command(0x01,[])
         self.send_command(0x02,[])
         self.send_command(0x03,[])
         self.send_command(0x04,[])
         return self.x01 + self.x02 + self.x03 + self.x04
-    #def get_force(self):
-        #return [self.normal_force,self.tangential_force , self.tangential_force_dir , self.approach_inc]
     def get_speed(self):
-        '''获取当前电机速度'''
+        '''Get current motor speed'''
         self.send_command(0x05, [0])
         time.sleep(0.001)
         return self.x05
     def get_current(self):
-        '''获取当前电流阈值'''
+        '''Get current threshold'''
         self.send_command(0x06, [0])
         return self.x06
     def get_torque(self):
-        '''获取当前电机扭矩 L20暂不支持'''
+        '''Get current motor torque, not supported for L20'''
         return [0] * 5
     def get_fault(self):
         return self.x07
     def get_temperature(self):
-        '''获取电机温度 L20暂不支持'''
+        '''Get motor temperature, not supported for L20'''
         return [0]* 10
     def clear_faults(self):
-        '''清除电机故障'''
+        '''Clear motor faults'''
         self.send_command(0x07, [1, 1, 1, 1, 1])
 
     def get_touch_type(self):
-        '''获取触摸类型 暂不支持'''
+        '''Get touch type, not supported'''
         return [-1] * 5
     
     def get_touch(self):
-        '''获取触摸数据 暂不支持'''
+        '''Get touch data, not supported'''
         return [-1] * 6
 
     def get_faults(self):
-        '''获取电机故障码'''
+        '''Get motor fault codes'''
         self.send_command(0x07, [])
         return self.x07
     def get_force(self):
-        '''获取压感数据'''
+        '''Get pressure sensor data'''
         return [self.normal_force,self.tangential_force,self.tangential_force_dir,self.approach_inc]
     def close_can_interface(self):
         if self.bus:
-            self.bus.shutdown()  # 关闭 CAN 总线
-
+            self.bus.shutdown()  # Close CAN bus

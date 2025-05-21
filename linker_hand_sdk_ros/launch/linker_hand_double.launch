@@ -1,16 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <launch>
-    <!-- 左手节点 -->
-    <node pkg="linker_hand_sdk_ros" type="linker_hand.py" name="linker_hand_sdk_$(anon left)" output="screen">
-        <param name="hand_type" type="string" value="left"/> <!-- 不用修改 -->
-        <param name="hand_joint" type="string" value="L10"/> <!-- L7|L10|L20|L21|L25 灵巧手型号  -->
-        <param name="touch" type="bool" value="false"/> <!-- 是否有压力传感器 -->
-    </node>
-    
-    <!-- 右手节点 -->
-    <node pkg="linker_hand_sdk_ros" type="linker_hand.py" name="linker_hand_sdk_$(anon right)" output="screen">
-        <param name="hand_type" type="string" value="right"/> <!-- 不用修改 -->
-        <param name="hand_joint" type="string" value="L10"/> <!-- L7|L10|L20|L21|L25 灵巧手型号  -->
-        <param name="touch" type="bool" value="true"/> <!-- 是否有压力传感器 -->
-    </node>
+    <!-- 公共参数定义（可传入） -->
+    <arg name="left_hand_joint" default="L10"/>
+    <arg name="right_hand_joint" default="L10"/>
+    <arg name="left_touch" default="true"/>
+    <arg name="right_touch" default="true"/>
+    <arg name="left_can" default="can0"/>
+    <arg name="right_can" default="can1"/>
+
+    <!-- 左手 -->
+    <group ns="left_hand">
+        <node pkg="linker_hand_sdk_ros" type="linker_hand.py" name="linker_hand_sdk" output="screen">
+            <param name="hand_type" type="string" value="left"/>
+            <param name="hand_joint" type="string" value="$(arg left_hand_joint)"/>
+            <param name="touch" type="bool" value="$(arg left_touch)"/>
+            <param name="can" type="string" value="$(arg left_can)"/>
+        </node>
+    </group>
+
+    <!-- 右手 -->
+    <group ns="right_hand">
+        <node pkg="linker_hand_sdk_ros" type="linker_hand.py" name="linker_hand_sdk" output="screen">
+            <param name="hand_type" type="string" value="right"/>
+            <param name="hand_joint" type="string" value="$(arg right_hand_joint)"/>
+            <param name="touch" type="bool" value="$(arg right_touch)"/>
+            <param name="can" type="string" value="$(arg right_can)"/>
+        </node>
+    </group>
 </launch>
+

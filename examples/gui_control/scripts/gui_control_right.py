@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 from PyQt5.QtWidgets import QMainWindow, QSplitter, QApplication,QMessageBox,QPushButton
 from PyQt5.QtCore import Qt, QTimer
 import yaml, os, sys,time,json,rospkg,rospy
@@ -27,7 +28,13 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         # 初始化 ROS 节点
-        rospy.init_node('gui_control', anonymous=True)
+        rospy.init_node('gui_control_right', anonymous=True)
+        self.hand_type = "right"
+        self.hand_joint = rospy.get_param('~hand_joint', "L10")
+        self.left_hand = False
+        self.right_hand = True
+        self.hand_exists = True
+        
         self.rate = rospy.Rate(30)
         self.yaml = LoadWriteYaml() # 初始化配置文件
         self.set_pub = rospy.Publisher('/cb_hand_setting_cmd', String, queue_size=1)
@@ -101,27 +108,28 @@ class MainWindow(QMainWindow):
         self.yaml = LoadWriteYaml() # 初始化配置文件
         # 读取配置文件
         self.setting = self.yaml.load_setting_yaml()
-        # 判断左手是否配置
-        self.left_hand = False
-        self.right_hand = False
-        if self.setting['LINKER_HAND']['LEFT_HAND']['EXISTS'] == True:
-            self.left_hand = True
-        elif self.setting['LINKER_HAND']['RIGHT_HAND']['EXISTS'] == True:
-            self.right_hand = True
-        # gui控制只支持单手，这里进行左右手互斥
-        if self.left_hand == True and self.right_hand == True:
-            self.left_hand = True
-            self.right_hand = False
-        if self.left_hand == True:
-            print("左手")
-            self.hand_exists = True
-            self.hand_joint = self.setting['LINKER_HAND']['LEFT_HAND']['JOINT']
-            self.hand_type = "left"
-        if self.right_hand == True:
-            print("右手")
-            self.hand_exists = True
-            self.hand_joint = self.setting['LINKER_HAND']['RIGHT_HAND']['JOINT']
-            self.hand_type = "right"
+        # # 判断左手是否配置
+        # self.left_hand = False
+        # self.right_hand = False
+        # if self.setting['LINKER_HAND']['LEFT_HAND']['EXISTS'] == True:
+        #     self.left_hand = True
+        # elif self.setting['LINKER_HAND']['RIGHT_HAND']['EXISTS'] == True:
+        #     self.right_hand = True
+        # # gui控制只支持单手，这里进行左右手互斥
+        # if self.left_hand == True and self.right_hand == True:
+        #     self.left_hand = True
+        #     self.right_hand = False
+        # if self.left_hand == True:
+        #     print("左手")
+        #     self.hand_exists = True
+        #     self.hand_joint = self.setting['LINKER_HAND']['LEFT_HAND']['JOINT']
+        #     self.hand_type = "left"
+        # if self.right_hand == True:
+        #     print("右手")
+        #     self.hand_exists = True
+        #     self.hand_joint = self.setting['LINKER_HAND']['RIGHT_HAND']['JOINT']
+        #     self.hand_type = "right"
+
         
         self.init_pos = [255] * 10
         # if self.hand_joint == "L25":

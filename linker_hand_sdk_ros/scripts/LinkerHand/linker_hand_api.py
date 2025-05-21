@@ -1,17 +1,19 @@
 #!/usr/bin/env python3 
 # -*- coding: utf-8 -*-
-import sys, os, time
+import sys, os, time,threading
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+from utils.mapping import *
 from utils.color_msg import ColorMsg
 from utils.load_write_yaml import LoadWriteYaml
 from utils.open_can import OpenCan
 
 class LinkerHandApi:
-    def __init__(self, hand_type="left", hand_joint="L10"):
+    def __init__(self, hand_type="left", hand_joint="L10", modbus = "None",can="can0"):
         self.last_position = []
         self.yaml = LoadWriteYaml()
         self.config = self.yaml.load_setting_yaml()
         self.version = self.config["VERSION"]
+        self.can = can
         ColorMsg(msg=f"Current SDK version: {self.version}", color="green")
         self.hand_joint = hand_joint
         self.hand_type = hand_type
@@ -20,24 +22,36 @@ class LinkerHandApi:
         if self.hand_type == "right":
             self.hand_id = 0x27  # Right hand
         if self.hand_joint == "L7":
-            from core.linker_hand_l7_can import LinkerHandL7Can
-            self.hand = LinkerHandL7Can(can_id=self.hand_id)
+            from core.can.linker_hand_l7_can import LinkerHandL7Can
+            self.hand = LinkerHandL7Can(can_id=self.hand_id,can_channel=self.can)
         if self.hand_joint == "L10":
-            from core.linker_hand_l10_can import LinkerHandL10Can
-            self.hand = LinkerHandL10Can(can_id=self.hand_id)
+            #if self.config['LINKER_HAND']['LEFT_HAND']['MODBUS'] == "RML": 
+            if modbus == "RML": # RML API2 485 protocol
+                ColorMsg(msg="We are working hard to develop it ...", color="yellow")
+                sys.exit(1)
+                # from Robotic_Arm.rm_robot_interface import RoboticArm, rm_thread_mode_e
+                from core.rml485.linker_hand_l10_485 import LinkerHandL10For485
+                # robot = RoboticArm(rm_thread_mode_e.RM_TRIPLE_MODE_E)
+                # arm = robot.rm_create_robot_arm("192.168.1.18", 8080)
+                # print(arm)
+                self.hand = LinkerHandL10For485(ip="192.168.1.18",modbus_port=1,modbus_baudrate=115200,modbus_timeout=5)
+
+            else : # Default CAN protocol
+                from core.can.linker_hand_l10_can import LinkerHandL10Can
+                self.hand = LinkerHandL10Can(can_id=self.hand_id,can_channel=self.can)
         if self.hand_joint == "L20":
-            from core.linker_hand_l20_can import LinkerHandL20Can
-            self.hand = LinkerHandL20Can(can_id=self.hand_id)
+            from core.can.linker_hand_l20_can import LinkerHandL20Can
+            self.hand = LinkerHandL20Can(can_id=self.hand_id,can_channel=self.can)
         if self.hand_joint == "L21":
-            from core.linker_hand_l21_can import LinkerHandL21Can
-            self.hand = LinkerHandL21Can(can_id=self.hand_id)
+            from core.can.linker_hand_l21_can import LinkerHandL21Can
+            self.hand = LinkerHandL21Can(can_id=self.hand_id,can_channel=self.can)
         if self.hand_joint == "L25":
-            from core.linker_hand_l25_can import LinkerHandL25Can
-            self.hand = LinkerHandL25Can(can_id=self.hand_id)
+            from core.can.linker_hand_l25_can import LinkerHandL25Can
+            self.hand = LinkerHandL25Can(can_id=self.hand_id,can_channel=self.can)
         # Open can0
         if sys.platform == "linux":
             self.open_can = OpenCan(load_yaml=self.yaml)
-            self.open_can.open_can0()
+            self.open_can.open_can(self.can)
             self.is_can = self.open_can.is_can_up_sysfs()
             if not self.is_can:
                 ColorMsg(msg="CAN0 interface is not open", color="red")
@@ -105,6 +119,7 @@ class LinkerHandApi:
 
     def get_version(self):
         '''Get version'''
+        
         return self.hand.get_version()
     
     def get_current(self):
@@ -149,6 +164,9 @@ class LinkerHandApi:
     def get_touch(self):
         '''Get touch data'''
         return self.hand.get_touch()
+    
+    def get_matrix_touch(self):
+        return self.hand.get_matrix_touch()
 
     def get_torque(self):
         '''Get current maximum torque'''
@@ -188,7 +206,23 @@ class LinkerHandApi:
         if self.hand_joint == "L21" or self.hand_joint == "L25":
             return self.hand.get_finger_order()
         else:
-            return []                             
+            return []
+        
+    def range_to_arc_left(self, state, hand_joint):
+        return range_to_arc_left(left_range=state, hand_joint=hand_joint)
+    
+    def range_to_arc_right(self, state, hand_joint):
+        return range_to_arc_right(right_range=state, hand_joint=hand_joint)
+    
+    def arc_to_range_left(self,state,hand_joint):
+        return arc_to_range_left(hand_arc_l=state,hand_joint=hand_joint)
+    
+    def arc_to_range_right(self,state,hand_joint):
+        return arc_to_range_right(right_arc=state,hand_joint=hand_joint)
+    
+
+    def close_can(self):
+        self.open_can.close_can0()                         
 
 if __name__ == "__main__":
     hand = LinkerHandApi(hand_type="right", hand_joint="L10")

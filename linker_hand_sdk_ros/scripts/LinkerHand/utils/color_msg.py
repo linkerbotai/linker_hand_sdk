@@ -21,7 +21,7 @@ class ColorMsg():
         elif color == "yellow":
             str += "\033[1;33;40m"
         else:
-            print(str + msg)
+            print(str + msg, flush=True)
             return
         str += msg + "\033[0m"
-        print(str)
+        print(str, flush=True)

@@ -13,6 +13,10 @@ import sys,os,time,subprocess
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from color_msg import ColorMsg
 from load_write_yaml import LoadWriteYaml
+# from ament_index_python.packages import get_package_share_directory
+import os
+
+
 class OpenCan:
     def __init__(self,load_yaml=None):
         self.yaml = LoadWriteYaml()
@@ -32,6 +36,30 @@ class OpenCan:
             # 如果没有处于 UP 状态，则配置接口
             subprocess.run(
                 ["sudo", "-S", "ip", "link", "set", "can0", "up", "type", "can", "bitrate", "1000000"],
+                input=f"{self.password}\n",
+                check=True,
+                text=True,
+                capture_output=True
+            )
+            
+        except subprocess.CalledProcessError as e:
+            pass
+        except Exception as e:
+            pass
+    def open_can(self,can="can0"):
+        try:
+            # 检查 can0 接口是否已存在并处于 up 状态
+            result = subprocess.run(
+                ["ip", "link", "show", can],
+                check=True,
+                text=True,
+                capture_output=True
+            )
+            if "state UP" in result.stdout:
+                return 
+            # 如果没有处于 UP 状态，则配置接口
+            subprocess.run(
+                ["sudo", "-S", "ip", "link", "set", can, "up", "type", "can", "bitrate", "1000000"],
                 input=f"{self.password}\n",
                 check=True,
                 text=True,
@@ -72,6 +100,35 @@ class OpenCan:
             if "state UP" in result.stdout:
                 subprocess.run(
                     ["sudo", "-S", "ip", "link", "set", "can0", "down"],
+                    input=f"{self.password}\n",
+                    check=True,
+                    text=True,
+                    capture_output=True
+                )
+                return True
+            return False
+            
+        except subprocess.CalledProcessError as e:
+            print(f"Error closing CAN interface: {e}")
+            return False
+        except Exception as e:
+            print(f"Unexpected error: {e}")
+            return False
+    
+    def close_can(self,can="can0"):
+        try:
+            # 检查 can0 接口是否存在
+            result = subprocess.run(
+                ["ip", "link", "show", can],
+                check=True,
+                text=True,
+                capture_output=True
+            )
+            
+            # 如果接口存在且处于 UP 状态，则关闭它
+            if "state UP" in result.stdout:
+                subprocess.run(
+                    ["sudo", "-S", "ip", "link", "set", can, "down"],
                     input=f"{self.password}\n",
                     check=True,
                     text=True,
