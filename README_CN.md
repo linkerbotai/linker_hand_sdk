@@ -18,9 +18,11 @@ V2.1.4
 
 2. 新增支持矩阵式压力传感器
 
-3. 支持双CAN同时控制同型号双手
+3. 支持单USB转CAN同时控制同型号双手，需要重新接线
 
-4. 新增L10通过RML485接口控制
+4. 支持双USB转CAN同时控制同型号双手
+
+5. 新增L10通过RML485接口控制（由于睿尔曼机械臂Python调用485接口BUG问题，暂时不可用）
 
 V2.0.2
 1. 支持L7/O7/L10/O10/L20/O20/L25版本LinkerHand灵巧手
@@ -210,7 +212,19 @@ $ sudo vim linker_hand_double.launch    #启动左右双手，按照注释编辑
     </node>
 </launch>
 ```
-## 双手控制 注：首先保证没有其他CAN设备接入控制电脑，先插入左手USB转CAN为can0，再插入右手USB转CAN为can1
+
+## 单USB转CAN控制双手控制 注：首先保证没有其他CAN设备接入控制电脑，将USB转CAN线按照同颜色接在一起即可
+- 修改linker_hand_double.launch
+```html
+    <arg name="left_hand_joint" default="L10"/> <!-- 左手型号 L7 | L10 | L20 | L21 | L25-->
+    <arg name="right_hand_joint" default="L10"/> <!-- 右手型号 L7 | L10 | L20 | L21 | L25-->
+    <arg name="left_touch" default="true"/> <!-- 左手压力传感器 true or false-->
+    <arg name="right_touch" default="true"/> <!-- 右手压力传感器 true or false-->
+    <arg name="left_can" default="can0"/> <!-- 左手USB转CAN编号 can0-->
+    <arg name="right_can" default="can0"/> <!-- 右手USB转CAN编号 can0-->
+```
+
+## 双USB转CAN控制双手控制 注：首先保证没有其他CAN设备接入控制电脑，先插入左手USB转CAN为can0，再插入右手USB转CAN为can1
 - 修改linker_hand_double.launch
 ```html
     <arg name="left_hand_joint" default="L10"/> <!-- 左手型号 L7 | L10 | L20 | L21 | L25-->

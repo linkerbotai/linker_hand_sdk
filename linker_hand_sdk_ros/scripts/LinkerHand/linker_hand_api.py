@@ -27,8 +27,8 @@ class LinkerHandApi:
         if self.hand_joint == "L10":
             #if self.config['LINKER_HAND']['LEFT_HAND']['MODBUS'] == "RML": 
             if modbus == "RML": # RML API2 485 protocol
-                ColorMsg(msg="We are working hard to develop it ...", color="yellow")
-                sys.exit(1)
+                #ColorMsg(msg="We are working hard to develop it ...", color="yellow")
+                #sys.exit(1)
                 # from Robotic_Arm.rm_robot_interface import RoboticArm, rm_thread_mode_e
                 from core.rml485.linker_hand_l10_485 import LinkerHandL10For485
                 # robot = RoboticArm(rm_thread_mode_e.RM_TRIPLE_MODE_E)

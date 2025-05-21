@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <launch>
     <!-- 公共参数定义（可传入） -->
-    <arg name="left_hand_joint" default="L10"/>
-    <arg name="right_hand_joint" default="L10"/>
+    <arg name="left_hand_joint" default="L21"/>
+    <arg name="right_hand_joint" default="L21"/>
     <arg name="left_touch" default="true"/>
     <arg name="right_touch" default="true"/>
     <arg name="left_can" default="can0"/>
-    <arg name="right_can" default="can1"/>
+    <arg name="right_can" default="can0"/>
 
     <!-- 左手 -->
     <group ns="left_hand">

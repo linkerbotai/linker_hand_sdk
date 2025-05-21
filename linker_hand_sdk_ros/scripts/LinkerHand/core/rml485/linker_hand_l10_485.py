@@ -62,7 +62,7 @@ class LinkerHandL10For485:
             device=40,            # 外设设备地址
             type=1,               # 控制器端 modbus 主机
             num=5,                # 只写一个值
-            data=[200]*5           # 写入的值
+            data=[255]*5           # 写入的值
         )
         rs = self.arm.rm_write_modbus_rtu_registers(write_params)
         # param = rm_modbus_rtu_read_params_t(0, 40, 1, 5)
