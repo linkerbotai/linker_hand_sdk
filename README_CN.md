@@ -213,7 +213,7 @@ $ sudo vim linker_hand_double.launch    #启动左右双手，按照注释编辑
 </launch>
 ```
 
-## 单USB转CAN控制双手控制 注：首先保证没有其他CAN设备接入控制电脑，将USB转CAN线按照同颜色接在一起即可 支持L20|L21|L25
+### 单USB转CAN控制双手控制 注：首先保证没有其他CAN设备接入控制电脑，将USB转CAN线按照同颜色接在一起即可 支持L20|L21|L25
 - 修改linker_hand_double.launch
 ```html
     <arg name="left_hand_joint" default="L10"/> <!-- 左手型号  L20 | L21 | L25-->
@@ -224,7 +224,7 @@ $ sudo vim linker_hand_double.launch    #启动左右双手，按照注释编辑
     <arg name="right_can" default="can0"/> <!-- 右手USB转CAN编号 can0-->
 ```
 
-## 双USB转CAN控制双手控制 注：首先保证没有其他CAN设备接入控制电脑，先插入左手USB转CAN为can0，再插入右手USB转CAN为can1 支持L7 | L10 | L20 | L21 | L25
+### 双USB转CAN控制双手控制 注：首先保证没有其他CAN设备接入控制电脑，先插入左手USB转CAN为can0，再插入右手USB转CAN为can1 支持L7 | L10 | L20 | L21 | L25
 - 修改linker_hand_double.launch
 ```html
     <arg name="left_hand_joint" default="L10"/> <!-- 左手型号 L7 | L10 | L20 | L21 | L25-->
