@@ -1,12 +1,13 @@
-import sys
+#!/usr/bin/env python3 
+# -*- coding: utf-8 -*-
+import sys,os
 import threading
 import numpy as np
 import mujoco, time
 import mujoco.viewer
 from PyQt5.QtWidgets import QApplication, QWidget, QSlider, QVBoxLayout, QLabel
 from PyQt5.QtCore import Qt
-
-XML_PATH = "urdf/linker_hand_l10_left/linker_hand_l10_left.xml"
+XML_PATH = os.path.dirname(os.path.abspath(__file__))+"/urdf/linker_hand_l10_left/linker_hand_l10_left.xml"
 
 # --- 加载模型 ---
 model = mujoco.MjModel.from_xml_path(XML_PATH)

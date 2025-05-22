@@ -169,15 +169,15 @@
         <position name="thumb_pos0" joint="thumb_joint0" kp="10" ctrlrange="-0.1396 0.349"/>
         <position name="thumb_pos1" joint="thumb_joint1" kp="10" ctrlrange="0 1.57"/>
         <position name="thumb_pos2" joint="thumb_joint2" kp="10" ctrlrange="-1.57 0"/>
-        <position name="thumb_pos3" joint="thumb_joint3" kp="10" ctrlrange="0 1.57"/>
-        <position name="thumb_pos4" joint="thumb_joint4" kp="10" ctrlrange="0 1.57"/>
+        <position name="thumb_pos3" joint="thumb_joint3" kp="10" ctrlrange="-1.57 0"/>
+        <position name="thumb_pos4" joint="thumb_joint4" kp="10" ctrlrange="-1.57 0"/>
         
         <position name="index_pos0" joint="index_joint0" kp="10" ctrlrange="-0.26 0.26"/>
         <position name="index_pos1" joint="index_joint1" kp="10" ctrlrange="0 1.396"/>
         <position name="index_pos2" joint="index_joint2" kp="10" ctrlrange="0 1.57"/>
         <position name="index_pos3" joint="index_joint3" kp="10" ctrlrange="0 1.57"/>
         
-        <position name="middle_pos0" joint="middle_joint0" kp="10" ctrlrange="-0.26 0.26"/>
+        <position name="middle_pos0" joint="middle_joint0" kp="10" ctrlrange="0 1.57"/>
         <position name="middle_pos1" joint="middle_joint1" kp="10" ctrlrange="0 1.57"/>
         <position name="middle_pos2" joint="middle_joint2" kp="10" ctrlrange="0 1.57"/>
 
