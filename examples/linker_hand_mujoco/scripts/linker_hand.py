@@ -1,13 +1,28 @@
 #!/usr/bin/env python3 
 # -*- coding: utf-8 -*-
-import sys,os
+import sys,os,rospy
 import threading
 import numpy as np
 import mujoco, time
 import mujoco.viewer
 from PyQt5.QtWidgets import QApplication, QWidget, QSlider, QVBoxLayout, QLabel
 from PyQt5.QtCore import Qt
-XML_PATH = os.path.dirname(os.path.abspath(__file__))+"/urdf/linker_hand_l10_left/linker_hand_l10_left.xml"
+# hand_type = rospy.get_param('~hand_type', "right")
+# hand_joint = rospy.get_param('~hand_joint', "L10")
+# XML_PATH = os.path.dirname(os.path.abspath(__file__))+"/urdf/linker_hand_l7_left/linkerhand_o7_left.xml"
+# if hand_type == "left":
+#     if hand_joint == "L10":
+#         # 左手 L10
+#         XML_PATH = os.path.dirname(os.path.abspath(__file__))+"/urdf/linker_hand_l10_left/linker_hand_l10_left.xml"
+#         # L7_XML_PATH = os.path.dirname(os.path.abspath(__file__))+"/urdf/linker_hand_l7_left/linkerhand_o7_left.xml"
+#         pass
+#     elif hand_joint == "L7":
+#         # 左手 L7
+#         XML_PATH = os.path.dirname(os.path.abspath(__file__))+"/urdf/linker_hand_l7_left/linkerhand_o7_left.xml"
+# XML_PATH = os.path.dirname(os.path.abspath(__file__))+"/urdf/linker_hand_l10_left/linker_hand_l10_left.xml"
+XML_PATH = os.path.dirname(os.path.abspath(__file__))+"/urdf/linker_hand_l7_left/linkerhand_o7_left.xml"
+
+
 
 # --- 加载模型 ---
 model = mujoco.MjModel.from_xml_path(XML_PATH)

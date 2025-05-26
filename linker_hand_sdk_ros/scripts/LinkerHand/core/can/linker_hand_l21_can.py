@@ -7,7 +7,6 @@ from enum import Enum
 current_dir = os.path.dirname(os.path.abspath(__file__))
 target_dir = os.path.abspath(os.path.join(current_dir, ".."))
 sys.path.append(target_dir)
-from utils.color_msg import ColorMsg
 
 class FrameProperty(Enum):
     # Finger motion control - parallel control commands

@@ -5,7 +5,6 @@ import time,sys
 import threading
 import numpy as np
 from enum import Enum
-from sensor_msgs.msg import JointState
 
 class FrameProperty(Enum):
     INVALID_FRAME_PROPERTY = 0x00
@@ -259,8 +258,13 @@ class LinkerHandL10Can:
 
     def get_touch_type(self):
         '''Get touch type'''
+        self.send_frame(0xb0,[],sleep=0.03)
         self.send_frame(0xb1,[],sleep=0.03)
-        if len(self.xb1) == 2:
+        t = []
+        for i in range(3):
+            t = self.xb1
+            time.sleep(0.01)
+        if len(t) == 2:
             return 2
         else:
             return -1

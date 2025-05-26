@@ -2,8 +2,6 @@ import can
 import time, sys
 import threading
 import numpy as np
-from enum import Enum
-from sensor_msgs.msg import JointState
 
 
 class LinkerHandL7Can:
@@ -223,8 +221,11 @@ class LinkerHandL7Can:
     def get_touch_type(self):
         '''Get touch type'''
         self.send_frame(0xb1,[])
-        time.sleep(0.02)
-        if len(self.xb1) == 2:
+        t = []
+        for i in range(3):
+            t = self.xb1
+            time.sleep(0.01)
+        if len(t) == 2:
             return 2
         else:
             return -1

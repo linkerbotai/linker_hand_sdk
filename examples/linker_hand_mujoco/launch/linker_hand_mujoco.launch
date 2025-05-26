@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<launch>
+    <!-- 参数定义（可外部传入） -->
+    <arg name="hand_type" default="left"/>
+    <arg name="hand_joint" default="L10"/>
+
+    <!-- linker_hand 节点 -->
+    <node pkg="linker_hand_mujoco" type="linker_hand.py" name="linker_hand_mujoco" output="screen">
+        <param name="hand_type" type="string" value="$(arg hand_type)"/>
+        <param name="hand_joint" type="string" value="$(arg hand_joint)"/>
+    </node>
+
+</launch>

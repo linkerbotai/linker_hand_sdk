@@ -34,7 +34,8 @@ class LinkerHandApi:
                 # robot = RoboticArm(rm_thread_mode_e.RM_TRIPLE_MODE_E)
                 # arm = robot.rm_create_robot_arm("192.168.1.18", 8080)
                 # print(arm)
-                self.hand = LinkerHandL10For485(ip="192.168.1.18",modbus_port=1,modbus_baudrate=115200,modbus_timeout=5)
+                #self.hand = LinkerHandL10For485(ip="192.168.1.18",modbus_port=1,modbus_baudrate=115200,modbus_timeout=5)
+                self.hand = LinkerHandL10For485()
 
             else : # Default CAN protocol
                 from core.can.linker_hand_l10_can import LinkerHandL10Can
