@@ -73,7 +73,7 @@ class LinkerHandL10Can:
         else:
             raise EnvironmentError("Unsupported platform for CAN interface")
 
-    def send_frame(self, frame_property, data_list,sleep=0.005):
+    def send_frame(self, frame_property, data_list,sleep=0.003):
         """Send a single CAN frame with specified properties and data."""
         frame_property_value = int(frame_property.value) if hasattr(frame_property, 'value') else frame_property
         data = [frame_property_value] + [int(val) for val in data_list]
@@ -233,7 +233,6 @@ class LinkerHandL10Can:
     def get_version(self):
         '''Get version'''
         self.send_frame(0x64,[],sleep=0.1)
-        time.sleep(0.001)
         return self.version
     def get_current_status(self):
         '''Get current joint status'''
@@ -271,19 +270,19 @@ class LinkerHandL10Can:
     
     def get_touch(self):
         '''Get touch data'''
-        self.send_frame(0xb1,[],sleep=0.02)
-        self.send_frame(0xb2,[],sleep=0.02)
-        self.send_frame(0xb3,[],sleep=0.02)
-        self.send_frame(0xb4,[],sleep=0.02)
-        self.send_frame(0xb5,[],sleep=0.02)
+        self.send_frame(0xb1,[],sleep=0.03)
+        self.send_frame(0xb2,[],sleep=0.03)
+        self.send_frame(0xb3,[],sleep=0.03)
+        self.send_frame(0xb4,[],sleep=0.03)
+        self.send_frame(0xb5,[],sleep=0.03)
         return [self.xb1[1],self.xb2[1],self.xb3[1],self.xb4[1],self.xb5[1],0] # The last digit is palm, currently not available
 
     def get_matrix_touch(self):
-        self.send_frame(0xb1,[0xc6],sleep=0.025)
-        self.send_frame(0xb2,[0xc6],sleep=0.025)
-        self.send_frame(0xb3,[0xc6],sleep=0.025)
-        self.send_frame(0xb4,[0xc6],sleep=0.025)
-        self.send_frame(0xb5,[0xc6],sleep=0.025)
+        self.send_frame(0xb1,[0xc6],sleep=0.04)
+        self.send_frame(0xb2,[0xc6],sleep=0.04)
+        self.send_frame(0xb3,[0xc6],sleep=0.04)
+        self.send_frame(0xb4,[0xc6],sleep=0.04)
+        self.send_frame(0xb5,[0xc6],sleep=0.04)
         return self.thumb_matrix , self.index_matrix , self.middle_matrix , self.ring_matrix , self.little_matrix
 
     def get_torque(self):

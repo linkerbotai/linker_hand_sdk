@@ -44,6 +44,13 @@ class LinkerHand:
             "state": [],
             "vel": []
         }
+        self.last_matrix_dic = {
+                            "thumb_matrix":[],
+                            "index_matrix":[],
+                            "middle_matrix":[],
+                            "ring_matrix":[],
+                            "little_matrix":[]
+                        }
         self.last_process_time = 0
         self.max_hz = 30
         self.min_interval = 1.0 / self.max_hz
@@ -238,15 +245,20 @@ class LinkerHand:
                 if self.matrix_touch_pub.get_num_connections() > 0:
                     if self.touch_type == 2:
                         thumb_matrix, index_matrix , middle_matrix , ring_matrix , little_matrix = self.api.get_matrix_touch()
-                        matrix_dic = {
-                            "thumb_matrix":thumb_matrix.tolist(),
-                            "index_matrix":index_matrix.tolist(),
-                            "middle_matrix":middle_matrix.tolist(),
-                            "ring_matrix":ring_matrix.tolist(),
-                            "little_matrix":little_matrix.tolist()
-                        }
+                        # matrix_dic = {
+                        #     "thumb_matrix":thumb_matrix.tolist(),
+                        #     "index_matrix":index_matrix.tolist(),
+                        #     "middle_matrix":middle_matrix.tolist(),
+                        #     "ring_matrix":ring_matrix.tolist(),
+                        #     "little_matrix":little_matrix.tolist()
+                        # }
+                        self.last_matrix_dic["thumb_matrix"] = thumb_matrix.tolist()
+                        self.last_matrix_dic["index_matrix"] = index_matrix.tolist()
+                        self.last_matrix_dic["middle_matrix"] = middle_matrix.tolist()
+                        self.last_matrix_dic["ring_matrix"] = ring_matrix.tolist()
+                        self.last_matrix_dic["little_matrix"] = little_matrix.tolist()
                         m_t = String()
-                        m_t.data = json.dumps(matrix_dic)
+                        m_t.data = json.dumps(self.last_matrix_dic)
                         self.matrix_touch_pub.publish(m_t)
             time.sleep(0.02) 
     def _get_hand_info(self):
