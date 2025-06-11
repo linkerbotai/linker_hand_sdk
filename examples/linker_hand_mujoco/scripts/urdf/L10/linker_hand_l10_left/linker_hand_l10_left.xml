@@ -35,10 +35,10 @@
         <mesh name="little_link4" file="little_link4.STL" />
     </asset>
     <visual>
-    <quality shadowsize="4096"/>
-    <map znear="0.05"/>
-    <global offwidth="1280" offheight="720"/>
-  </visual>
+        <quality shadowsize="4096"/>
+        <map znear="0.05"/>
+        <global offwidth="1280" offheight="720"/>
+    </visual>
 
   <default>
     <joint limited="true" damping="0.1" armature="0.01"/>

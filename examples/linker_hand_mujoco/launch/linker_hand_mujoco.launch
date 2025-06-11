@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <launch>
-    <!-- 参数定义（可外部传入） -->
-    <arg name="hand_type" default="left"/>
-    <arg name="hand_joint" default="L10"/>
+    <!-- 参数定义 -->
+    <arg name="hand_type" default="right"/>
+    <arg name="hand_joint" default="L21"/>
 
     <!-- linker_hand 节点 -->
     <node pkg="linker_hand_mujoco" type="linker_hand.py" name="linker_hand_mujoco" output="screen">

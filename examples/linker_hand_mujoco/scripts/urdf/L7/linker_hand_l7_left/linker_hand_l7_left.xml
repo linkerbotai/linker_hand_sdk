@@ -35,10 +35,10 @@
         <mesh name="little_link4" file="little_link4.STL" />
     </asset>
     <visual>
-    <quality shadowsize="4096"/>
-    <map znear="0.05"/>
-    <global offwidth="1280" offheight="720"/>
-  </visual>
+        <quality shadowsize="4096"/>
+        <map znear="0.05"/>
+        <global offwidth="1280" offheight="720"/>
+    </visual>
 
   <default>
     <joint limited="true" damping="0.1" armature="0.01"/>
@@ -153,31 +153,45 @@
             </body>
         </body>
     </worldbody>
+    <!-- Joint 0: thumb_joint0
+Joint 1: thumb_joint1
+Joint 2: thumb_joint2
+Joint 3: thumb_joint3
+Joint 4: thumb_joint4
+Joint 5: index_joint1
+Joint 6: index_joint2
+Joint 7: index_joint3
+Joint 8: middle_joint0
+Joint 9: middle_joint1
+Joint 10: middle_joint2
+Joint 11: ring_joint1
+Joint 12: ring_joint2
+Joint 13: ring_joint3
+Joint 14: little_joint1
+Joint 15: little_joint2
+Joint 16: little_joint3 -->
     <actuator>
-        <position name="thumb_pos0" joint="thumb_joint0" kp="10" ctrlrange="-0.1396 0.349"/>
-        <position name="thumb_pos1" joint="thumb_joint1" kp="10" ctrlrange="0 1.57"/>
-        <position name="thumb_pos2" joint="thumb_joint2" kp="10" ctrlrange="0 1.57"/>
-        <position name="thumb_pos3" joint="thumb_joint3" kp="10" ctrlrange="0 1.57"/>
+        <position name="thumb_pos0" joint="thumb_joint0" kp="10" ctrlrange="-0.52 1.01"/>
+        <position name="thumb_pos1" joint="thumb_joint1" kp="10" ctrlrange="0 1.43"/>
+        <position name="thumb_pos2" joint="thumb_joint2" kp="10" ctrlrange="0 0.44"/>
+        <position name="thumb_pos3" joint="thumb_joint3" kp="10" ctrlrange="0 1.45"/>
         <position name="thumb_pos4" joint="thumb_joint4" kp="10" ctrlrange="0 1.57"/>
         
-        <!-- <position name="index_pos0" joint="index_joint0" kp="10" ctrlrange="-0.26 0.26"/> -->
-        <position name="index_pos1" joint="index_joint1" kp="10" ctrlrange="0 1.396"/>
-        <position name="index_pos2" joint="index_joint2" kp="10" ctrlrange="0 1.57"/>
-        <position name="index_pos3" joint="index_joint3" kp="10" ctrlrange="0 1.57"/>
+        <position name="index_pos1" joint="index_joint1" kp="10" ctrlrange="0 1.41"/>
+        <position name="index_pos2" joint="index_joint2" kp="10" ctrlrange="0 1.62"/>
+        <position name="index_pos3" joint="index_joint3" kp="10" ctrlrange="0 0.96"/>
         
-        <position name="middle_pos0" joint="middle_joint0" kp="10" ctrlrange="0 1.57"/>
-        <position name="middle_pos1" joint="middle_joint1" kp="10" ctrlrange="0 1.57"/>
-        <position name="middle_pos2" joint="middle_joint2" kp="10" ctrlrange="0 1.57"/>
+        <position name="middle_pos0" joint="middle_joint0" kp="10" ctrlrange="0 1.41"/>
+        <position name="middle_pos1" joint="middle_joint1" kp="10" ctrlrange="0 1.62"/>
+        <position name="middle_pos2" joint="middle_joint2" kp="10" ctrlrange="0 0.96"/>
 
-        
-        <!-- <position name="ring_pos0" joint="ring_joint0" kp="10" ctrlrange="-0.26 0.26"/> -->
-        <position name="ring_pos1" joint="ring_joint1" kp="10" ctrlrange="0 1.57"/>
-        <position name="ring_pos2" joint="ring_joint2" kp="10" ctrlrange="0 1.57"/>
-        <position name="ring_pos3" joint="ring_joint3" kp="10" ctrlrange="0 1.57"/>
-        
-        <!-- <position name="little_pos0" joint="little_joint0" kp="10" ctrlrange="-0.26 0.26"/> -->
-        <position name="little_pos1" joint="little_joint1" kp="10" ctrlrange="0 1.57"/>
-        <position name="little_pos2" joint="little_joint2" kp="10" ctrlrange="0 1.57"/>
-        <position name="little_pos3" joint="little_joint3" kp="10" ctrlrange="0 1.57"/>
+
+        <position name="ring_pos1" joint="ring_joint1" kp="10" ctrlrange="0 1.41"/>
+        <position name="ring_pos2" joint="ring_joint2" kp="10" ctrlrange="0 1.62"/>
+        <position name="ring_pos3" joint="ring_joint3" kp="10" ctrlrange="0 0.96"/>
+
+        <position name="little_pos1" joint="little_joint1" kp="10" ctrlrange="0 1.41"/>
+        <position name="little_pos2" joint="little_joint2" kp="10" ctrlrange="0 1.62"/>
+        <position name="little_pos3" joint="little_joint3" kp="10" ctrlrange="0 0.96"/>
     </actuator>
 </mujoco>

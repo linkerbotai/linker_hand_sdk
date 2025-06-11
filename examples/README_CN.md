@@ -36,6 +36,37 @@
 - [1002-linker_unidexgrasp (基于LinkerHand的Unidexgrasp灵巧手抓取算法)](https://github.com/linkerbotai/linker_unidexgrasp)
 
 
+## Mujoco仿真环境
+修改linker_hand_mujoco/launch/linker_hand_mujoco.launch文件内相关参数
+- [9001-linker_hand_mujoco](linker_hand_mujoco/) # 支持topic or GUI控制仿真Linker Hand L7、L10、L20、L21
+```bash
+    <!-- 参数定义 -->
+    <arg name="hand_type" default="left"/>  # left or right
+    <arg name="hand_joint" default="L20"/>  # L7、L10、L20、L21
+```
+启动mujoco仿真
+```bash
+$ cd linker_hand_sdk
+$ pip install -r requirements.txt
+$ source ./devel/setup.bash
+$ roslaunch linker_hand_mujoco linker_hand_mujoco.launch
+```
+mujoco仿真启动成功后可启动GUI控制界面控制仿真灵巧手
+修改gui_control/launch/gui_control_left.launch or gui_control_right.launch
+```bash
+    <!-- 左手节点 -->
+    <node pkg="gui_control" type="gui_control_left.py" name="gui_control$(anon left)" output="screen">
+        <param name="hand_joint" type="string" value="L20"/> <!-- L7|L10|L20|L21|L25 灵巧手型号  -->
+    </node>
+```
+启动GUI
+```bash
+$ cd linker_hand_sdk
+$ source ./devel/setup.bash
+$ roslaunch gui_control gui_control_left.launch # or roslaunch gui_control gui_control_right.launch
+```
+
+
 ## LinkerHand灵巧手配置文件说明
 LinkerHand灵巧手无论是真机还是仿真，均需要先配置参数文件。根据实际需求修改相应配置参数。
 
