@@ -111,6 +111,7 @@ class LinkerHandApi:
         ColorMsg(msg=f"{self.hand_type} {self.hand_joint} set maximum torque to {torque}", color="green")
         return self.hand.set_torque(torque=torque)
     
+    
     def set_current(self, current=[]):
         '''Set current L7/L10/L25 not supported'''
         if self.hand_joint == "L20":

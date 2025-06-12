@@ -71,6 +71,7 @@ class LinkerHand:
                 # Left LinkerHand state publishing topic
                 self.hand_state_pub = rospy.Publisher('/cb_left_hand_state', JointState, queue_size=10)
                 self.hand_state_arc_pub = rospy.Publisher('/cb_left_hand_state_arc', JointState, queue_size=10)
+                self.hand_torque = rospy.Publisher('/cb_left_hand_torque', String, queue_size=10)
                 # Left LinkerHand motor temperature, current speed, current torque, motor fault code, pressure sensor, etc. publishing topic
                 self.hand_info_pub = rospy.Publisher("/cb_left_hand_info", String, queue_size=10)
                 if self.hand_force == True:
@@ -93,6 +94,7 @@ class LinkerHand:
                 # Right LinkerHand state publishing topic
                 self.hand_state_pub = rospy.Publisher('/cb_right_hand_state', JointState, queue_size=10)
                 self.hand_state_arc_pub = rospy.Publisher('/cb_right_hand_state_arc', JointState, queue_size=10)
+                self.hand_torque = rospy.Publisher('/cb_right_hand_torque', String, queue_size=10)
                 # Right LinkerHand motor temperature, current speed, current torque, motor fault code, pressure sensor, etc. publishing topic
                 self.hand_info_pub = rospy.Publisher("/cb_right_hand_info", String, queue_size=10)
                 if self.hand_force == True:
@@ -114,6 +116,8 @@ class LinkerHand:
             torque = [250, 250, 250, 250, 250, 250, 250]
             speed = [120, 180, 180, 180, 180, 180, 180]
         elif self.hand_joint == "L10":
+            torque = [250, 250, 250, 250, 250, 250, 250, 250, 250, 250]
+            speed = [120, 180, 180, 180, 180, 180, 180, 180, 180, 180]
             pose = [255, 200, 255, 255, 255, 255, 180, 180, 180, 41]
         elif self.hand_joint == "L20":
             pose = [255,255,255,255,255,255,10,100,180,240,245,255,255,255,255,255,255,255,255,255]
@@ -192,13 +196,18 @@ class LinkerHand:
     def _get_hand_state(self):
         hand_state = {
             'state':[],
-            'vel':[]
+            'vel':[],
+            "torque":[],
         }
+        t = String()
         while True:
-            if self.hand_state_pub.get_num_connections() > 0:
-                hand_state['state'] = self.api.get_state()
-                hand_state['vel'] = self.api.get_joint_speed()
-                self.pub_hand_state(hand_state=hand_state)
+            #if self.hand_state_pub.get_num_connections() > 0:
+            hand_state['state'] = self.api.get_state()
+            hand_state['vel'] = self.api.get_joint_speed()
+            hand_state['torque'] = self.api.get_torque()
+            t.data = json.dumps(hand_state["torque"])
+            self.pub_hand_state(hand_state=hand_state)
+            self.hand_torque.publish(t)
             time.sleep(0.03)
 
     def pub_hand_state(self,hand_state):
@@ -275,7 +284,7 @@ class LinkerHand:
                         "current": self.api.get_current(), # Current of the dexterous hand
                         "fault": self.api.get_fault(), # Current fault of the dexterous hand
                         "motor_temperature": self.api.get_temperature(), # Current motor temperature of the dexterous hand
-                        "torque": self.api.get_torque(), # Current torque of the dexterous hand
+                        #"torque": self.api.get_torque(), # Current torque of the dexterous hand
                         "is_touch":self.hand_force,
                         "touch_type": self.touch_type,
                         "finger_order": self.api.get_finger_order() # Finger motor order

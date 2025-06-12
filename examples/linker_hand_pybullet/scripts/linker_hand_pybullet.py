@@ -7,6 +7,7 @@ from sensor_msgs.msg import JointState
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from utils.color_msg import ColorMsg
 from utils.l20_sim_controller import L20SimController
+from utils.l21_sim_controller import L21SimController
 from utils.t24_sim_controller import T24SimController
 from utils.l10_sim_controller import L10SimController
 
@@ -39,11 +40,21 @@ class LinkerHandPybullet:
             self.l20_sim.showSim()
         elif self.hand == "L10":
             ColorMsg(msg=f"功能正在增加中...", color="green")
+        elif self.hand == "L21":
+            self.l21_sim = L21SimController()
+            rospy.Subscriber("/cb_left_hand_control_cmd",JointState,self.l21_left_hand_cmd_callback,queue_size=10)
+            rospy.Subscriber("/cb_right_hand_control_cmd",JointState,self.l21_right_hand_cmd_callback,queue_size=10)
+            ColorMsg(msg=f"当前模拟环境为{self.hand}", color="green")
+            self.l21_sim.run()
         elif self.hand == "T24":
             self.t24_sim = T24SimController()
             rospy.Subscriber("/cb_right_hand_control_cmd",JointState,self.t24_right_hand_cmd_callback,queue_size=10)
             ColorMsg(msg=f"当前模拟环境为{self.hand}", color="green")
             self.t24_sim.run()
+
+
+    
+
 
     # 左手回调
     def l20_left_hand_cmd_callback(self, msg):
@@ -95,6 +106,67 @@ class LinkerHandPybullet:
         self.right_hand_sim_position[18] = self.map_value(cmd_pos[18],to_min=0.0,to_max=1.36)
         self.right_hand_sim_position[23] = self.map_value(cmd_pos[19],to_min=0.0,to_max=1.36)
         self.l20_sim.set_right_position(pos=self.right_hand_sim_position)
+
+    def l21_left_hand_cmd_callback(self, msg):
+        left_hand_pos = [0.0] * 17
+        cmd_pos = list(msg.position)
+        mapping = {
+                0: 6,  1: 1,   2: 21,   
+                3: 7,  4: 2,  5: 22,
+                6: 8, 7: 3,   8: 23,
+                9: 9,  10: 4, 11: 24,
+                12: 10, 13: 5, 
+                14: 0,  15: 15, 16: 20
+            }
+        #[(-0.18, 0.18),(0, 1.57),(0, 1.57),(-0.18, 0.18),(0, 1.57),(0, 1.57),(-0.18, 0.18),(0, 1.57),(0, 1.57),(0, 0.18),(0, 1.57),(0, 1.57),(-0.6, 0.6),(0, 1.6),(0, 1),(0, 1.57),(0, 1.57)]
+        left_hand_pos[0] = self.map_value(cmd_pos[6],to_min=-0.18,to_max=0.18)
+        left_hand_pos[1] = self.map_value(cmd_pos[1],to_min=0,to_max=1.57)
+        left_hand_pos[2] = self.map_value(cmd_pos[21],to_min=0,to_max=1.57)
+        left_hand_pos[3] = self.map_value(cmd_pos[7],to_min=-0.18,to_max=0.18)
+        left_hand_pos[4] = self.map_value(cmd_pos[2],to_min=0,to_max=1.57)
+        left_hand_pos[5] = self.map_value(cmd_pos[22],to_min=0,to_max=1.57)
+        left_hand_pos[6] = self.map_value(cmd_pos[8],to_min=-0.18,to_max=0.18)
+        left_hand_pos[7] = self.map_value(cmd_pos[3],to_min=0,to_max=1.57)
+        left_hand_pos[8] = self.map_value(cmd_pos[23],to_min=0,to_max=1.57)
+        left_hand_pos[9] = self.map_value(cmd_pos[9],to_min=0,to_max=0.18)
+        left_hand_pos[10] = self.map_value(cmd_pos[4],to_min=0,to_max=1.57)
+        left_hand_pos[11] = self.map_value(cmd_pos[24],to_min=0,to_max=1.57)
+        left_hand_pos[12] = self.map_value(cmd_pos[10],to_min=-0.6,to_max=0.6)
+        left_hand_pos[13] = self.map_value(cmd_pos[5],to_min=0,to_max=1.6)
+        left_hand_pos[14] = self.map_value(cmd_pos[0],to_min=0,to_max=1.0)
+        left_hand_pos[15] = self.map_value(cmd_pos[15],to_min=0,to_max=1.57)
+        left_hand_pos[16] = self.map_value(cmd_pos[20],to_min=0,to_max=1.57)
+        self.l21_sim.set_left_position(pos=left_hand_pos)
+
+    def l21_right_hand_cmd_callback(self, msg):
+        right_hand_pos = [0.0] * 17
+        cmd_pos = list(msg.position)
+        mapping = {
+                0: 6,  1: 1,   2: 21,   
+                3: 7,  4: 2,  5: 22,
+                6: 8, 7: 3,   8: 23,
+                9: 9,  10: 4, 11: 24,
+                12: 10, 13: 5, 
+                14: 0,  15: 15, 16: 20
+            }
+        right_hand_pos[0] = self.map_value(cmd_pos[6],to_min=-0.18,to_max=0.18)
+        right_hand_pos[1] = self.map_value(cmd_pos[1],to_min=0,to_max=1.57)
+        right_hand_pos[2] = self.map_value(cmd_pos[21],to_min=0,to_max=1.57)
+        right_hand_pos[3] = self.map_value(cmd_pos[7],to_min=-0.18,to_max=0.18)
+        right_hand_pos[4] = self.map_value(cmd_pos[2],to_min=0,to_max=1.57)
+        right_hand_pos[5] = self.map_value(cmd_pos[22],to_min=0,to_max=1.57)
+        right_hand_pos[6] = self.map_value(cmd_pos[8],to_min=-0.18,to_max=0.18)
+        right_hand_pos[7] = self.map_value(cmd_pos[3],to_min=0,to_max=1.57)
+        right_hand_pos[8] = self.map_value(cmd_pos[23],to_min=0,to_max=1.57)
+        right_hand_pos[9] = self.map_value(cmd_pos[9],to_min=0,to_max=0.18)
+        right_hand_pos[10] = self.map_value(cmd_pos[4],to_min=0,to_max=1.57)
+        right_hand_pos[11] = self.map_value(cmd_pos[24],to_min=0,to_max=1.57)
+        right_hand_pos[12] = self.map_value(cmd_pos[10],to_min=-0.6,to_max=0.6)
+        right_hand_pos[13] = self.map_value(cmd_pos[5],to_min=0,to_max=1.6)
+        right_hand_pos[14] = self.map_value(cmd_pos[0],to_min=0,to_max=1.0)
+        right_hand_pos[15] = self.map_value(cmd_pos[15],to_min=0,to_max=1.57)
+        right_hand_pos[16] = self.map_value(cmd_pos[20],to_min=0,to_max=1.57)
+        self.l21_sim.set_right_position(pos=right_hand_pos)
 
     def t24_right_hand_cmd_callback(self, msg):
         right_hand_pos = [0.0] * 26
@@ -154,10 +226,11 @@ class LinkerHandPybullet:
         return mapped_value
 
 if __name__ == "__main__":
+    # rosrun linker_hand_pybullet linker_hand_pybullet.py _hand_type:=L21
     #2.初始化 ROS 节点:命名(唯一)
     rospy.init_node("linker_hand_pybullet", anonymous=True)
     # 获取参数
-    hand = rospy.get_param('~hand_type', default="L10")  # 默认获取全局参数
+    hand = rospy.get_param('~hand_type', default="L21")  # 默认获取全局参数
     rospy.loginfo(f"hand parameter: {hand}")
     if hand == None:
         rospy.loginfo(f"hand parameter: {hand}")
