@@ -342,6 +342,7 @@ $ rosrun linker_hand_pybullet linker_hand_pybullet.py _hand_type:=L20
 ## 6.2 **图形界面控制**
 
 已支持的LinkerHand灵巧手产品：L7/O7/L10/O10/L20/O20/L25/O25/T25
+图形界面可控制Mujoco仿真和PyBullet仿真内的灵巧手
 
 图形界面控制可以通过滑动块控制LinkerHand灵巧手L7/O7/L10/O10/L20/O20/L25/O25/T25各个关节独立运动。也可以通过添加按钮记录当前所有滑动块的数值，保存LinkerHand灵巧手当前各个关节运动状态。通过功能性按钮进行动作复现。
 
