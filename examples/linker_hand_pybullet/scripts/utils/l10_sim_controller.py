@@ -3,14 +3,16 @@ import pybullet as p
 import pybullet_data
 from std_msgs.msg import String, Header
 from sensor_msgs.msg import JointState
+from .mapping import arc_to_range_left, arc_to_range_right
+
 
 class L10SimController:
     def __init__(self):
         self.left_hand_state_pub = rospy.Publisher("/cb_left_hand_state_sim",JointState,queue_size=10)
         self.right_hand_state_pub = rospy.Publisher("/cb_right_hand_state_sim",JointState,queue_size=10)
         rospack = rospkg.RosPack()
-        urdf_path_left = rospack.get_path('linker_hand_pybullet') + "/urdf/linker_hand_l10_6_left.urdf"
-        urdf_path_right = rospack.get_path('linker_hand_pybullet') + "/urdf/linker_hand_l10_6_right.urdf"
+        urdf_path_left = rospack.get_path('linker_hand_pybullet') + "/urdf/l10/left/linkerhand_l10_left.urdf"
+        urdf_path_right = rospack.get_path('linker_hand_pybullet') + "/urdf/l10/right/linkerhand_l10_right.urdf"
         # 连接到仿真
         physics_client = p.connect(p.GUI)
         p.setAdditionalSearchPath(pybullet_data.getDataPath())
@@ -38,52 +40,26 @@ class L10SimController:
         while True:
             p.stepSimulation()
             time.sleep(self.time_step)
-            # 索引映射表
-            # index_map = {
-            #     0: 0, 7: 1, 12: 2, 17: 3, 22: 4,
-            #     1: 5, 6: 6, 11: 7, 16: 8, 21: 9,
-            #     2: 10, 3: 15, 8: 16, 13: 17, 18: 18, 23: 19
-            # }
-            index_map = {
-                0:9, 1: 1, 3:0,
-                7:2, 10:3, 14: 4,
-
-            }
             tmp_left = {
-                "position":[0.0] * 20,
-                "velocity":[0.0] * 20,
-                "effort":[0.0] * 20
+                "position":[0.0] * 10,
+                "velocity":[0.0] * 10,
+                "effort":[0.0] * 10
             }
             tmp_right = {
-                "position":[0.0] * 20,
-                "velocity":[0.0] * 20,
-                "effort":[0.0] * 20
+                "position":[0.0] * 10,
+                "velocity":[0.0] * 10,
+                "effort":[0.0] * 10
             }
-
-            # 遍历所有关节并获取数据
-            for joint_index in range(self.left_hand_num_joints):
-                joint_info = p.getJointInfo(self.left_hand_id, joint_index)
-                joint_name = joint_info[1].decode()  # 获取关节名称并解码为字符串
-                print(joint_name)
-                joint_state = p.getJointState(self.left_hand_id, joint_index)
-                # 检查当前关节是否在映射表中
-                # if joint_index in index_map:
-                #     mapped_index = index_map[joint_index]
-                #     tmp_left["position"][mapped_index] = round(joint_state[0],3)
-                #     tmp_left["velocity"][mapped_index] = round(joint_state[1], 3)
-                #     tmp_left["effort"][mapped_index] = round(joint_state[3], 3)
-            # for index in range(self.right_hand_num_joints):
-            #     joint_state = p.getJointState(self.right_hand_id, index)
-            #     # 检查当前关节是否在映射表中
-            #     if index in index_map:
-            #         mapped_index = index_map[index]
-            #         tmp_right["position"][mapped_index] = round(joint_state[0],3)
-            #         tmp_right["velocity"][mapped_index] = round(joint_state[1], 3)
-            #         tmp_right["effort"][mapped_index] = round(joint_state[3], 3)
-            left_msg = self.joint_msg(hand="left",position=tmp_left["position"], velocity=tmp_left["velocity"], effort=tmp_left["effort"])
+            
+            m = [2,1,7,11,16,21,6,15,20,0]
+            for index in range(len(m)):
+                i = m[index]
+                tmp_left["position"][index] = self.left_position[i]
+                tmp_right["position"][index] = self.right_position[i]
+            left_msg = self.joint_msg(hand="left",position=arc_to_range_left(hand_arc_l=tmp_left["position"],hand_joint="L10"), velocity=tmp_left["velocity"], effort=tmp_left["effort"])
             self.left_hand_state_pub.publish(left_msg)
             self.set_joint(self.left_hand_id,self.left_position)
-            right_msg = self.joint_msg(hand="right",position=tmp_right["position"], velocity=tmp_right["velocity"], effort=tmp_right["effort"])
+            right_msg = self.joint_msg(hand="right",position=arc_to_range_right(right_arc=tmp_right["position"],hand_joint="L10"), velocity=tmp_right["velocity"], effort=tmp_right["effort"])
             self.right_hand_state_pub.publish(right_msg)
             self.set_joint(self.right_hand_id,self.right_position)
     def set_joint(self,hand_id, pos):
@@ -100,11 +76,39 @@ class L10SimController:
         # 初始化JointState消息
         joint_state_msg = JointState()
         if hand == "left":
-            joint_state_msg.name = ["joint41","joint42","joint43","joint44","joint45","joint46","joint47","joint48",
-"joint49","joint50","joint51","joint52","joint53","joint54","joint55","joint56","joint57","joint58","joint59","joint60"]  # 关节名称
+            joint_state_msg.name = []  # 关节名称
         elif hand == "right":
-            joint_state_msg.name = ["joint71","joint72","joint73","joint77","joint75","joint76","joint77","joint78","joint79","joint80","joint81","joint82","joint83","joint84","joint88","joint86","joint87","joint88","joint89","joint90"]  # 关节名称
+            joint_state_msg.name = []  # 关节名称
         joint_state_msg.position = position  # 关节位置（弧度）
         joint_state_msg.velocity = velocity  # 关节速度
         joint_state_msg.effort = effort  # 关节力矩
         return joint_state_msg
+    
+
+    def map_value(self,value, to_min, to_max, from_min=255, from_max=0):
+        """
+        将一个范围内的值映射到另一个范围，支持输入范围反向（例如 255 对应最小值，0 对应最大值）。
+
+        参数：
+        - value: 需要映射的值
+        - from_min: 原始范围的最小值
+        - from_max: 原始范围的最大值
+        - to_min: 目标范围的最小值
+        - to_max: 目标范围的最大值
+
+        返回：
+        - 映射后的值
+        """
+        # 检查原始范围是否有效
+        if from_min == from_max:
+            raise ValueError("原始范围的最小值和最大值不能相等")
+        
+        # 反转范围处理：如果 from_min > from_max，则调整计算顺序
+        if from_min > from_max:
+            scaled_value = (from_min - value) / (from_min - from_max)  # 归一化到 [0, 1]
+        else:
+            scaled_value = (value - from_min) / (from_max - from_min)  # 正常归一化到 [0, 1]
+
+        # 映射到目标范围
+        mapped_value = to_min + scaled_value * (to_max - to_min)
+        return mapped_value

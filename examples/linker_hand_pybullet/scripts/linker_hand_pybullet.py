@@ -6,10 +6,12 @@ from std_msgs.msg import String,Header
 from sensor_msgs.msg import JointState
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from utils.color_msg import ColorMsg
+from utils.mapping import *
 from utils.l20_sim_controller import L20SimController
 from utils.l21_sim_controller import L21SimController
 from utils.t24_sim_controller import T24SimController
 from utils.l10_sim_controller import L10SimController
+from utils.l7_sim_controller import L7SimController
 
 '''
 五指全部展开
@@ -38,8 +40,18 @@ class LinkerHandPybullet:
             rospy.Subscriber("/cb_right_hand_control_cmd",JointState,self.l20_right_hand_cmd_callback,queue_size=10)
             ColorMsg(msg=f"当前模拟环境为{self.hand}", color="green")
             self.l20_sim.showSim()
+        elif self.hand == "L7":
+            self.l7_sim = L7SimController()
+            rospy.Subscriber("/cb_left_hand_control_cmd",JointState,self.l7_left_hand_cmd_callback,queue_size=10)
+            rospy.Subscriber("/cb_right_hand_control_cmd",JointState,self.l7_right_hand_cmd_callback,queue_size=10)
+            ColorMsg(msg=f"当前模拟环境为{self.hand}", color="green")
+            self.l7_sim.showSim()
         elif self.hand == "L10":
-            ColorMsg(msg=f"功能正在增加中...", color="green")
+            self.l10_sim = L10SimController()
+            rospy.Subscriber("/cb_left_hand_control_cmd",JointState,self.l10_left_hand_cmd_callback,queue_size=10)
+            rospy.Subscriber("/cb_right_hand_control_cmd",JointState,self.l10_right_hand_cmd_callback,queue_size=10)
+            ColorMsg(msg=f"当前模拟环境为{self.hand}", color="green")
+            self.l10_sim.showSim()
         elif self.hand == "L21":
             self.l21_sim = L21SimController()
             rospy.Subscriber("/cb_left_hand_control_cmd",JointState,self.l21_left_hand_cmd_callback,queue_size=10)
@@ -52,8 +64,111 @@ class LinkerHandPybullet:
             ColorMsg(msg=f"当前模拟环境为{self.hand}", color="green")
             self.t24_sim.run()
 
+    def l7_left_hand_cmd_callback(self, msg):
+        left_hand_pos = [0] * 25
+        cmd_pos = range_to_arc_left(left_range=list(msg.position),hand_joint="L7")
+        '''
+        thumb_joint0
+        thumb_joint1
+        thumb_joint2
+        thumb_joint3
+        thumb_joint4
+        thumb_joint5
+        index_joint0
+        index_joint1
+        index_joint2
+        index_joint3
+        index_joint4
+        middle_joint0
+        middle_joint1
+        middle_joint2
+        middle_joint3
+        ring_joint0
+        ring_joint1
+        ring_joint2
+        ring_joint3
+        ring_joint4
+        little_joint0
+        little_joint1
+        little_joint2
+        little_joint3
+        little_joint4
+        '''
+        
+        left_hand_pos[0] = cmd_pos[6]
+        left_hand_pos[1] = cmd_pos[1]
+        left_hand_pos[2] = cmd_pos[0]
+        left_hand_pos[3] = cmd_pos[0]*3
+        left_hand_pos[4] = cmd_pos[0]*2
+        left_hand_pos[5] = cmd_pos[0]*2
+        left_hand_pos[7] = cmd_pos[2]
+        left_hand_pos[8] = cmd_pos[2]
+        left_hand_pos[9] = cmd_pos[2]
+        left_hand_pos[11] = cmd_pos[3]
+        left_hand_pos[12] = cmd_pos[3]
+        left_hand_pos[13] = cmd_pos[3]
+        #left_hand_pos[15] = cmd_pos[7]
+        left_hand_pos[16] = cmd_pos[4]
+        left_hand_pos[17] = cmd_pos[4]
+        left_hand_pos[18] = cmd_pos[4]
+        #left_hand_pos[20] = cmd_pos[8]
+        left_hand_pos[21] = cmd_pos[5]
+        left_hand_pos[22] = cmd_pos[5]
+        left_hand_pos[23] = cmd_pos[5]
+        self.l7_sim.set_left_position(pos=left_hand_pos)
+        
 
-    
+    def l7_right_hand_cmd_callback(self, msg):
+        pass
+
+    def l10_left_hand_cmd_callback(self, msg):
+        left_hand_pos = [0] * 24
+        cmd_pos = range_to_arc_left(left_range=list(msg.position),hand_joint="L10")
+        left_hand_pos[0] = cmd_pos[9]
+        left_hand_pos[1] = cmd_pos[1]
+        left_hand_pos[2] = cmd_pos[0]
+        left_hand_pos[3] = cmd_pos[0]
+        left_hand_pos[4] = cmd_pos[0]
+        left_hand_pos[6] = cmd_pos[6]
+        left_hand_pos[7] = cmd_pos[2]
+        left_hand_pos[8] = cmd_pos[2]
+        left_hand_pos[9] = cmd_pos[2]
+        left_hand_pos[11] = cmd_pos[3]
+        left_hand_pos[12] = cmd_pos[3]
+        left_hand_pos[13] = cmd_pos[3]
+        left_hand_pos[15] = cmd_pos[7]
+        left_hand_pos[16] = cmd_pos[4]
+        left_hand_pos[17] = cmd_pos[4]
+        left_hand_pos[18] = cmd_pos[4]
+        left_hand_pos[20] = cmd_pos[8]
+        left_hand_pos[21] = cmd_pos[5]
+        left_hand_pos[22] = cmd_pos[5]
+        left_hand_pos[23] = cmd_pos[5]
+        self.l10_sim.set_left_position(pos=left_hand_pos)
+    def l10_right_hand_cmd_callback(self, msg):
+        right_hand_pos = [0] * 24
+        cmd_pos = range_to_arc_right(right_range=list(msg.position),hand_joint="L10")
+        right_hand_pos[0] = cmd_pos[9]
+        right_hand_pos[1] = cmd_pos[1]
+        right_hand_pos[2] = cmd_pos[0]
+        right_hand_pos[3] = cmd_pos[0]
+        right_hand_pos[4] = cmd_pos[0]
+        right_hand_pos[6] = cmd_pos[6]
+        right_hand_pos[7] = cmd_pos[2]
+        right_hand_pos[8] = cmd_pos[2]
+        right_hand_pos[9] = cmd_pos[2]
+        right_hand_pos[11] = cmd_pos[3]
+        right_hand_pos[12] = cmd_pos[3]
+        right_hand_pos[13] = cmd_pos[3]
+        right_hand_pos[15] = cmd_pos[7]
+        right_hand_pos[16] = cmd_pos[4]
+        right_hand_pos[17] = cmd_pos[4]
+        right_hand_pos[18] = cmd_pos[4]
+        right_hand_pos[20] = cmd_pos[8]
+        right_hand_pos[21] = cmd_pos[5]
+        right_hand_pos[22] = cmd_pos[5]
+        right_hand_pos[23] = cmd_pos[5]
+        self.l10_sim.set_right_position(pos=right_hand_pos)
 
 
     # 左手回调

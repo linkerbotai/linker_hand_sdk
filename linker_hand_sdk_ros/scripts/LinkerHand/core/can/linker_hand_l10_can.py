@@ -246,7 +246,7 @@ class LinkerHandL10Can:
             self.send_frame(0x02, torque)
             time.sleep(0.002)
             self.send_frame(0x03,torque)
-        elif len(torque) == 5:
+        elif len(torque) > 5:
             self.send_frame(0x02, torque[:5])
             time.sleep(0.002)
             self.send_frame(0x03,torque[5:])

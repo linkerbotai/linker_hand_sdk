@@ -8,9 +8,10 @@ pip3 install -r requirements.txt
 
 - 启动L20/L10 Sim
 ```bash
-# hand:=L20/L10 当前支持 L20 L10
-rosrun linker_hand_pybullet linker_hand_pybullet.py _hand_type:=L20
+# hand:=L7\L10\L20\L21 当前支持 L7\L10\L20\L21
+rosrun linker_hand_pybullet linker_hand_pybullet.py _hand_type:=L10
 ```
+
 
  # 使用
  - 左手张开
