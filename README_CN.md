@@ -242,7 +242,7 @@ $ sudo vim linker_hand_double.launch    #启动左右双手，按照注释编辑
 
 灯光闪烁：蓝色灯闪烁代表通讯成功。
 
-~~通讯模式：如何通过CAN模块连接的时候，区分是CAN还是485？ CAN接口和485接口完全不同。连接方式也不同 ~~
+通讯模式：如何通过CAN模块连接的时候，区分是CAN还是485？ CAN接口和485接口完全不同。连接方式也不同
 
 ## 4.3 启动SDK
 
@@ -384,173 +384,25 @@ $ roslaunch gui_control gui_control_double.launch # 控制双手，需要修改l
 无
 
 ## 6.3 获取设备状态与信息
+```bash
+# 启动SDK后
+$ rostopic echo /cb_left_hand_info
 
-### 6.3.1 **获取当前状态**
-
-已支持的LinkerHand灵巧手产品：L10、L20
-
-* 开启一个新终端，启动Linker Hand ROS SDK
-
-```shell
-$ cd Linker_Hand_SDK_ROS/
-$ source ./devel/setup.bash
-$ roslaunch linker_hand_sdk_ros linker_hand.launch # 启动灵巧手
+data: "{\"version\": [10, 6, 67, 76, 35, 18, 0], \"hand_joint\": \"L10\", \"speed\": [119,\
+  \ 178, 178, 178, 178, -1, -1, -1, -1, -1], \"current\": [null, null, null, null,\
+  \ null, null, null, null, null, null], \"fault\": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],\
+  \ \"motor_temperature\": [32, 35, 34, 31, 34, 33, 34, 36, 33, 38], \"is_touch\"\
+  : true, \"touch_type\": 2, \"finger_order\": []}"
 ```
-
-* 开启一个新终端，获取当前状态
-
-  1. 针对L20，开启一个新终端，获取当前状态
-
-```shell
-$ cd Linker_Hand_SDK_ROS/
-$ source ./devel/setup.bash
-$ rosrun L20_get_linker_hand_state L20_get_linker_hand_state.py _loop:=True
-```
-
-**&#x20;参数说明**
-
-状态数值包括：范围值与弧度值。&#x20;
-
-“ _loop” 参数，需要填写，如果为True则终端循环打印当前LinkerHand灵巧手的状态数值，如果为False则终端只打印一次当前LinkerHand灵巧手状态数值。例如：_loop:=True
-
-**输出结果示例**
-
-稍后更新
-
-```shell
-$ cd Linker_Hand_SDK_ROS/
-$ source ./devel/setup.bash
-$ rosrun L10_get_linker_hand_state L10_get_linker_hand_state.py _loop:=True
-```
-
-**&#x20;参数说明**
-
-状态数值包括：范围值与弧度值。&#x20;
-
-“ _loop” 参数，需要填写，如果为True则终端循环打印当前LinkerHand灵巧手的状态数值，如果为False则终端只打印一次当前LinkerHand灵巧手状态数值。例如：_loop:=True
-
-**输出结果示例**
-
-```shell
-header:
-  seq: 83
-  stamp:
-    secs: 1743409242
-    nsecs: 193927526
-  frame_id: ''
-name: []
-position: [1.03, -1.57, 1.3, 1.3, 1.3, 1.3, 0.26, -0.26, -0.26, 1.57]
-velocity: [25.0, 255.0, 255.0, 255.0, 255.0, 255.0, 255.0, 255.0, 255.0, 255.0]
-effort: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-```
-
-### 6.3.2 **获取力传感器数据**
-
-已支持的LinkerHand灵巧手产品：L10、L20
-
-* 开启一个新终端，启动Linker Hand ROS SDK
-
-```shell
-$ cd Linker_Hand_SDK_ROS/
-$ source ./devel/setup.bash
-$ roslaunch linker_hand_sdk_ros linker_hand.launch # 启动 L10 or L20 灵巧手
-```
-
-* 开启一个新终端，获取力传感器数据
-
-```shell
-$ cd Linker_Hand_SDK_ROS
-$ source ./devel/setup.bash
-$ rosrun get_linker_hand_force get_linker_hand_force.py _loop:=False
-```
-
 **参数说明**
-
-“ _loop” 参数，需要填写，如果为True则终端循环打印当前LinkerHand灵巧手的状态数值，如果为False则终端只打印一次当前LinkerHand灵巧手状态数值。例如：_loop:=True
-
-**输出结果示例**
-
-* 右手五指法相力: \[0.0, 0.0, 0.0, 0.0, 0.0] 范围0\~255，压力越大值越大
-
-* 右手五指切向力: \[0.0, 0.0, 0.0, 0.0, 0.0] 范围0\~255，压力越大值越大
-
-* 右手五指切向力方向: \[255.0, 255.0, 255.0, 255.0, 255.0] 范围255\~0，压力越大值越小
-
-* 右手五指接近感应: \[0.0, 0.0, 0.0, 0.0, 0.0] 范围0\~255，压力越大值越大
-
-### 6.3.3 **获取当前速度**
-
-已支持的LinkerHand灵巧手产品：L10、L20
-
-
-* 开启一个新终端，启动Linker Hand ROS SDK
-
-```shell
-$ cd Linker_Hand_SDK_ROS/
-$ source ./devel/setup.bash
-$ roslaunch linker_hand_sdk_ros linker_hand.launch # 启动灵巧手
-```
-
-* 开启一个新终端，获取力当前速度
-
-```shell
-$ cd Linker_Hand_SDK_ROS/
-$ source ./devel/setup.bash
-$ rosrun get_linker_hand_speed get_linker_hand_speed.py _loop:=False
-```
-
-**参数说明**
-
-“ _loop” 参数，需要填写，如果为True则终端循环打印当前LinkerHand灵巧手的状态数值，如果为False则终端只打印一次当前LinkerHand灵巧手状态数值。例如：_loop:=True 参数必带
-
-**输出结果示例**
-
-右手五指速度为: \[180, 250, 250, 250, 250]，顺序：大拇指、食指、中指、无名指、小拇指。
-
-### 6.3.4 **获取当前电流**
-
-已支持的LinkerHand灵巧手产品：L10、L20
-
-
-* 开启一个新终端，启动Linker Hand ROS SDK
-
-```shell
-$ cd Linker_Hand_SDK_ROS/
-$ source ./devel/setup.bash
-$ roslaunch linker_hand_sdk_ros linker_hand.launch # 启动灵巧手
-```
-
-* 开启一个新终端，获取力当前电流
-
-```shell
-$ cd Linker_Hand_SDK_ROS
-$ source ./devel/setup.bash
-$ rosrun get_linker_hand_current get_linker_hand_current.py _loop:=False
-```
-
-**参数说明**
-
-“ _loop” 参数，需要填写，如果为True则终端循环打印当前LinkerHand灵巧手的状态数值，如果为False则终端只打印一次当前LinkerHand灵巧手状态数值。例如：_loop:=True
-
-**输出结果示例**
-
-右手五指电流为: \[42, 42, 42, 42, 42]，顺序：大拇指、食指、中指、无名指、小拇指。
-
-### 6.3.5 获取故障码
-
-```shell
-rostopic pub /cb_hand_setting_cmd std_msgs/String '{data: "{\"setting_cmd\":\"get_faults\",\"params\":{\"hand_type\":\"left\"}}"}'
-```
-
-**参数说明**
-
-setting_cmd ：命令参数
-
-get_faults： 命令类型 string
-
-**输出结果示例**
-
-右手五指电流为: \[0, 1, 0, 0, 0] ，0 代表正常，1代表故障。
+version: 版本编号
+hand_joit: 灵巧手型号
+speed: 当前速度阈值
+current: 当前电流 null为暂不支持
+fault: 对应电机错误码 0为正常
+motor_temperature: 对应电机温度
+is_touch: 是否支持压力传感器
+touch_type: 压感模式，1、法向压力传感器。 2、矩阵压力传感器
 
 ## 6.4 设置
 
