@@ -29,13 +29,13 @@ class GetLinkerHandCurrent():
     def left_hand_cb(self,msg):
        data = json.loads(msg.data)
        # 五指当前电流 [大拇指, 食指, 中指, 无名指, 小拇指]->[42, 42, 42, 42, 42]
-       left_current = data["right_hand"]["current"]
+       left_current = data["current"]
        ColorMsg(msg=f"当前左手五指电流为: {left_current}", color="green")
     
     def right_hand_cb(self, msg):
        data = json.loads(msg.data)
        # 五指当前电流 [大拇指, 食指, 中指, 无名指, 小拇指]->[42, 42, 42, 42, 42]
-       right_current = data["right_hand"]["current"]
+       right_current = data["current"]
        ColorMsg(msg=f"当前右手五指电流为: {right_current}", color="green")
        
 
@@ -54,12 +54,12 @@ class GetLinkerHandCurrent():
         if left_hand != None:
             data = json.loads(left_hand.data)
             # 五指当前电流 [大拇指, 食指, 中指, 无名指, 小拇指]->[42, 42, 42, 42, 42]
-            left_current = data["right_hand"]["current"]
+            left_current = data["current"]
             ColorMsg(msg=f"当前左手五指电流为: {left_current}", color="green")
         if right_hand != None:
             data = json.loads(right_hand.data)
             # 五指当前电流 [大拇指, 食指, 中指, 无名指, 小拇指]->[42, 42, 42, 42, 42]
-            right_current = data["right_hand"]["current"]
+            right_current = data["current"]
             ColorMsg(msg=f"当前右手五指电流为: {right_current}", color="green")
     
 
