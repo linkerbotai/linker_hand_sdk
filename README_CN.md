@@ -342,7 +342,7 @@ $ rosrun linker_hand_pybullet linker_hand_pybullet.py _hand_type:=L20
 ## 6.2 **图形界面控制**
 
 已支持的LinkerHand灵巧手产品：L7/O7/L10/O10/L20/O20/L25/O25/T25
-图形界面可控制Mujoco仿真和PyBullet仿真内的灵巧手
+图形界面可控制[Mujoco仿真和PyBullet仿真](https://github.com/linkerbotai/linker_hand_sim)内的灵巧手
 
 图形界面控制可以通过滑动块控制LinkerHand灵巧手L7/O7/L10/O10/L20/O20/L25/O25/T25各个关节独立运动。也可以通过添加按钮记录当前所有滑动块的数值，保存LinkerHand灵巧手当前各个关节运动状态。通过功能性按钮进行动作复现。
 
@@ -1018,10 +1018,10 @@ $ sudo visudo
 
 
 ## 使用 PyBullet 模拟 L7\L10\L20\L21 仿真环境
-[PyBullet Readme](examples/linker_hand_pybullet/README_CN_for_pybullet.md)
+[PyBullet Readme](https://github.com/linkerbotai/linker_hand_sim/blob/main/linker_hand_pybullet_ros/README_PyBullet_CN.md)
 
 ## 使用 Mujoco 模拟 L7\L10\L20\L21 仿真环境
-[Mujoco Readme](examples/README_CN.md)
+[Mujoco Readme](https://github.com/linkerbotai/linker_hand_sim/blob/main/linker_hand_mujoco_ros/README_CN.md)
 
 ## 使用 IsaacGym 模拟 L20 仿真环境
 [IsaacGym Readme](examples/L20/l20_isaacgym/isaacgym_l20.md)

@@ -1,8 +1,0 @@
-VERSION: 1.3.1 # 版本号，支持压力传感器
-LINKER_HAND:  # 手部配置信息
-  LEFT_HAND:
-    EXISTS: True # 是否存在左手
-    JOINT: L10 # 左手关节数
-  RIGHT_HAND:
-    EXISTS: True # 是否存在右手
-    JOINT: L10 # 右手关节数量
