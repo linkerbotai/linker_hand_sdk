@@ -223,7 +223,7 @@ data: "{\"version\": [7, 0, 0, 0], \"hand_joint\": \"L21\", \"speed\": [1, 0, 0,
 - `touch_type`: 传感器类型 (若支持)
 - `touch`: 传感器数据 (若支持)
 - `max_press_rco`: 最大电流
-- `fault`: 电机故障 0 为正常 其他为故障
+- `fault`: 电机故障 0 为正常 1、过压/欠压  2、磁编码异常  4、电机过温  8、电流过流  32、负载过载
 - `motor_temperature`: 当前电机温度
 - `finger_order`: 当前灵巧手手指电机顺序
 

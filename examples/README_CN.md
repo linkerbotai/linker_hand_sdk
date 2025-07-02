@@ -36,35 +36,7 @@
 - [1002-linker_unidexgrasp (基于LinkerHand的Unidexgrasp灵巧手抓取算法)](https://github.com/linkerbotai/linker_unidexgrasp)
 
 
-## Mujoco仿真环境
-修改linker_hand_mujoco/launch/linker_hand_mujoco.launch文件内相关参数
-- [9001-linker_hand_mujoco](linker_hand_mujoco/) # 支持topic or GUI控制仿真Linker Hand L7、L10、L20、L21
-```bash
-    <!-- 参数定义 -->
-    <arg name="hand_type" default="left"/>  # left or right
-    <arg name="hand_joint" default="L20"/>  # L7、L10、L20、L21
-```
-启动mujoco仿真
-```bash
-$ cd linker_hand_sdk
-$ pip install -r requirements.txt
-$ source ./devel/setup.bash
-$ roslaunch linker_hand_mujoco linker_hand_mujoco.launch
-```
-mujoco仿真启动成功后可启动GUI控制界面控制仿真灵巧手
-修改gui_control/launch/gui_control_left.launch or gui_control_right.launch
-```bash
-    <!-- 左手节点 -->
-    <node pkg="gui_control" type="gui_control_left.py" name="gui_control$(anon left)" output="screen">
-        <param name="hand_joint" type="string" value="L20"/> <!-- L7|L10|L20|L21|L25 灵巧手型号  -->
-    </node>
-```
-启动GUI
-```bash
-$ cd linker_hand_sdk
-$ source ./devel/setup.bash
-$ roslaunch gui_control gui_control_left.launch # or roslaunch gui_control gui_control_right.launch
-```
+
 
 
 ## LinkerHand灵巧手配置文件说明
@@ -101,9 +73,43 @@ $ roslaunch linker_hand_sdk_ros linker_hand.launch
 $ cd Linker_Hand_SDK_ROS/
 $ source ./devel/setup.bash
 # hand:=L20/L25
-$ rosrun linker_hand_pybullet linker_hand_pybullet.py _hand:=L25
+$ rosrun linker_hand_pybullet linker_hand_pybullet.py _hand:=L10
 ```
 ![STATE](../doc/pybullet.png)
+
+
+## Mujoco仿真环境
+修改linker_hand_mujoco/launch/linker_hand_mujoco.launch文件内相关参数
+- [9001-linker_hand_mujoco](linker_hand_mujoco/) # 支持topic or GUI控制仿真Linker Hand L7、L10、L20、L21
+```bash
+    <!-- 参数定义 -->
+    <arg name="hand_type" default="left"/>  # left or right
+    <arg name="hand_joint" default="L20"/>  # L7、L10、L20、L21
+```
+启动mujoco仿真
+```bash
+$ cd linker_hand_sdk
+$ pip install -r requirements.txt
+$ source ./devel/setup.bash
+$ roslaunch linker_hand_mujoco linker_hand_mujoco.launch
+```
+mujoco仿真启动成功后可启动GUI控制界面控制仿真灵巧手
+修改gui_control/launch/gui_control_left.launch or gui_control_right.launch
+```bash
+    <!-- 左手节点 -->
+    <node pkg="gui_control" type="gui_control_left.py" name="gui_control$(anon left)" output="screen">
+        <param name="hand_joint" type="string" value="L20"/> <!-- L7|L10|L20|L21|L25 灵巧手型号  -->
+    </node>
+```
+启动GUI
+```bash
+$ cd linker_hand_sdk
+$ source ./devel/setup.bash
+$ roslaunch gui_control gui_control_left.launch # or roslaunch gui_control gui_control_right.launch
+```
+
+## 仿真joint
+
 
 
 - #### 0001-获取LinkerHand灵巧手当前状态，状态数值包括范围值与弧度值
@@ -145,7 +151,7 @@ $ rosrun gui_control gui_control.py
 
 ![START_SDK](../doc/gui_control.png) 
 
-- #### 0003-获取LinkerHand灵巧手力传感器数据
+- #### 0003-获取LinkerHand灵巧手力传感器数据 注：支持V2.1.4以后版本不在支持，在Topic中获取
 开启SDK后，新开终端
 ```bash
 $ cd Linker_Hand_SDK_ROS/
