@@ -4,7 +4,7 @@ import can
 import threading
 from enum import Enum
 import numpy as np
-from LinkerHand.utils.open_can import OpenCan
+from utils.open_can import OpenCan
 
 class FrameProperty(Enum):
     INVALID_FRAME_PROPERTY = 0x00  # Invalid CAN frame property | No return
