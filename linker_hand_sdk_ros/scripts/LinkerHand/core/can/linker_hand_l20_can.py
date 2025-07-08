@@ -127,16 +127,16 @@ class LinkerHandL20Can:
                     print("Reconnecting CAN devices ....")
 
     def set_finger_base(self, angles):
-        self.send_command(FrameProperty.JOINT_PITCH_R, angles)
+        self.send_command(FrameProperty.JOINT_PITCH_NR, angles)
 
     def set_finger_tip(self, angles):
-        self.send_command(FrameProperty.JOINT_TIP_R, angles)
+        self.send_command(FrameProperty.JOINT_TIP_NR, angles)
 
     def set_finger_middle(self, angles):
-        self.send_command(FrameProperty.JOINT_YAW_R, angles)
+        self.send_command(FrameProperty.JOINT_YAW_NR, angles)
 
     def set_thumb_roll(self, angle):
-        self.send_command(FrameProperty.JOINT_ROLL_R, angle)
+        self.send_command(FrameProperty.JOINT_ROLL_NR, angle)
 
     def send_command(self, frame_property, data_list,sleep=0.002):
         frame_property_value = int(frame_property.value) if hasattr(frame_property, 'value') else frame_property
