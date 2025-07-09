@@ -108,7 +108,7 @@ $ git clone https://github.com/linkerbotai/linker_hand_sdk.git    #获取SDK
 ## 3.3 安装依赖与编译
 
 ```python
-$ sudo apt install python-can
+$ sudo apt install python3-can
 $ cd Linker_Hand_SDK_ROS/src/linker_hand_sdk    #进入目录
 $ pip install -r requirements.txt    #安装所需依赖
 $ cd Linker_Hand_SDK_ROS # 回到工程目录
