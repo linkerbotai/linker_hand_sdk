@@ -63,6 +63,7 @@ $ git clone https://github.com/linkerbotai/linker_hand_sdk.git    #Get SDK
 ## 3.3 Install dependencies and compile
 
 ```python
+$ sudo apt install python3-can
 $ cd Linker_Hand_SDK_ROS/src/linker_hand_sdk    #Navigate to the directory 
 $ pip install -r requirements.txt    #Install required dependencies
 $ catkin_make    #Compile and build the ROS package
