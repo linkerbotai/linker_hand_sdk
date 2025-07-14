@@ -14,6 +14,9 @@ LinkerHand Dexterous Hand ROS SDK is a software tool developed by CHIUS INC to d
 
 # 2. **Version Information**
 
+V2.1.8
+1. Fix occasional frame collision issues
+
 V1.3.4
 
 1. The waveform graph display has been changed from single-hand to configurable single/dual-hand display, controlled by modifying the configuration file to determine whether pressure sensing is present.
