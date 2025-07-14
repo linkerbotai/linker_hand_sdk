@@ -8,7 +8,7 @@ from utils.load_write_yaml import LoadWriteYaml
 from utils.open_can import OpenCan
 
 class LinkerHandApi:
-    def __init__(self, hand_type="left", hand_joint="L10", modbus = "None",can="PCAN_USBBUS1"):  # Ubuntu:can0   win:PCAN_USBBUS1
+    def __init__(self, hand_type="left", hand_joint="L10", modbus = "None",can="can0"):  # Ubuntu:can0   win:PCAN_USBBUS1
         self.last_position = []
         self.yaml = LoadWriteYaml()
         self.config = self.yaml.load_setting_yaml()
@@ -69,6 +69,12 @@ class LinkerHandApi:
         # if pose == self.last_position:
         #     return
         #ColorMsg(msg=f"Current LinkerHand is {self.hand_type} {self.hand_joint}, action sequence is {pose}", color="green")
+        
+        if len(pose) == 0 or self.last_position == pose:
+            return
+        if any(not isinstance(x, (int, float)) or x < 0 or x > 255 for x in pose):
+            ColorMsg(msg=f"The numerical range cannot be less than 0 or greater than 255",color="red")
+            return
         if self.hand_joint == "L7" and len(pose) == 7:
             self.hand.set_joint_positions(pose)
         elif self.hand_joint == "L10" and len(pose) == 10:
@@ -101,9 +107,9 @@ class LinkerHandApi:
     
     def set_speed(self, speed=[100]*5):
         '''# Set speed'''
-        has_non_int = any(not isinstance(x, int) for x in speed)
+        has_non_int = any(not isinstance(x, (int, float)) or x < 0 or x > 255 for x in speed)
         if has_non_int:
-            print("设置speed只能为Int类型", flush=True)
+            print("Set Speed The numerical range can only be positive integers or floating-point numbers between 0 and 255", flush=True)
             return
         if len(speed) < 5:
             print("数据长度不够,至少5个元素", flush=True)
@@ -117,9 +123,9 @@ class LinkerHandApi:
     
     def set_torque(self, torque=[180] * 5):
         '''Set maximum torque'''
-        has_non_int = any(not isinstance(x, int) for x in torque)
+        has_non_int = any(not isinstance(x, (int, float)) or x < 0 or x > 255 for x in torque)
         if has_non_int:
-            print("设置torque只能为Int类型", flush=True)
+            print("Set Torque The numerical range can only be positive integers or floating-point numbers between 0 and 255", flush=True)
             return
         if len(torque) < 5:
             print("数据长度不够,至少5个元素", flush=True)
@@ -128,8 +134,11 @@ class LinkerHandApi:
         return self.hand.set_torque(torque=torque)
     
     
-    def set_current(self, current=[]):
+    def set_current(self, current=[250] * 5):
         '''Set current L7/L10/L25 not supported'''
+        if any(not isinstance(x, (int, float)) or x < 0 or x > 255 for x in current):
+            print("Set Current The numerical range can only be positive integers or floating-point numbers between 0 and 255", flush=True)
+            return
         if self.hand_joint == "L20":
             return self.hand.set_current(current=current)
         else:
