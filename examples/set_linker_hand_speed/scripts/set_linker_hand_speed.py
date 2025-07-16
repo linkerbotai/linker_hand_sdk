@@ -84,7 +84,7 @@ if __name__ == '__main__':
     rosrun set_linker_hand_speed set_linker_hand_speed.py _hand_type:=right _speed:="[255,255,255,255,255,255,255]"
 
     other:
-    rosrun set_linker_hand_speed set_linker_hand_speed.py _hand_type:=right _speed:="['AA','AA','AA','AA','AA']"
+    rosrun set_linker_hand_speed set_linker_hand_speed.py _hand_type:=right _speed:="[255,255,255,255,255]"
     '''
     rospy.init_node('get_linker_hand_speed', anonymous=True)
     hand_type = rospy.get_param("~hand_type",default="left") # 设置哪只手的速度
