@@ -1,82 +1,6 @@
-'''
-Author: HJX
-Date: 2025-04-08 13:28:18
-LastEditors: Please set LastEditors
-LastEditTime: 2025-04-09 11:35:22
-FilePath: /Linker_Hand_SDK_ROS/src/examples/set_linker_hand_speed/scripts/set_linker_hand_speed.py
-Description: 
-symbol_custom_string_obkorol_copyright: 
-'''
 #!/usr/bin/env python3
-import rospy,rospkg
-import sys
-rospack = rospkg.RosPack()
-ros_linker_hand_sdk_path = rospack.get_path('linker_hand_sdk_ros')
-sys.path.append(ros_linker_hand_sdk_path + '/scripts')
-
-
-from LinkerHand.core.can.linker_hand_l20_can import LinkerHandL20Can
-from LinkerHand.core.can.linker_hand_l10_can import LinkerHandL10Can
-from LinkerHand.core.can.linker_hand_l7_can import LinkerHandL7Can
-from LinkerHand.utils.load_write_yaml import LoadWriteYaml
-from LinkerHand.utils.color_msg import ColorMsg
-class SetLinkerHandSpeed():
-    def __init__(self,hand_type="left",hand_joint="L10",speed=[255,255,255,255,255]):
-        self.speed = speed
-        self.hand_type = hand_type
-        self.hand_joint = hand_joint
-        if len(self.speed) >7 or len(self.speed) < 5:
-            ColorMsg(msg=f"L7速度长度为7，其他速度长度为5的list  当前为{self.speed}", color="red")
-            exit()
-        self.set_hand_speed()
-        
-            
-        
-    def set_hand_speed(self):
-        if self.hand_type == "left":
-            # 设置左手速度
-            if self.hand_joint == "L20":
-                self.left_hand_can = LinkerHandL20Can(can_channel="can0", baudrate=1000000, can_id=0x28)
-                # 设置手速
-                self.left_hand_can.set_speed(self.speed)
-                self.left_hand_speed = self.left_hand_can.get_speed()
-                ColorMsg(msg=f"左手L20速度设置成功{self.left_hand_speed}", color="green")
-            elif self.hand_joint == "L10":
-                self.left_hand_can = LinkerHandL10Can(can_channel="can0", baudrate=1000000, can_id=0x27)
-                # 设置手速
-                self.left_hand_can.set_speed(self.speed)
-                self.left_hand_speed = self.left_hand_can.get_speed()
-                ColorMsg(msg=f"左手L10速度设置成功{self.left_hand_speed}", color="green")
-            elif self.hand_joint == "L7":
-                self.left_hand_can = LinkerHandL7Can(can_channel="can0", baudrate=1000000, can_id=0x27)
-                # 设置手速
-                self.left_hand_can.set_speed(self.speed)
-                self.left_hand_speed = self.left_hand_can.get_speed()
-                ColorMsg(msg=f"左手L10速度设置成功{self.left_hand_speed}", color="green")
-            
-        if self.hand_type == "right":
-            # 设置右手速度
-            if self.hand_joint == "L20":
-                self.right_hand_can = LinkerHandL20Can(can_channel="can0", baudrate=1000000, can_id=0x27)
-                # 设置手速
-                self.right_hand_can.set_speed(self.speed)
-                self.right_hand_speed = self.right_hand_can.get_speed()
-                ColorMsg(msg=f"右手L20速度设置成功{self.right_hand_speed}", color="green")
-            elif self.hand_joint == "L10":
-                self.right_hand_can = LinkerHandL10Can(can_channel="can0", baudrate=1000000, can_id=0x27)
-                # 设置手速
-                self.right_hand_can.set_speed(self.speed)
-                self.right_hand_speed = self.right_hand_can.get_speed()
-                ColorMsg(msg=f"右手L10速度设置成功{self.right_hand_speed}", color="green")
-            elif self.hand_joint == "L7":
-                self.right_hand_can = LinkerHandL7Can(can_channel="can0", baudrate=1000000, can_id=0x27)
-                # 设置手速
-                self.right_hand_can.set_speed(self.speed)
-                self.right_hand_speed = self.right_hand_can.get_speed()
-                ColorMsg(msg=f"右手L10速度设置成功{self.right_hand_speed}", color="green")
-    
-    
-
+import rospy,json
+from std_msgs.msg import String
 
 if __name__ == '__main__':
     '''
@@ -90,5 +14,27 @@ if __name__ == '__main__':
     hand_type = rospy.get_param("~hand_type",default="left") # 设置哪只手的速度
     speed = rospy.get_param('~speed', default=[255,255,255,255,255])  # 默认获取全局参数
 
-    gh = SetLinkerHandSpeed(hand_type=hand_type,speed=speed)
+    pub = rospy.Publisher("/cb_hand_setting_cmd",String,queue_size=10)
+    msg = String()  #创建 msg 对象
+    count = 0  #计数器 
+    # 设置循环频率
+    rate = rospy.Rate(1)
+    while not rospy.is_shutdown():
+        # 由于ROS1 单发topic有可能丢失，这里循环发3次避免丢失
+        dic = {
+            "setting_cmd":"set_speed",
+            "params":{
+                "hand_type": hand_type,
+                "speed":speed
+            }
+        }
+        #拼接字符串
+        msg.data = json.dumps(dic)
+
+        pub.publish(msg)
+        rate.sleep()
+        rospy.loginfo("写出的数据:%s",msg.data)
+        count += 1
+        if count > 2:
+            break
     

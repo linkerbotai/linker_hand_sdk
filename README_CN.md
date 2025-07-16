@@ -117,7 +117,6 @@ $ pip install -r requirements.txt    #安装所需依赖
 $ cd Linker_Hand_SDK_ROS # 回到工程目录
 $ catkin_make    #编译和构建ROS包
 ```
-
 ## 3.4 配置ROS主从通讯
 
 支持分布式计算和模块化开发，只在本终端生效，如不需要则忽略。树莓派设备已默认配置完成。
@@ -260,6 +259,11 @@ $ source ./devel/setup.bash
 $ roslaunch linker_hand_sdk_ros linker_hand.launch #左or右单手启动
 or
 $ roslaunch linker_hand_sdk_ros linker_hand_double.launch #启动左右双手
+# 如果报错
+ERROR: cannot launch node of type [linker_hand_sdk_ros/linker_hand.py]: Cannot locate node of type [linker_hand.py] in package [linker_hand_sdk_ros]. Make sure file exists in package path and permission is set to executable (chmod +x)
+# 需要给执行文件权限
+$ sudo chmod a+x src/linker_hand_sdk/linker_hand_sdk_ros/scripts/linker_hand.py
+$ roslaunch linker_hand_sdk_ros linker_hand.launch
 ```
 
 ### 4.4 通过RML机械臂485接口控制L10灵巧手 注：睿尔曼的官方API2只支持Python3.9以上版本，否则无法使用
