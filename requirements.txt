@@ -16,3 +16,4 @@ pyqt5
 pyqtgraph
 dm_control
 uvicorn
+tabulate

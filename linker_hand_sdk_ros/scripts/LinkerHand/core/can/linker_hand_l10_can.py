@@ -4,8 +4,10 @@ import can
 import time,sys
 import threading
 import numpy as np
+from tabulate import tabulate
 from enum import Enum
 from utils.open_can import OpenCan
+from utils.color_msg import ColorMsg
 
 
 
@@ -33,7 +35,7 @@ class LinkerHandL10Can:
         self.can_channel = can_channel
         self.baudrate = baudrate
         self.open_can = OpenCan(load_yaml=yaml)
-        
+        self.is_cmd = False
         self.x01 = [-1] * 5
         self.x02 = [-1] * 5
         self.x03 = [-1] * 5
@@ -87,7 +89,8 @@ class LinkerHandL10Can:
             else:
                 raise EnvironmentError("Unsupported platform for CAN interface")
         except:
-            print("Please insert CAN device")
+            #print("Please insert CAN device")
+            ColorMsg(msg="Warning: Please insert CAN device", color="red")
 
     def send_frame(self, frame_property, data_list,sleep=0.003):
         """Send a single CAN frame with specified properties and data."""
@@ -113,10 +116,13 @@ class LinkerHandL10Can:
     def set_joint_positions(self, joint_angles):
         """Set the positions of 10 joints (joint_angles: list of 10 values)."""
         self.joint_angles = joint_angles
+        self.is_cmd = True
         # Send angle control in frames, L10 protocol splits into first 6 and last 4
         self.send_frame(FrameProperty.JOINT_POSITION2_RCO, self.joint_angles[6:])
         time.sleep(0.001)
         self.send_frame(FrameProperty.JOINT_POSITION_RCO, self.joint_angles[:6])
+        time.sleep(0.002)
+        self.is_cmd = False
         
 
     def set_max_torque_limits(self, pressures,type="get"):
@@ -260,7 +266,7 @@ class LinkerHandL10Can:
                     if index is not None:
                         self.little_matrix[index] = d[1:]  # Remove the first flag bit
             elif frame_type == 0x64:
-                self.version = list(response_data)
+                self.version =  list(response_data)
 
     def set_torque(self,torque=[]):
         '''Set maximum torque'''
@@ -276,13 +282,19 @@ class LinkerHandL10Can:
         '''Get version'''
         self.send_frame(0x64,[],sleep=0.1)
         return self.version
+    
     def get_current_status(self):
         '''Get current joint status'''
-        #if self.version != None and self.version[4] > 35:
-        self.send_frame(0x01,[],sleep=0.003)
-        self.send_frame(0x04,[],sleep=0.003)
-        state = self.x01 + self.x04
-        return state
+        if self.is_cmd == False:
+            #if self.version != None and self.version[4] > 35:
+            self.send_frame(0x01,[],sleep=0.003)
+            self.send_frame(0x04,[],sleep=0.003)
+            state = self.x01 + self.x04
+            return state
+        else:
+            state = self.x01 + self.x04
+            return state
+        
     def get_speed(self):
         '''Get current speed'''
         self.send_frame(0x05,[],sleep=0.003)
@@ -331,6 +343,14 @@ class LinkerHandL10Can:
         self.send_frame(0xb4,[0xc6],sleep=0.01)
         self.send_frame(0xb5,[0xc6],sleep=0.01)
         return self.thumb_matrix , self.index_matrix , self.middle_matrix , self.ring_matrix , self.little_matrix
+    
+    def get_matrix_touch_v2(self):
+        self.send_frame(0xb1,[0xc6],sleep=0.005)
+        self.send_frame(0xb2,[0xc6],sleep=0.005)
+        self.send_frame(0xb3,[0xc6],sleep=0.005)
+        self.send_frame(0xb4,[0xc6],sleep=0.005)
+        self.send_frame(0xb5,[0xc6],sleep=0.005)
+        return self.thumb_matrix , self.index_matrix , self.middle_matrix , self.ring_matrix , self.little_matrix
 
     def get_torque(self):
         '''Get current motor torque'''
@@ -350,11 +370,50 @@ class LinkerHandL10Can:
     
     def get_current(self):
         '''Get current'''
-        return [-1] * 5
+        #return [-1] * 5
         self.send_frame(0x02, [])
         time.sleep(0.002)
         self.send_frame(0x03,[])
         return self.x02+self.x03
+
+    def show_fun_table(self):
+        # if len(data) != 8 or data[0] != 0x64:
+        #     raise ValueError("数据格式不正确")
+        data = self.version
+        result = {
+            "自由度": data[0],
+            "机械版本": data[1],
+            "版本序号": data[2],
+            "手方向": chr(data[3]),  # ASCII 转字符
+            "软件版本": f"V{data[4] >> 4}.{data[4] & 0x0F}",
+            "硬件版本": f"V{data[5] >> 4}.{data[5] & 0x0F}",
+            "修订标志": data[6],
+            "set_position": "Y",
+            "set_torque": "Y",
+            "set_speed": "Y",
+            "get_version": "Y",
+            "get_current_status": "Y",
+            "get_speed": "Y",
+            "get_temperature": "Y",
+            "get_touch_type": "Y",
+            "get_matrix_touch": "Y",
+            "get_fault": "Y",
+            "get_current": "current == torque"
+        }
+        
+        #return [data[0],data[1],data[2],chr(data[3]),f"V{data[4] >> 4}.{data[4] & 0x0F}",f"V{data[5] >> 4}.{data[5] & 0x0F}",data[6]]
+        table = [[k, v] for k, v in result.items()]
+        print(tabulate(table, tablefmt="grid"), flush=True)
+
+
+    # # 示例数据
+    # data = [0x64, 0x15, 0x03, 0x0A, 0x4C, 0x11, 0x22, 0x01]
+    # parsed = parse_version_data(data)
+
+    # # 打印结果
+    # for k, v in parsed.items():
+    #     print(f"{k}: {v}")
+
 
     def close_can_interface(self):
         """Stop the CAN communication."""

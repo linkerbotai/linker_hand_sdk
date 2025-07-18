@@ -57,8 +57,11 @@ class LinkerHandApi:
             if not self.is_can:
                 ColorMsg(msg=f"{self.can} interface is not open", color="red")
                 sys.exit(1)
-        version = self.get_version()
-        ColorMsg(msg=f"Embedded:{version}", color="green")
+        version = self.get_embedded_version()
+        if version == None or len(version) == 0:
+            ColorMsg(msg="Warning: Hardware version number not recognized, it is recommended to terminate the program and re insert USB to CAN conversion", color="yellow")
+        else:
+            ColorMsg(msg=f"Embedded:{version}", color="green")
     
     # Five-finger movement
     def finger_move(self, pose=[]):
@@ -66,11 +69,8 @@ class LinkerHandApi:
         Five-finger movement
         @params: pose list L7 len(7) | L10 len(10) | L20 len(20) | L25 len(25) 0~255
         '''
-        # if pose == self.last_position:
-        #     return
-        #ColorMsg(msg=f"Current LinkerHand is {self.hand_type} {self.hand_joint}, action sequence is {pose}", color="green")
         
-        if len(pose) == 0 or self.last_position == pose:
+        if len(pose) == 0:
             return
         if any(not isinstance(x, (int, float)) or x < 0 or x > 255 for x in pose):
             ColorMsg(msg=f"The numerical range cannot be less than 0 or greater than 255",color="red")
@@ -144,9 +144,8 @@ class LinkerHandApi:
         else:
             pass
 
-    def get_version(self):
-        '''Get version'''
-        
+    def get_embedded_version(self):
+        '''Get embedded version'''
         return self.hand.get_version()
     
     def get_current(self):
@@ -194,6 +193,9 @@ class LinkerHandApi:
     
     def get_matrix_touch(self):
         return self.hand.get_matrix_touch()
+    
+    def get_matrix_touch_v2(self):
+        return self.hand.get_matrix_touch_v2()
 
     def get_torque(self):
         '''Get current maximum torque'''
@@ -247,7 +249,8 @@ class LinkerHandApi:
     def arc_to_range_right(self,state,hand_joint):
         return arc_to_range_right(right_arc=state,hand_joint=hand_joint)
     
-
+    def show_fun_table(self):
+        self.hand.show_fun_table()
     def close_can(self):
         self.open_can.close_can0()                         
 

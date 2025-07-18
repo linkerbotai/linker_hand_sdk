@@ -35,7 +35,7 @@ class MainWindow(QMainWindow):
         self.right_hand = False
         self.hand_exists = True
         
-        self.rate = rospy.Rate(30)
+        self.rate = rospy.Rate(15)
         self.yaml = LoadWriteYaml() # 初始化配置文件
         self.set_pub = rospy.Publisher('/cb_hand_setting_cmd', String, queue_size=1)
         self.colse_sdk_sub = rospy.Subscriber("/close_sdk",String,self.close_sdk,queue_size=1)
