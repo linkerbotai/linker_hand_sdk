@@ -29,11 +29,9 @@ hand = {"joint1":255,   #拇指根部弯曲
         }
 
 def send_messages():
-
-    rospy.init_node('dong_test_sender', anonymous=True) 
-
+    global show_step
+    rospy.init_node('dong_test_sender', anonymous=True)
     pub = rospy.Publisher('/cb_left_hand_control_cmd', JointState, queue_size=10)
-
     rate = rospy.Rate(30)  # 设置频率为30Hz
     joint_state.header = std_msgs.msg.Header()
     joint_state.header.seq=0
@@ -49,6 +47,8 @@ def send_messages():
             joint_state.position = position
         # rospy.loginfo(f"Publishing joint states {joint_state.__str__}")
         pub.publish(joint_state)
+        if show_step==54:
+            show_step=0
         rate.sleep()
 
 def show_left():
