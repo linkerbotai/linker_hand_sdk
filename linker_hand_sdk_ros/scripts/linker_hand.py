@@ -179,6 +179,10 @@ class LinkerHand:
 
 
     def run(self):
+        self.thread_action_hand = threading.Thread(target=self.action_hand)
+        self.thread_action_hand.daemon = True
+        self.thread_action_hand.start()
+
         self.thread_get_state = threading.Thread(target=self._get_hand_state)
         self.thread_get_state.daemon = True
         self.thread_get_state.start()
@@ -206,6 +210,18 @@ class LinkerHand:
         self.thread_pub_all_state = threading.Thread(target=self.get_pub_state_v2)
         self.thread_pub_all_state.daemon = True
         self.thread_pub_all_state.start()
+
+    def action_hand(self):
+        while True:
+            if len(self.last_left_hand_position) > 0:
+                self.action_left_hand(position=self.last_left_hand_position, velocity=self.last_left_hand_velocity)
+            if len(self.last_left_hand_position_arc) > 0:
+                self.action_left_hand_arc(position=self.last_left_hand_position_arc, velocity=self.last_left_hand_velocity_arc)
+            if len(self.last_right_hand_position) > 0:
+                self.action_right_hand(position=self.last_right_hand_position, velocity=self.last_right_hand_velocity)
+            if len(self.last_right_hand_position_arc) > 0:
+                self.action_right_hand_arc(position=self.last_right_hand_position_arc, velocity=self.last_right_hand_velocity_arc)
+            time.sleep(0.003)
 
     def get_all_state_v2(self):
         count = 0
@@ -253,7 +269,7 @@ class LinkerHand:
             t.data = json.dumps(hand_state["torque"])
             self.pub_hand_state(hand_state=hand_state)
             self.hand_torque.publish(t)
-            time.sleep(0.03)
+            time.sleep(0.01)
     
     def _get_hand_state_v2(self):
         if self.hand_state_pub.get_num_connections() > 0:
