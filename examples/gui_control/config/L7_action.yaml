@@ -74,13 +74,13 @@ RIGHT_HAND:
   - 72
 - ACTION_NAME: 握拳
   ACTION_POS:
-  - 70
-  - 116
-  - 0
-  - 0
-  - 0
-  - 0
-  - 46
+  - 70.0
+  - 116.0
+  - 0.0
+  - 0.0
+  - 0.0
+  - 0.0
+  - 46.0
 - ACTION_NAME: 食指弯曲
   ACTION_POS:
   - 255

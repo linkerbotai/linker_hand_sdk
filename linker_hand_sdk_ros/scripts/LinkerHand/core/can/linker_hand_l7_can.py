@@ -231,6 +231,9 @@ class LinkerHandL7Can:
         elif self.is_lock == False:
             self.send_frame(0x01, [],sleep=0.003)
             return self.x01
+        
+    def get_current_pub_status(self):
+        return self.x01
 
     def get_speed(self):
         self.send_frame(0x05, [],sleep=0.003)

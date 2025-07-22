@@ -295,6 +295,10 @@ class LinkerHandL10Can:
             state = self.x01 + self.x04
             return state
         
+    def get_current_pub_status(self):
+        state = self.x01 + self.x04
+        return state
+        
     def get_speed(self):
         '''Get current speed'''
         self.send_frame(0x05,[],sleep=0.003)

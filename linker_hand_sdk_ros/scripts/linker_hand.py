@@ -263,7 +263,10 @@ class LinkerHand:
         t = String()
         while True:
             #if self.hand_state_pub.get_num_connections() > 0:
-            hand_state['state'] = self.api.get_state()
+            if self.hand_cmd_sub.get_num_connections() > 0 or self.hand_cmd_sub_arc.get_num_connections() > 0:
+                hand_state['state'] = self.api.get_state_for_pub()
+            else:
+                hand_state['state'] = self.api.get_state()
             hand_state['vel'] = self.api.get_joint_speed()
             hand_state['torque'] = self.api.get_torque()
             t.data = json.dumps(hand_state["torque"])

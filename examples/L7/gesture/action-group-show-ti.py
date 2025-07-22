@@ -2,7 +2,7 @@
 
  
 
-import rospy
+import rospy,json
 
 from std_msgs.msg import String
 from sensor_msgs.msg import JointState
@@ -27,12 +27,28 @@ hand = {"joint1":255,   #拇指根部弯曲
         "joint6":255,   #小指根部弯曲
         "joint7":255,  #拇指旋转
         }
-
+def set_speed(speed=[130,200,200,200,200,200,200]):
+    set_pub = rospy.Publisher('/cb_hand_setting_cmd', String, queue_size=1)
+    msg = String()
+    cmd = {
+        "setting_cmd":"set_speed",
+        "params":{
+            "hand_type": "right",
+            "speed":speed,
+        }
+    }
+    msg.data = json.dumps(cmd)
+    for i in range(3):
+        set_pub.publish(msg)
+        time.sleep(0.1)
+    print(f"设置速度:{speed}")
 def send_messages():
     global show_step
     rospy.init_node('dong_test_sender', anonymous=True)
-    pub = rospy.Publisher('/cb_left_hand_control_cmd', JointState, queue_size=10)
+    pub = rospy.Publisher('/cb_right_hand_control_cmd', JointState, queue_size=10)
     rate = rospy.Rate(30)  # 设置频率为30Hz
+    set_speed()
+    time.sleep(3)
     joint_state.header = std_msgs.msg.Header()
     joint_state.header.seq=0
     joint_state.header.stamp = rospy.Time.now() # 或者使用rospy.Time(secs=0, nsecs=0)来获取特定时间
