@@ -281,7 +281,7 @@ class LinkerHand:
 
     def pub_hand_state(self,hand_state):
         state = hand_state['state']
-        if state[0] == -1:
+        if state[0] == -1 or state == None or len(state)==0:
             return
         if self.hand_type == "left":
             state_arc = range_to_arc_left(state,self.hand_joint)
@@ -551,8 +551,8 @@ if __name__ == '__main__':
     signal.signal(signal.SIGINT, linker_hand.signal_handler)  # Ctrl+C
     signal.signal(signal.SIGTERM, linker_hand.signal_handler)  # kill command
     embedded_version = linker_hand.embedded_version
-    if embedded_version is not None and isinstance(embedded_version, list) and embedded_version and embedded_version[0] == 10 and embedded_version[4]>35:
-        ColorMsg(msg=f"L10 New Matrix Touch For SDK V2", color="green")
+    if embedded_version is not None and len(embedded_version) > 0 and ((embedded_version[0]==10 and embedded_version[4]>35) or (embedded_version[0]==7 and embedded_version[4]>50)):
+        ColorMsg(msg=f"New Matrix Touch For SDK V2", color="green")
         linker_hand.run_v2()
     else:
         ColorMsg(msg=f"SDK V1", color="green")

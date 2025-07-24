@@ -286,6 +286,14 @@ class LinkerHandL7Can:
         self.send_frame(0xb5,[0xc6],sleep=0.01)
 
         return self.thumb_matrix , self.index_matrix , self.middle_matrix , self.ring_matrix , self.little_matrix
+    
+    def get_matrix_touch_v2(self):
+        self.send_frame(0xb1,[0xc6],sleep=0.005)
+        self.send_frame(0xb2,[0xc6],sleep=0.005)
+        self.send_frame(0xb3,[0xc6],sleep=0.005)
+        self.send_frame(0xb4,[0xc6],sleep=0.005)
+        self.send_frame(0xb5,[0xc6],sleep=0.005)
+        return self.thumb_matrix , self.index_matrix , self.middle_matrix , self.ring_matrix , self.little_matrix
 
     def get_force(self):
         '''Get pressure.'''
