@@ -10,7 +10,6 @@ h5py
 PyYAML
 tqdm
 wandb
-pybullet
 mediapipe
 pyqt5
 pyqtgraph
