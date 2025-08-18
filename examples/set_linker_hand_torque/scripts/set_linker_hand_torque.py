@@ -17,7 +17,7 @@ def main():
     rospy.init_node('set_linker_hand_torque', anonymous=True)
     pub = rospy.Publisher("/cb_hand_setting_cmd",String,queue_size=10)
     msg = String()
-    torque = [200,200,200,200,200]
+    torque = [200,200,200,200,200]  # O6为6个值，L7为7个值，其他为5个值
     #torque = ["AA","AA","AA","AA","AA"]
     dic = {
         "setting_cmd":"set_max_torque_limits",

@@ -12,7 +12,7 @@ if __name__ == '__main__':
     '''
     rospy.init_node('get_linker_hand_speed', anonymous=True)
     hand_type = rospy.get_param("~hand_type",default="left") # 设置哪只手的速度
-    speed = rospy.get_param('~speed', default=[255,255,255,255,255])  # 默认获取全局参数
+    speed = rospy.get_param('~speed', default=[255,255,255,255,255])  # 默认获取全局参数  O6为6个值，L7为7个值，其他为5个值
 
     pub = rospy.Publisher("/cb_hand_setting_cmd",String,queue_size=10)
     msg = String()  #创建 msg 对象
