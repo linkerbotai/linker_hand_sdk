@@ -1,4 +1,4 @@
-# This project has been moved to the new address, please visit [https://github.com/linker-bot/linkerhand_ros_sdk](https://github.com/linker-bot/linkerhand_ros_sdk)
+# This project has been moved to the new address, please visit https://github.com/linker-bot/linkerhand-ros-sdk
 
 -------
 
